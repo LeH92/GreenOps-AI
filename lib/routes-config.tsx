@@ -75,8 +75,7 @@ export const page_routes: PageRoutesType[] = [
       {
         title: "Todo List App",
         href: "/dashboard/apps/todo-list-app",
-        icon: "SquareCheck",
-        isComing: true
+        icon: "SquareCheck"
       },
       { title: "Calendar", href: "/dashboard/apps/calendar", icon: "Calendar" },
       {
