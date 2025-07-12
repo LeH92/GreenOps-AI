@@ -58,7 +58,7 @@ export default function Sidebar() {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton className="hover:text-foreground rounded-none group-data-[collapsible=icon]:px-0! hover:bg-[var(--primary)]/10">
+                <SidebarMenuButton className="hover:text-foreground group-data-[collapsible=icon]:px-0! hover:bg-[var(--primary)]/10">
                   <Logo />
                   <div className="truncate font-semibold group-data-[collapsible=icon]:hidden">
                     Shadcn UI Kit
@@ -71,7 +71,7 @@ export default function Sidebar() {
                   <span>Ecommerce</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <span>Web Analiytics</span>
+                  <span>Web Analytics</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

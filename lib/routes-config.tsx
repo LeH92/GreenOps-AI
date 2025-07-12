@@ -144,12 +144,6 @@ export const page_routes: PageRoutesType[] = [
           { title: "500", href: "/dashboard/pages/error/500" },
           { title: "403", href: "/dashboard/pages/error/403" }
         ]
-      },
-      {
-        title: "Landing Page",
-        href: "/template/cosmic-landing-page-template",
-        icon: "Proportions",
-        newTab: true
       }
     ]
   },
@@ -175,10 +169,16 @@ export const page_routes: PageRoutesType[] = [
         newTab: true
       },
       {
-        title: "Documentation",
-        href: "#",
+        title: "Landing Page",
+        href: "/template/cosmic-landing-page-template",
+        icon: "Proportions",
+        newTab: true
+      },
+      {
+        title: "Shadcn UI Kit Download",
+        href: "/pricing",
         icon: "ClipboardMinus",
-        isComing: true
+        newTab: true
       }
     ]
   }
