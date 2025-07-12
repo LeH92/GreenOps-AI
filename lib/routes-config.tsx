@@ -60,6 +60,18 @@ export const page_routes: PageRoutesType[] = [
     ]
   },
   {
+    title: "AI",
+    items: [
+      { title: "AI Chat", href: "/dashboard/apps/ai-chat", icon: "Brain" },
+      {
+        title: "Image Generator",
+        href: "/dashboard/apps/ai-image-generator",
+        icon: "Images",
+        isComing: true
+      }
+    ]
+  },
+  {
     title: "Apps",
     items: [
       {
@@ -68,10 +80,9 @@ export const page_routes: PageRoutesType[] = [
         icon: "SquareKanban",
         isComing: true
       },
-      { title: "AI Chat", href: "/dashboard/apps/ai-chat", icon: "Brain", isNew: true },
       { title: "Notes", href: "/dashboard/apps/notes", icon: "StickyNote" },
       { title: "Chats", href: "/dashboard/apps/chat", icon: "MessageSquare", isDataBadge: "4" },
-      { title: "Mail", href: "/dashboard/apps/mail", icon: "Mail", isComing: true },
+      { title: "Mail", href: "/dashboard/apps/mail", icon: "Mail", isNew: true },
       {
         title: "Todo List App",
         href: "/dashboard/apps/todo-list-app",
