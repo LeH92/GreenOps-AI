@@ -47,6 +47,7 @@ export function ChatSidebar({ chats }: { chats: ChatItemProps[] }) {
           />
         </CardDescription>
       </CardHeader>
+
       <CardContent className="flex-1 overflow-auto p-0">
         <div className="block min-w-0 divide-y">
           {filteredChats.length ? (

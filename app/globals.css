@@ -182,6 +182,7 @@
   }
 
   [data-slot="button"],
+  [data-slot="dialog-trigger"],
   [data-slot="dropdown-menu-item"],
   [data-slot="command-item"],
   [data-slot="toggle-group-item"],

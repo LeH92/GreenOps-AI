@@ -28,6 +28,7 @@ const Notifications = () => {
           </>
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent align={isMobile ? "center" : "end"} className="ms-4 me-4 w-80 p-0">
         <DropdownMenuLabel className="bg-background dark:bg-muted sticky top-0 z-10 p-0">
           <div className="flex justify-between border-b px-6 py-4">
@@ -37,11 +38,12 @@ const Notifications = () => {
             </Button>
           </div>
         </DropdownMenuLabel>
+
         <ScrollArea className="max-h-[300px] xl:max-h-[350px]">
           {notifications.map((item: Notification, key) => (
             <DropdownMenuItem
               key={key}
-              className="group flex cursor-pointer items-start gap-9 px-4 py-2">
+              className="group flex cursor-pointer items-start gap-9 border-b px-4 py-3">
               <div className="flex flex-1 items-start gap-2">
                 <div className="flex-none">
                   <Avatar className="size-8">
@@ -74,7 +76,7 @@ const Notifications = () => {
               </div>
               {item.unread_message && (
                 <div className="flex-0">
-                  <span className="bg-destructive block size-2 rounded-full border" />
+                  <span className="bg-destructive/80 block size-2 rounded-full border" />
                 </div>
               )}
             </DropdownMenuItem>

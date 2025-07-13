@@ -47,6 +47,7 @@ export function ChatContent() {
   return (
     <div className="bg-background fixed inset-0 z-50 flex h-full flex-col p-4 lg:relative lg:z-10 lg:bg-transparent lg:p-0">
       <ChatHeader user={selectedChat.user} />
+
       <div className="flex-1 overflow-y-auto lg:px-4">
         <div ref={messagesContainerRef}>
           <div className="flex flex-col items-start space-y-10 py-8">
@@ -57,7 +58,9 @@ export function ChatContent() {
           </div>
         </div>
       </div>
+
       <ChatFooter />
+
       <UserDetailSheet user={selectedChat.user} />
     </div>
   );

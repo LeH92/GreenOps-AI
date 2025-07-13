@@ -104,13 +104,14 @@ export const page_routes: PageRoutesType[] = [
     title: "Pages",
     items: [
       {
-        title: "Users",
+        title: "Users List",
         href: "/dashboard/pages/users",
-        icon: "Users",
-        items: [
-          { title: "Users List", href: "/dashboard/pages/users" },
-          { title: "Profile", href: "/dashboard/pages/profile" }
-        ]
+        icon: "Users"
+      },
+      {
+        title: "Profile",
+        href: "/dashboard/pages/profile",
+        icon: "User"
       },
       {
         title: "Settings",

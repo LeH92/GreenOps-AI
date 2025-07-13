@@ -399,8 +399,8 @@ export default function UsersDataTable({ data }: { data: User[] }) {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button size="icon" variant="outline" className="ml-auto">
-              <Columns />
+            <Button variant="outline" className="ml-auto">
+              <Columns /> <span className="hidden md:inline">Columns</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -413,7 +413,7 @@ export default function UsersDataTable({ data }: { data: User[] }) {
                     key={column.id}
                     className="capitalize"
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                    onCheckedChange={(value) => column.toggleVisibility(value)}>
                     {column.id}
                   </DropdownMenuCheckboxItem>
                 );
