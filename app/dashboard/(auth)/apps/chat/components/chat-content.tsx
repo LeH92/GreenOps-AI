@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import useChatStore from "@/store/useChatStore";
+import useChatStore from "@/app/dashboard/(auth)/apps/chat/useChatStore";
 import { ChatMessageProps } from "../types";
 
 import {

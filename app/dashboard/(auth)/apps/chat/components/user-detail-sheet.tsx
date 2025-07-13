@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { generateAvatarFallback } from "@/lib/utils";
 import { Dribbble, Facebook, FileText, Instagram, Linkedin, SheetIcon, X } from "lucide-react";
-import useChatStore from "@/store/useChatStore";
+import useChatStore from "@/app/dashboard/(auth)/apps/chat/useChatStore";
 import { UserPropsTypes } from "@/app/dashboard/(auth)/apps/chat/types";
 
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";

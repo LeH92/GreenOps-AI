@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import useCalendarEventStore from "@/store/useCalendarEventStore";
-import { DateTimePicker } from "@/app/dashboard/(auth)/apps/calendar/date-time-picker";
+import useCalendarEventStore from "@/app/dashboard/(auth)/apps/calendar/useCalendarEventStore";
+import { DateTimePicker } from "@/app/dashboard/(auth)/apps/calendar/components/date-time-picker";
 import {
   Select,
   SelectTrigger,

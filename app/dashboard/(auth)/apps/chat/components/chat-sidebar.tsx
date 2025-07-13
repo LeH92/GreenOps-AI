@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Search } from "lucide-react";
-import useChatStore from "@/store/useChatStore";
+import useChatStore from "@/app/dashboard/(auth)/apps/chat/useChatStore";
 import { ChatItemProps } from "@/app/dashboard/(auth)/apps/chat/types";
 
 import { Input } from "@/components/ui/input";

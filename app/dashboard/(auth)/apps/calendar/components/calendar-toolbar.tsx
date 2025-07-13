@@ -3,7 +3,7 @@
 import React from "react";
 
 import { ChevronLeft, ChevronRight, Settings2 } from "lucide-react";
-import { CalendarMobileSidebar } from "@/app/dashboard/(auth)/apps/calendar/calendar-sidebar";
+import { CalendarMobileSidebar } from "@/app/dashboard/(auth)/apps/calendar/components/calendar-sidebar";
 import FullCalendar from "@fullcalendar/react";
 import { CalendarApi } from "@fullcalendar/core";
 

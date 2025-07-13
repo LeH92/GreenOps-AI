@@ -1,7 +1,7 @@
 import { generateMeta } from "@/lib/utils";
-import CalendarApp from "@/app/dashboard/(auth)/apps/calendar/calendar-app";
-import CalendarSidebar from "@/app/dashboard/(auth)/apps/calendar/calendar-sidebar";
-import EventSheet from "@/app/dashboard/(auth)/apps/calendar/event-sheet";
+import CalendarApp from "@/app/dashboard/(auth)/apps/calendar/components/calendar-app";
+import CalendarSidebar from "@/app/dashboard/(auth)/apps/calendar/components/calendar-sidebar";
+import EventSheet from "@/app/dashboard/(auth)/apps/calendar/components/event-sheet";
 import React from "react";
 
 export async function generateMetadata() {

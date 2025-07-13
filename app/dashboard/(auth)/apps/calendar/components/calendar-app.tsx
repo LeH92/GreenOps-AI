@@ -11,10 +11,10 @@ import interactionPlugin, {
   EventDragStopArg,
   EventResizeStopArg
 } from "@fullcalendar/interaction";
-import useCalendarEventStore from "@/store/useCalendarEventStore";
+import useCalendarEventStore from "@/app/dashboard/(auth)/apps/calendar/useCalendarEventStore";
 import { eventColors } from "@/app/dashboard/(auth)/apps/calendar/data";
 import { EventClickArg } from "@fullcalendar/core";
-import CalendarToolbar from "@/app/dashboard/(auth)/apps/calendar/calendar-toolbar";
+import CalendarToolbar from "@/app/dashboard/(auth)/apps/calendar/components/calendar-toolbar";
 
 export default function CalendarApp() {
   const calendarRef = React.useRef<FullCalendar>(null);

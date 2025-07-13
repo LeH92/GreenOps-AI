@@ -1,5 +1,5 @@
 import { cn, generateAvatarFallback } from "@/lib/utils";
-import useChatStore from "@/store/useChatStore";
+import useChatStore from "@/app/dashboard/(auth)/apps/chat/useChatStore";
 import { ChatItemProps } from "../types";
 import { Ellipsis } from "lucide-react";
 

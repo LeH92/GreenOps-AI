@@ -4,8 +4,8 @@ import React from "react";
 
 import { CalendarPlus, Menu } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { UpcomingEvents } from "@/app/dashboard/(auth)/apps/calendar/upcoming-events";
-import useCalendarEventStore from "@/store/useCalendarEventStore";
+import { UpcomingEvents } from "@/app/dashboard/(auth)/apps/calendar/components/upcoming-events";
+import useCalendarEventStore from "@/app/dashboard/(auth)/apps/calendar/useCalendarEventStore";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";

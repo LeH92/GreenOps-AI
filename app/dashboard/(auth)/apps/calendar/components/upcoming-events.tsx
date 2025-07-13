@@ -3,7 +3,7 @@ import React from "react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ClockIcon } from "lucide-react";
-import useCalendarEventStore from "@/store/useCalendarEventStore";
+import useCalendarEventStore from "@/app/dashboard/(auth)/apps/calendar/useCalendarEventStore";
 import { Badge } from "@/components/ui/badge";
 import { eventColors } from "@/app/dashboard/(auth)/apps/calendar/data";
 import { EventInput } from "@fullcalendar/core";
@@ -18,7 +18,7 @@ export function UpcomingEvents() {
 
   if (events.length === 0) {
     return (
-      <div className="rounded-md border py-4 text-center text-sm text-muted-foreground xl:w-72">
+      <div className="text-muted-foreground rounded-md border py-4 text-center text-sm xl:w-72">
         No upcoming events.
       </div>
     );
@@ -26,7 +26,7 @@ export function UpcomingEvents() {
 
   return (
     <div className="flex flex-col xl:w-72">
-      <h5 className="sticky top-0 hidden items-center bg-background pb-5 font-medium xl:flex">
+      <h5 className="bg-background sticky top-0 hidden items-center pb-5 font-medium xl:flex">
         Upcoming Events{" "}
         <Badge variant="outline" className="ms-2">
           {events.length} Events
@@ -36,7 +36,7 @@ export function UpcomingEvents() {
         {events.map((event, key: number) => (
           <div
             key={key}
-            className={cn("cursor-pointer space-y-2 py-4 text-sm xl:px-4 xl:hover:bg-muted")}
+            className={cn("xl:hover:bg-muted cursor-pointer space-y-2 py-4 text-sm xl:px-4")}
             onClick={() => handleSelectEvent(event)}>
             <div className="flex items-start gap-2 font-medium">
               <span
@@ -46,7 +46,7 @@ export function UpcomingEvents() {
                 )}></span>
               <div className="space-y-2">
                 <div>{event.title}</div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <div className="text-muted-foreground flex items-center gap-1 text-xs">
                   <ClockIcon className="size-3!" />{" "}
                   {format(event.start as Date, "MMM d, yyyy h:mm a")}
                 </div>
