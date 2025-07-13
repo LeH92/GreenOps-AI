@@ -56,13 +56,20 @@ export const page_routes: PageRoutesType[] = [
       { title: "Crypto", href: "/dashboard/crypto", icon: "WalletMinimal" },
       { title: "Academy/School", href: "/dashboard/academy", icon: "GraduationCap" },
       { title: "Hospital Management", href: "/dashboard/hospital-management", icon: "Activity" },
-      { title: "Hotel Dashboard", href: "/dashboard/hotel", icon: "Building2", isComing: true }
+      { title: "Hotel Dashboard", href: "/dashboard/hotel", icon: "Building2", isComing: true },
+      { title: "Finance", href: "/dashboard/finance", icon: "WalletMinimal", isComing: true }
     ]
   },
   {
     title: "AI",
     items: [
       { title: "AI Chat", href: "/dashboard/apps/ai-chat", icon: "Brain" },
+      {
+        title: "AI Chat V2",
+        href: "/dashboard/apps/ai-chat",
+        icon: "BrainCircuit",
+        isComing: true
+      },
       {
         title: "Image Generator",
         href: "/dashboard/apps/ai-image-generator",
