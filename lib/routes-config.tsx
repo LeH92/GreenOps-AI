@@ -67,7 +67,7 @@ export const page_routes: PageRoutesType[] = [
         title: "Image Generator",
         href: "/dashboard/apps/ai-image-generator",
         icon: "Images",
-        isComing: true
+        isNew: true
       }
     ]
   },
