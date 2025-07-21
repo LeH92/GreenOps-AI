@@ -96,6 +96,11 @@ export const page_routes: PageRoutesType[] = [
         icon: "SquareCheck",
         isNew: true
       },
+      {
+        title: "Tasks",
+        href: "/dashboard/apps/tasks",
+        icon: "ClipboardCheck"
+      },
       { title: "Calendar", href: "/dashboard/apps/calendar", icon: "Calendar" },
       {
         title: "File Manager",
