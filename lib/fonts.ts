@@ -1,4 +1,5 @@
 import {
+  Geist,
   Inter,
   Montserrat,
   Overpass_Mono,
@@ -12,6 +13,8 @@ import {
 import { cn } from "@/lib/utils";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -62,6 +65,7 @@ const kumbh_sans = Kumbh_Sans({
 });
 
 export const fontVariables = cn(
+  geist.variable,
   inter.variable,
   roboto.variable,
   montserrat.variable,

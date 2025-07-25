@@ -1,5 +1,6 @@
 body {
     @apply overscroll-none bg-transparent antialiased;
+    --text-family: var(--font-geist), sans-serif;
 }
 
 /* Theme presets */
