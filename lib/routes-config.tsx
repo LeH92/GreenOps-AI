@@ -57,7 +57,7 @@ export const page_routes: PageRoutesType[] = [
       { title: "Academy/School", href: "/dashboard/academy", icon: "GraduationCap" },
       { title: "Hospital Management", href: "/dashboard/hospital-management", icon: "Activity" },
       { title: "Hotel Dashboard", href: "/dashboard/hotel", icon: "Building2", isComing: true },
-      { title: "Finance", href: "/dashboard/finance", icon: "WalletMinimal", isComing: true }
+      { title: "Finance", href: "/dashboard/finance", icon: "WalletMinimal", isNew: true }
     ]
   },
   {
@@ -109,7 +109,7 @@ export const page_routes: PageRoutesType[] = [
         isComing: true
       },
       { title: "Api Keys", href: "/dashboard/apps/api-keys", icon: "Key" },
-      { title: "POS App", href: "/dashboard/apps/pos-system", icon: "Cookie", isNew: true }
+      { title: "POS App", href: "/dashboard/apps/pos-system", icon: "Cookie" }
     ]
   },
   {
@@ -199,7 +199,7 @@ export const page_routes: PageRoutesType[] = [
         newTab: true
       },
       {
-        title: "Shadcn UI Kit Download",
+        title: "Download Shadcn UI Kit",
         href: "/pricing",
         icon: "ClipboardMinus",
         newTab: true
