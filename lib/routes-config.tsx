@@ -88,7 +88,7 @@ export const page_routes: PageRoutesType[] = [
         isComing: true
       },
       { title: "Notes", href: "/dashboard/apps/notes", icon: "StickyNote" },
-      { title: "Chats", href: "/dashboard/apps/chat", icon: "MessageSquare", isDataBadge: "4" },
+      { title: "Chats", href: "/dashboard/apps/chat", icon: "MessageSquare", isDataBadge: "5" },
       { title: "Mail", href: "/dashboard/apps/mail", icon: "Mail", isNew: true },
       {
         title: "Todo List App",
