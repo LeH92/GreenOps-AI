@@ -125,7 +125,7 @@ export default function ImageGenerator() {
 
   return (
     <>
-      <div className="grid h-[calc(100vh-5.8rem)] grid-cols-1 gap-4 lg:grid-cols-[400px_1fr]">
+      <div className="grid h-[calc(100vh-var(--header-height)-3rem)] grid-cols-1 gap-4 lg:grid-cols-[400px_1fr]">
         <div className="lg:col-span-2">
           <header className="flex items-center justify-between">
             <div className="flex items-center gap-3">

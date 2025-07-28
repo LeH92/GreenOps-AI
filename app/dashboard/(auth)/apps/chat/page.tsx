@@ -40,7 +40,7 @@ export default async function Page() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-5.8rem)] w-full">
+    <div className="flex h-[calc(100vh-var(--header-height)-3rem)] w-full">
       <ChatSidebar chats={chats_with_user} />
       <div className="grow">
         <ChatContent />

@@ -21,7 +21,7 @@ export default async function MailPage() {
   const defaultCollapsed = collapsed ? JSON.parse(collapsed.value) : undefined;
 
   return (
-    <div className="h-[calc(100vh-5.8rem)] rounded-md border">
+    <div className="h-[calc(100vh-var(--header-height)-3rem)] rounded-md border">
       <Mail
         accounts={accounts}
         mails={mails}

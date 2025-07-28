@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
-import { CommandIcon, SearchIcon, icons } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { CommandIcon, SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { page_routes } from "@/lib/routes-config";
-import { useEffect, useState } from "react";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useRouter } from "next/navigation";
 
 import {
   CommandDialog,
@@ -15,18 +15,9 @@ import {
   CommandList,
   CommandSeparator
 } from "@/components/ui/command";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-
-type CommandItemProps = {
-  item: {
-    title: string;
-    href: string;
-    icon?: string;
-  };
-};
+import { navItems } from "@/components/layout/sidebar/nav-main";
 
 export default function Search() {
   const [open, setOpen] = useState(false);
@@ -43,24 +34,8 @@ export default function Search() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
-  const CommandItemComponent: React.FC<CommandItemProps> = ({ item }) => {
-    // @ts-expect-error
-    const LucideIcon = icons[item.icon];
-
-    return (
-      <CommandItem
-        onSelect={() => {
-          setOpen(false);
-          router.push(item.href);
-        }}>
-        {item.icon && <LucideIcon className="me-2 h-4! w-4!" />}
-        <span>{item.title}</span>
-      </CommandItem>
-    );
-  };
-
   return (
-    <div className="ms-auto lg:me-auto lg:flex-1">
+    <div className="lg:flex-1">
       <div className="relative hidden max-w-sm flex-1 lg:block">
         <SearchIcon className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
         <Input
@@ -75,7 +50,7 @@ export default function Search() {
         </div>
       </div>
       <div className="block lg:hidden">
-        <Button size="icon" variant="outline" onClick={() => setOpen(true)}>
+        <Button size="icon" variant="ghost" onClick={() => setOpen(true)}>
           <SearchIcon />
         </Button>
       </div>
@@ -88,11 +63,19 @@ export default function Search() {
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
-          {page_routes.map((route) => (
+          {navItems.map((route) => (
             <React.Fragment key={route.title}>
               <CommandGroup heading={route.title}>
                 {route.items.map((item, key) => (
-                  <CommandItemComponent key={key} item={item} />
+                  <CommandItem
+                    key={key}
+                    onSelect={() => {
+                      setOpen(false);
+                      router.push(item.href);
+                    }}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </CommandItem>
                 ))}
               </CommandGroup>
               <CommandSeparator />

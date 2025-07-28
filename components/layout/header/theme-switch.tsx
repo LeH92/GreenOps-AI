@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { MoonIcon, SunIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 export default function ThemeSwitch() {
@@ -20,7 +21,7 @@ export default function ThemeSwitch() {
   return (
     <Button
       size="icon"
-      variant="outline"
+      variant="ghost"
       className="relative"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
       {theme === "light" ? <SunIcon /> : <MoonIcon />}

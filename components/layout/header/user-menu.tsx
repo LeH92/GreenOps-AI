@@ -31,11 +31,11 @@ export default function UserMenu() {
                 src={`https://bundui-images.netlify.app/avatars/01.png`}
                 alt="shadcn ui kit"
               />
-              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+              <AvatarFallback className="rounded-lg">TB</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-semibold">Toby Belhome</span>
-              <span className="text-muted-foreground truncate text-xs">contact@bundui.io</span>
+              <span className="text-muted-foreground truncate text-xs">hello@tobybelhome.com</span>
             </div>
           </div>
         </DropdownMenuLabel>

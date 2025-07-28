@@ -21,15 +21,15 @@ const Notifications = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size="icon" variant="outline" className="relative">
+        <Button size="icon" variant="ghost" className="relative">
           <>
             <BellIcon className="animate-tada" />
-            <span className="bg-destructive absolute -end-0.5 -top-0.5 block size-2 shrink-0 rounded-full"></span>
+            <span className="bg-destructive absolute end-0 top-0 block size-2 shrink-0 rounded-full"></span>
           </>
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align={isMobile ? "center" : "end"} className="ms-4 me-4 w-80 p-0">
+      <DropdownMenuContent align={isMobile ? "center" : "end"} className="ms-4 w-80 p-0">
         <DropdownMenuLabel className="bg-background dark:bg-muted sticky top-0 z-10 p-0">
           <div className="flex justify-between border-b px-6 py-4">
             <div className="font-medium">Notifications</div>
@@ -39,11 +39,11 @@ const Notifications = () => {
           </div>
         </DropdownMenuLabel>
 
-        <ScrollArea className="max-h-[300px] xl:max-h-[350px]">
+        <ScrollArea className="h-[350px]">
           {notifications.map((item: Notification, key) => (
             <DropdownMenuItem
               key={key}
-              className="group flex cursor-pointer items-start gap-9 border-b px-4 py-3">
+              className="group flex cursor-pointer items-start gap-9 rounded-none border-b px-4 py-3">
               <div className="flex flex-1 items-start gap-2">
                 <div className="flex-none">
                   <Avatar className="size-8">
