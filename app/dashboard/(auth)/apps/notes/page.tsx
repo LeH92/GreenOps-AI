@@ -11,9 +11,5 @@ export async function generateMetadata() {
 }
 
 export default function Page() {
-  return (
-    <div className="h-[calc(100vh-6rem)]">
-      <NotesApp />
-    </div>
-  );
+  return <NotesApp />;
 }

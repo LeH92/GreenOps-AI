@@ -11,7 +11,7 @@ import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export default function NoteSidebar() {
   return (
-    <div className="sticky top-20 hidden space-y-4 xl:block">
+    <div className="sticky top-18 hidden space-y-4 xl:block">
       <AddNoteModal />
       <NoteSidebarContent />
     </div>
@@ -59,7 +59,7 @@ export function NoteSidebarContent() {
 
       {/* Tags Section */}
       <div className="flex-1">
-        <div className="mb-3 px-2 text-sm font-medium text-muted-foreground">Labels</div>
+        <div className="text-muted-foreground mb-3 px-2 text-sm font-medium">Labels</div>
         <nav className="space-y-1">
           {noteLabels.map((label, key) => (
             <Button key={key} variant="ghost" className="w-full justify-start font-normal">

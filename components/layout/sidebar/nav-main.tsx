@@ -149,7 +149,7 @@ export const navItems: NavGroup[] = [
         icon: SquareKanbanIcon,
         isComing: true
       },
-      { title: "Notes", href: "/dashboard/apps/notes", icon: StickyNoteIcon },
+      { title: "Notes", href: "/dashboard/apps/notes", icon: StickyNoteIcon, isDataBadge: "8" },
       { title: "Chats", href: "/dashboard/apps/chat", icon: MessageSquareIcon, isDataBadge: "5" },
       { title: "Mail", href: "/dashboard/apps/mail", icon: MailIcon, isNew: true },
       {

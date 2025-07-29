@@ -19,7 +19,7 @@ export default function NoteContent() {
   );
 
   return (
-    <div className="flex-1 overflow-auto">
+    <div className="flex-1">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="relative flex max-w-md flex-1 space-x-3 xl:space-x-0">
           <NoteMobileSidebar>
@@ -37,7 +37,7 @@ export default function NoteContent() {
             />
           </div>
         </div>
-        <div className="flex space-x-4">
+        <div className="flex">
           <div className="hidden overflow-hidden rounded-md border xl:flex">
             <Button
               variant={viewMode === "masonry" ? "default" : "ghost"}
@@ -61,7 +61,7 @@ export default function NoteContent() {
       </div>
 
       {searchQuery && filteredNotes.length === 0 && (
-        <div className="flex h-[calc(100vh-10rem)] flex-col items-center justify-center p-4 text-center">
+        <div className="flex flex-col items-center justify-center p-4 text-center">
           <div className="bg-muted/30 mb-4 rounded-full p-6">
             <FileSearchIcon className="text-muted-foreground h-12 w-12" />
           </div>

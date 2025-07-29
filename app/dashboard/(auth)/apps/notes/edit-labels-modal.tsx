@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Trash2, Edit2, Check, X, PlusCircle } from "lucide-react";
+import { Trash2, Edit2, Check, X } from "lucide-react";
 
 import {
   Dialog,
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { noteLabels } from "@/app/dashboard/(auth)/apps/notes/data";
+import { PlusIcon } from "@radix-ui/react-icons";
 
 interface Props {
   children: React.ReactNode;
@@ -98,16 +99,15 @@ export function EditLabelsModal({ children }: Props) {
                 onChange={(e) => setNewLabelName(e.target.value)}
                 className="flex-1 ps-9"
               />
-              <Button size="sm" disabled={!newLabelName.trim()}>
-                <PlusCircle />
-                Add
+              <Button size="icon" disabled={!newLabelName.trim()}>
+                <PlusIcon />
               </Button>
             </div>
 
             {/* Color picker */}
-            <div className="mt-3">
-              <Label className="text-muted-foreground mb-1 block text-xs">Select color</Label>
-              <div className="mt-1 flex flex-wrap gap-2">
+            <div className="mt-4 flex items-center gap-2">
+              <Label className="text-muted-foreground block text-xs">Select color</Label>
+              <div className="flex flex-wrap gap-2">
                 {availableColors.map((color) => (
                   <button
                     key={color}
