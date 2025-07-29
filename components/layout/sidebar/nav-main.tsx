@@ -46,7 +46,8 @@ import {
   UserIcon,
   UsersIcon,
   WalletMinimalIcon,
-  type LucideIcon
+  type LucideIcon,
+  GithubIcon
 } from "lucide-react";
 import Link from "next/link";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -236,6 +237,12 @@ export const navItems: NavGroup[] = [
     title: "Others",
     items: [
       {
+        title: "Download Shadcn UI Kit",
+        href: "/pricing",
+        icon: ClipboardMinusIcon,
+        newTab: true
+      },
+      {
         title: "Components",
         href: "/components",
         icon: ComponentIcon,
@@ -254,15 +261,9 @@ export const navItems: NavGroup[] = [
         newTab: true
       },
       {
-        title: "Landing Page",
-        href: "/template/cosmic-landing-page-template",
-        icon: ProportionsIcon,
-        newTab: true
-      },
-      {
-        title: "Download Shadcn UI Kit",
-        href: "/pricing",
-        icon: ClipboardMinusIcon,
+        title: "Github",
+        href: "https://github.com/bundui",
+        icon: GithubIcon,
         newTab: true
       }
     ]
