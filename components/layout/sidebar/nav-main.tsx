@@ -47,7 +47,8 @@ import {
   UsersIcon,
   WalletMinimalIcon,
   type LucideIcon,
-  GithubIcon
+  GithubIcon,
+  RedoDotIcon
 } from "lucide-react";
 import Link from "next/link";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -186,6 +187,11 @@ export const navItems: NavGroup[] = [
         title: "Profile",
         href: "/dashboard/pages/profile",
         icon: UserIcon
+      },
+      {
+        title: "Onboarding Flow",
+        href: "/dashboard/pages/onboarding-flow",
+        icon: RedoDotIcon
       },
       {
         title: "Settings",
