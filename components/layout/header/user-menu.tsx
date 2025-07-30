@@ -1,4 +1,4 @@
-import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react";
+import { BadgeCheck, Bell, ChevronRightIcon, CreditCard, LogOut, Sparkles } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -10,6 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import * as React from "react";
+import { Progress } from "@/components/ui/progress";
 
 export default function UserMenu() {
   return (
@@ -41,12 +44,12 @@ export default function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <Sparkles />
-            Upgrade to Pro
+          <DropdownMenuItem asChild>
+            <Link href="https://shadcnuikit.com/pricing" target="_blank">
+              <Sparkles /> Upgrade to Pro
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <BadgeCheck />
@@ -66,6 +69,21 @@ export default function UserMenu() {
           <LogOut />
           Log out
         </DropdownMenuItem>
+        <div className="bg-muted mt-1.5 rounded-md border">
+          <div className="space-y-3 p-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium">Credits</h4>
+              <div className="text-muted-foreground flex cursor-pointer items-center text-sm">
+                <span>5 left</span>
+                <ChevronRightIcon className="ml-1 h-4 w-4" />
+              </div>
+            </div>
+            <Progress value={40} indicatorColor="bg-primary" />
+            <div className="text-muted-foreground flex items-center text-sm">
+              Daily credits used first
+            </div>
+          </div>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

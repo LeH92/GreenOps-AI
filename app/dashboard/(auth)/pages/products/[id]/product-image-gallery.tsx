@@ -27,36 +27,32 @@ export default function ProductImageGallery() {
 
   return (
     <div className="sticky top-20 space-y-4">
-      <Card>
-        <CardContent>
-          <Swiper
-            style={
-              {
-                "--swiper-navigation-color": "var(--primary)",
-                "--swiper-pagination-color": "var(--primary)"
-              } as React.CSSProperties
-            }
-            loop={true}
-            spaceBetween={10}
-            navigation={true}
-            thumbs={{ swiper: thumbsSwiper }}
-            modules={[FreeMode, Navigation, Thumbs]}
-            className="mySwiper2">
-            {images.map((image, key) => (
-              <SwiperSlide key={key}>
-                <Image
-                  src={image}
-                  className="aspect-3/2 w-full rounded-lg object-contain lg:aspect-square"
-                  width={300}
-                  height={300}
-                  alt="shadcn/ui"
-                  unoptimized
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </CardContent>
-      </Card>
+      <Swiper
+        style={
+          {
+            "--swiper-navigation-color": "var(--primary)",
+            "--swiper-pagination-color": "var(--primary)"
+          } as React.CSSProperties
+        }
+        loop={true}
+        spaceBetween={10}
+        navigation={true}
+        thumbs={{ swiper: thumbsSwiper }}
+        modules={[FreeMode, Navigation, Thumbs]}
+        className="mySwiper2">
+        {images.map((image, key) => (
+          <SwiperSlide key={key}>
+            <Image
+              src={image}
+              className="aspect-3/2 w-full rounded-lg object-contain lg:aspect-square"
+              width={300}
+              height={300}
+              alt="shadcn/ui"
+              unoptimized
+            />
+          </SwiperSlide>
+        ))}
+      </Swiper>
       <Swiper
         onSwiper={setThumbsSwiper}
         loop={true}

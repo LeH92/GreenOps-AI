@@ -1,7 +1,20 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import Link from "next/link";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import {
+  AlertCircleIcon,
+  ChevronLeft,
+  CirclePlusIcon,
+  ImageIcon,
+  UploadIcon,
+  XIcon
+} from "lucide-react";
+import { useFileUpload } from "@/hooks/use-file-upload";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -13,8 +26,6 @@ import {
   FormMessage
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "@/components/ui/use-toast";
 import {
   Card,
   CardAction,
@@ -35,18 +46,8 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import {
-  AlertCircleIcon,
-  ChevronLeft,
-  CirclePlusIcon,
-  ImageIcon,
-  UploadIcon,
-  XIcon
-} from "lucide-react";
-import { useFileUpload } from "@/hooks/use-file-upload";
 import { AddMediaFromUrl } from "@/app/dashboard/(auth)/pages/products/create/add-media-from-url";
 import AddNewCategory from "@/app/dashboard/(auth)/pages/products/create/add-category";
-import Link from "next/link";
 
 const FormSchema = z.object({
   name: z.string().min(2, {
@@ -93,8 +94,7 @@ export default function AddProductForm() {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
+    toast("You submitted the following values:", {
       description: (
         <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
           <code className="text-white">{JSON.stringify(data, null, 2)}</code>
@@ -378,7 +378,10 @@ export default function AddProductForm() {
                 />
               </CardContent>
               <CardFooter className="justify-center border-t p-0!">
-                <Button type="button" variant="ghost" className="w-full rounded-none">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full rounded-tl-none rounded-tr-none">
                   <CirclePlusIcon /> Add Variant
                 </Button>
               </CardFooter>

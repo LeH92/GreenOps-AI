@@ -15,14 +15,7 @@ import {
   getSortedRowModel,
   useReactTable
 } from "@tanstack/react-table";
-import {
-  ArrowUpDown,
-  Columns,
-  ColumnsIcon,
-  FilterIcon,
-  MoreHorizontal,
-  PlusCircle
-} from "lucide-react";
+import { ArrowUpDown, Columns, FilterIcon, MoreHorizontal, PlusCircle } from "lucide-react";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -114,6 +107,7 @@ export const columns: ColumnDef<Order>[] = [
           src={`https://bundui-images.netlify.app${row.original.image}`}
           width={60}
           height={60}
+          className="rounded-md"
           unoptimized
           alt="..."
         />
@@ -211,21 +205,23 @@ export const columns: ColumnDef<Order>[] = [
     enableHiding: false,
     cell: ({ row }) => {
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>Order Details</DropdownMenuItem>
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="text-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>Order Details</DropdownMenuItem>
+              <DropdownMenuItem>Edit</DropdownMenuItem>
+              <DropdownMenuItem>Delete</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       );
     }
   }
@@ -366,61 +362,59 @@ export default function OrdersDataTable({ data }: { data: Order[] }) {
   };
 
   return (
-    <Card>
-      <CardContent className="space-y-6">
-        <div className="flex gap-3">
-          <Input
-            placeholder="Search orders..."
-            value={(table.getColumn("product_name")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn("product_name")?.setFilterValue(event.target.value)
-            }
-            className="md:max-w-sm"
-          />
-          <div className="hidden gap-2 md:flex">
-            <Filters />
-          </div>
-          {/*filter for mobile*/}
-          <div className="inline md:hidden">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <FilterIcon />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-60 p-4">
-                <div className="grid space-y-2">
-                  <Filters />
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-          <div className="ms-auto">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <span className="hidden lg:inline">Columns</span> <Columns />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) => column.toggleVisibility(!!value)}>
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+    <div className="space-y-6">
+      <div className="flex gap-3">
+        <Input
+          placeholder="Search orders..."
+          value={(table.getColumn("product_name")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn("product_name")?.setFilterValue(event.target.value)}
+          className="md:max-w-sm"
+        />
+        <div className="hidden gap-2 md:flex">
+          <Filters />
         </div>
+        {/*filter for mobile*/}
+        <div className="inline md:hidden">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="icon">
+                <FilterIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-60 p-4">
+              <div className="grid space-y-2">
+                <Filters />
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="ms-auto">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <span className="hidden lg:inline">Columns</span> <Columns />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+      <div className="space-y-4">
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -481,7 +475,7 @@ export default function OrdersDataTable({ data }: { data: Order[] }) {
             </Button>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

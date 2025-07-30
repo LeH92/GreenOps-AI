@@ -1,4 +1,3 @@
-import { Separator } from "@/components/ui/separator";
 import { SidebarNav } from "./sidebar-nav";
 import { generateMeta } from "@/lib/utils";
 
@@ -43,7 +42,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
           Manage your account settings and set e-mail preferences.
         </p>
       </div>
-      <div className="flex flex-col space-y-8 lg:flex-row lg:space-x-6 lg:space-y-0">
+      <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-6">
         <div className="flex-1 lg:max-w-2xl">{children}</div>
         <aside className="lg:w-1/5">
           <SidebarNav items={sidebarNavItems} />

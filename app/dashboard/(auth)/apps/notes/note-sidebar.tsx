@@ -1,13 +1,15 @@
-import { AddNoteModal } from "@/app/dashboard/(auth)/apps/notes/add-note-modal";
-import { Button } from "@/components/ui/button";
-import { Archive, Edit3, PenSquare } from "lucide-react";
-import { EditLabelsModal } from "@/app/dashboard/(auth)/apps/notes/edit-labels-modal";
-import { Separator } from "@/components/ui/separator";
-import { noteLabels } from "@/app/dashboard/(auth)/apps/notes/data";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import React from "react";
+import { Archive, Edit3, PenSquare } from "lucide-react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+import { noteLabels } from "./data";
+import { AddNoteModal } from "./add-note-modal";
+import { EditLabelsModal } from "./edit-labels-modal";
 
 export default function NoteSidebar() {
   return (
@@ -37,19 +39,18 @@ export function NoteMobileSidebar({ children }: { children?: React.ReactNode }) 
 export function NoteSidebarContent() {
   return (
     <div className="flex flex-col rounded-md p-2 xl:w-64 xl:border">
-      {/* Main Actions */}
       <div className="space-y-1">
         <Button variant="ghost" className="w-full justify-start">
-          <PenSquare className="mr-2 h-4 w-4" />
+          <PenSquare />
           Notes
         </Button>
         <Button variant="ghost" className="w-full justify-start">
-          <Archive className="mr-2 h-4 w-4" />
+          <Archive />
           Archive
         </Button>
         <EditLabelsModal>
           <Button variant="ghost" className="w-full justify-start">
-            <Edit3 className="mr-2 h-4 w-4" />
+            <Edit3 />
             Edit Labels
           </Button>
         </EditLabelsModal>
@@ -57,13 +58,12 @@ export function NoteSidebarContent() {
 
       <Separator className="my-4" />
 
-      {/* Tags Section */}
       <div className="flex-1">
         <div className="text-muted-foreground mb-3 px-2 text-sm font-medium">Labels</div>
-        <nav className="space-y-1">
+        <nav>
           {noteLabels.map((label, key) => (
             <Button key={key} variant="ghost" className="w-full justify-start font-normal">
-              <div className={`mr-2 h-2 w-2 rounded-full ${label.color}`} />
+              <span className={`me-1 size-2 rounded-full ${label.color}`} />
               {label.title}
             </Button>
           ))}

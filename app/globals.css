@@ -188,7 +188,8 @@
   [data-slot="toggle-group-item"],
   [data-slot="dropdown-menu-trigger"],
   [data-slot="popover-trigger"],
-  [data-slot="tooltip-trigger"] {
+  [data-slot="tooltip-trigger"],
+  [data-slot="collapsible-trigger"]{
     @apply cursor-pointer!
   }
 }

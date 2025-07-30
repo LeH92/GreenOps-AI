@@ -130,14 +130,14 @@ export default function Page() {
             <Separator className="mb-4" />
             <div className="space-y-4">
               <div className="space-y-2">
-                <h3 className="font-semibold">Customer Information</h3>
-                <p>{order.customer.name}</p>
-                <p>{order.customer.email}</p>
+                <h3 className="font-medium">Customer Information</h3>
+                <p className="text-muted-foreground text-sm">{order.customer.name}</p>
+                <p className="text-muted-foreground text-sm">{order.customer.email}</p>
                 <p className="text-muted-foreground text-sm">{order.customer.address}</p>
               </div>
               <div className="bg-muted flex items-center justify-between space-y-2 rounded-md border p-4">
                 <div className="space-y-1">
-                  <h3 className="font-semibold">Payment Method</h3>
+                  <h4 className="font-medium">Payment Method</h4>
                   <div className="text-muted-foreground flex items-center gap-2 text-sm">
                     <CreditCard className="size-4" /> Visa ending in **** 1234
                   </div>
@@ -204,7 +204,7 @@ export default function Page() {
                 value={(currentStepIndex / (Object.keys(statusSteps).length - 1)) * 100}
                 color="bg-green-200 dark:bg-green-800"
               />
-              <div className="text-muted-foreground text-sm">
+              <div className="text-muted-foreground text-xs">
                 <Badge variant="info" className="me-1">
                   {currentStep}
                 </Badge>{" "}
@@ -224,9 +224,9 @@ export default function Page() {
             <TableHeader>
               <TableRow>
                 <TableHead>Product</TableHead>
-                <TableHead className="text-right">Quantity</TableHead>
-                <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-center">Quantity</TableHead>
+                <TableHead className="text-center">Price</TableHead>
+                <TableHead className="text-end">Total</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -238,15 +238,16 @@ export default function Page() {
                         src={`https://bundui-images.netlify.app${item.image}`}
                         width={60}
                         height={60}
+                        className="rounded-md"
                         alt=""
                         unoptimized
                       />
                       <span>{item.name}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">{item.quantity}</TableCell>
-                  <TableCell className="text-right">${item.price.toFixed(2)}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center">{item.quantity}</TableCell>
+                  <TableCell className="text-center">${item.price.toFixed(2)}</TableCell>
+                  <TableCell className="text-end">
                     ${(item.quantity * item.price).toFixed(2)}
                   </TableCell>
                 </TableRow>

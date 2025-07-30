@@ -185,43 +185,21 @@ export default function Page() {
                 <div>
                   <div className="mb-4 font-semibold">Sizes:</div>
                   <RadioGroup defaultValue="md" className="flex gap-2">
-                    <div>
-                      <RadioGroupItem value="sm" id="sm" className="peer sr-only" aria-label="sm" />
-                      <Label
-                        htmlFor="sm"
-                        className="bg-muted hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex size-10 cursor-pointer flex-col items-center justify-center rounded-full border text-xs">
-                        SM
-                      </Label>
-                    </div>
-                    <div>
-                      <RadioGroupItem value="lg" id="lg" className="peer sr-only" aria-label="lg" />
-                      <Label
-                        htmlFor="lg"
-                        className="bg-muted hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex size-10 cursor-pointer flex-col items-center justify-center rounded-full border text-xs">
-                        LG
-                      </Label>
-                    </div>
-                    <div>
-                      <RadioGroupItem value="xl" id="xl" className="peer sr-only" aria-label="xl" />
-                      <Label
-                        htmlFor="xl"
-                        className="bg-muted hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex size-10 cursor-pointer flex-col items-center justify-center rounded-full border text-xs">
-                        XL
-                      </Label>
-                    </div>
-                    <div>
-                      <RadioGroupItem
-                        value="xxl"
-                        id="xxl"
-                        className="peer sr-only"
-                        aria-label="xxl"
-                      />
-                      <Label
-                        htmlFor="xxl"
-                        className="bg-muted hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary flex size-10 cursor-pointer flex-col items-center justify-center rounded-full border text-xs">
-                        XXL
-                      </Label>
-                    </div>
+                    {["sm", "md", "lg", "xl", "xxl"].map((item, key) => (
+                      <div key={key}>
+                        <RadioGroupItem
+                          value={item}
+                          id={item}
+                          className="peer sr-only"
+                          aria-label={item}
+                        />
+                        <Label
+                          htmlFor={item}
+                          className="hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5 [&:has([data-state=checked])]:border-primary flex size-10 cursor-pointer flex-col items-center justify-center rounded-md border text-xs uppercase">
+                          {item}
+                        </Label>
+                      </div>
+                    ))}
                   </RadioGroup>
                 </div>
               </div>

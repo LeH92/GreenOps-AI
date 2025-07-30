@@ -1,5 +1,5 @@
 import { cn, generateAvatarFallback } from "@/lib/utils";
-import useChatStore from "@/app/dashboard/(auth)/apps/chat/useChatStore";
+import useChatStore from "../useChatStore";
 import { ChatItemProps } from "../types";
 import { Ellipsis } from "lucide-react";
 
@@ -23,14 +23,14 @@ export function ChatListItem({ chat, active }: { chat: ChatItemProps; active: bo
         { "dark:bg-muted! bg-gray-200!": active }
       )}
       onClick={() => handleClick(chat)}>
-      <Avatar className="overflow-visible md:size-12">
+      <Avatar className="overflow-visible md:size-10">
         <AvatarImage src={chat.user?.avatar} alt="avatar image" />
         <AvatarIndicator variant={chat.user?.online_status} />
         <AvatarFallback>{generateAvatarFallback(chat.user?.name)}</AvatarFallback>
       </Avatar>
       <div className="min-w-0 grow">
         <div className="flex items-center justify-between">
-          <span className="truncate font-medium">{chat.user?.name}</span>
+          <span className="truncate text-sm font-medium">{chat.user?.name}</span>
           <span className="text-muted-foreground flex-none text-xs">{chat.date}</span>
         </div>
         <div className="flex items-center gap-2">

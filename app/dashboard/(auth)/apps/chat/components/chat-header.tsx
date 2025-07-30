@@ -28,17 +28,17 @@ export function ChatHeader({ user }: { user: UserPropsTypes }) {
           onClick={() => setSelectedChat(null)}>
           <ArrowLeft />
         </Button>
-        <Avatar className="size-10 overflow-visible lg:size-12">
+        <Avatar className="overflow-visible lg:size-10">
           <AvatarImage src={`${user?.avatar}`} alt="avatar image" />
           <AvatarIndicator variant={user?.online_status} />
           <AvatarFallback>{generateAvatarFallback(user?.name)}</AvatarFallback>
         </Avatar>
-        <div className="flex flex-col">
-          <span className="font-semibold">{user.name}</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-semibold">{user.name}</span>
           {user.online_status == "success" ? (
-            <span className="text-sm text-green-500">Online</span>
+            <span className="text-xs text-green-500">Online</span>
           ) : (
-            <span className="text-muted-foreground text-sm">{user.last_seen}</span>
+            <span className="text-muted-foreground text-xs">{user.last_seen}</span>
           )}
         </div>
       </div>

@@ -57,7 +57,7 @@ export default function NoteListItem({ note }: { note: Note }) {
               if (label)
                 return (
                   <Badge key={key} variant="outline">
-                    <span className={cn("me-1.5 size-3 shrink-0 rounded-full", label.color)}></span>
+                    <span className={cn("me-1 size-2 shrink-0 rounded-full", label.color)}></span>
                     {label.title}
                   </Badge>
                 );
