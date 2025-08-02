@@ -48,7 +48,8 @@ import {
   WalletMinimalIcon,
   type LucideIcon,
   GithubIcon,
-  RedoDotIcon
+  RedoDotIcon,
+  BrushCleaningIcon
 } from "lucide-react";
 import Link from "next/link";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -192,6 +193,16 @@ export const navItems: NavGroup[] = [
         title: "Onboarding Flow",
         href: "/dashboard/pages/onboarding-flow",
         icon: RedoDotIcon
+      },
+      {
+        title: "Empty States",
+        href: "/dashboard/pages/empty-states/01",
+        icon: BrushCleaningIcon,
+        items: [
+          { title: "Empty States 01", href: "/dashboard/pages/empty-states/01" },
+          { title: "Empty States 02", href: "/dashboard/pages/empty-states/02" },
+          { title: "Empty States 03", href: "/dashboard/pages/empty-states/03" }
+        ]
       },
       {
         title: "Settings",
