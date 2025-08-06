@@ -106,7 +106,7 @@ export default function AddProductForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="mb-4 flex items-center justify-between space-y-2">
+        <div className="mb-4 flex flex-col justify-between space-y-4 lg:flex-row lg:items-center lg:space-y-2">
           <div className="flex items-center gap-4">
             <Button variant="outline" asChild>
               <Link href="/dashboard/pages/products">
@@ -125,8 +125,8 @@ export default function AddProductForm() {
             <Button type="submit">Publish</Button>
           </div>
         </div>
-        <div className="grid grid-cols-6 gap-4">
-          <div className="col-span-4 space-y-4">
+        <div className="grid gap-4 lg:grid-cols-6">
+          <div className="space-y-4 lg:col-span-4">
             <Card>
               <CardHeader>
                 <CardTitle>Product Details</CardTitle>
@@ -200,7 +200,8 @@ export default function AddProductForm() {
                 <CardAction>
                   <AddMediaFromUrl>
                     <Button variant="link" size="sm" className="mt-0! h-auto p-0">
-                      Add media from URL
+                      <span className="hidden lg:block">Add media from URL</span>
+                      <span className="block lg:hidden">Add URL</span>
                     </Button>
                   </AddMediaFromUrl>
                 </CardAction>
@@ -387,7 +388,7 @@ export default function AddProductForm() {
               </CardFooter>
             </Card>
           </div>
-          <div className="col-span-2 space-y-4">
+          <div className="space-y-4 lg:col-span-2">
             <Card>
               <CardHeader>
                 <CardTitle>Pricing</CardTitle>

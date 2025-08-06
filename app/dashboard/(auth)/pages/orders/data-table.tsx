@@ -107,7 +107,7 @@ export const columns: ColumnDef<Order>[] = [
           src={`https://bundui-images.netlify.app${row.original.image}`}
           width={60}
           height={60}
-          className="rounded-md"
+          className="h-10 w-10 rounded-md lg:h-16 lg:w-16"
           unoptimized
           alt="..."
         />

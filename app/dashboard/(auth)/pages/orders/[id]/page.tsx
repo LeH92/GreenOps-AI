@@ -182,15 +182,15 @@ export default function Page() {
               {Object.keys(statusSteps).map((step, index) => (
                 <div key={index} className="text-center">
                   <div
-                    className={`mx-auto flex size-12 items-center justify-center rounded-full text-lg ${index <= currentStepIndex ? "bg-green-600 text-white dark:bg-green-900" : "bg-muted border"} `}>
+                    className={`mx-auto flex size-10 items-center justify-center rounded-full text-lg lg:size-12 ${index <= currentStepIndex ? "bg-green-500 text-white dark:bg-green-900" : "bg-muted border"} `}>
                     {index < currentStepIndex ? (
-                      <CheckCircle className="size-5" />
+                      <CheckCircle className="size-4 lg:size-5" />
                     ) : (
                       {
-                        processing: <Package className="size-5" />,
-                        shipped: <Truck className="size-5" />,
-                        "out-for-delivery": <Truck className="size-5" />,
-                        delivered: <CheckCircle2 className="size-5" />
+                        processing: <Package className="size-4 lg:size-5" />,
+                        shipped: <Truck className="size-4 lg:size-5" />,
+                        "out-for-delivery": <Truck className="size-4 lg:size-5" />,
+                        delivered: <CheckCircle2 className="size-4 lg:size-5" />
                       }[step as OrderStatus]
                     )}
                   </div>
@@ -238,7 +238,7 @@ export default function Page() {
                         src={`https://bundui-images.netlify.app${item.image}`}
                         width={60}
                         height={60}
-                        className="rounded-md"
+                        className="h-10 w-10 rounded-md lg:h-16 lg:w-16"
                         alt=""
                         unoptimized
                       />
