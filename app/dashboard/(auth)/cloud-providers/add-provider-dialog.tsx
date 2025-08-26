@@ -1,38 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CompanyLogo } from "@/components/ui/company-logo";
 import { 
   Plus, 
-  Cloud, 
   CheckCircle, 
-  XCircle, 
   AlertCircle, 
   Copy, 
-  Download, 
-  ExternalLink,
-  Loader2,
-  Key,
-  FileText,
-  Settings,
-  Shield,
+  ExternalLink, 
+  Loader2, 
   Zap,
-  Clock,
-  Star,
-  TrendingUp,
-  Link
+  Search,
+  ArrowRight
 } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { CompanyLogo } from "@/components/ui/company-logo";
+
+interface SetupStep {
+  id: number;
+  title: string;
+  description: string;
+  instructions: string[];
+  link?: string;
+  isCompleted: boolean;
+}
 
 interface Provider {
   id: string;
@@ -40,24 +37,12 @@ interface Provider {
   shortName: string;
   company: "aws" | "google-cloud" | "azure";
   description: string;
-  setupComplexity: "Facile" | "Moyenne" | "Difficile";
+  setupComplexity: string;
   estimatedTime: string;
   features: string[];
   pricing: string;
   status: "available" | "coming-soon" | "beta";
   setupSteps: SetupStep[];
-  popularity: number;
-  bestFor: string;
-}
-
-interface SetupStep {
-  id: number;
-  title: string;
-  description: string;
-  instructions: string[];
-  codeSnippet?: string;
-  link?: string;
-  isCompleted: boolean;
 }
 
 const providers: Provider[] = [
@@ -66,14 +51,12 @@ const providers: Provider[] = [
     name: "Amazon Web Services",
     shortName: "AWS",
     company: "aws",
-    description: "Leader du cloud computing",
+    description: "Leader du cloud computing avec des services évolutifs et fiables",
     setupComplexity: "Moyenne",
     estimatedTime: "10-15 min",
     features: ["EC2", "S3", "Lambda", "RDS"],
     pricing: "Pay-as-you-go",
     status: "available",
-    popularity: 95,
-    bestFor: "Entreprises & Scale",
     setupSteps: [
       {
         id: 1,
@@ -132,14 +115,12 @@ const providers: Provider[] = [
     name: "Google Cloud Platform",
     shortName: "GCP",
     company: "google-cloud",
-    description: "IA intégrée & Big Data",
+    description: "IA intégrée & Big Data avec des outils avancés d'analyse",
     setupComplexity: "Facile",
     estimatedTime: "5-10 min",
     features: ["Compute Engine", "Cloud Storage", "BigQuery"],
     pricing: "Pay-as-you-go",
     status: "available",
-    popularity: 88,
-    bestFor: "IA & Analytics",
     setupSteps: [
       {
         id: 1,
@@ -180,12 +161,12 @@ const providers: Provider[] = [
       {
         id: 4,
         title: "Télécharger la clé JSON",
-        description: "Téléchargez la clé JSON du compte de service",
+        description: "Téléchargez la clé de compte de service au format JSON",
         instructions: [
-          "Cliquez sur le compte de service créé",
+          "Sélectionnez le compte de service créé",
           "Allez dans l'onglet 'Clés'",
           "Cliquez sur 'Ajouter une clé' > 'Créer une nouvelle clé'",
-          "Sélectionnez 'JSON' et téléchargez le fichier"
+          "Choisissez 'JSON' et téléchargez le fichier"
         ],
         isCompleted: false
       }
@@ -196,14 +177,12 @@ const providers: Provider[] = [
     name: "Microsoft Azure",
     shortName: "Azure",
     company: "azure",
-    description: "Enterprise & Hybrid Cloud",
+    description: "Enterprise & Hybrid Cloud avec intégration Microsoft",
     setupComplexity: "Difficile",
     estimatedTime: "15-20 min",
     features: ["Virtual Machines", "Blob Storage", "Functions"],
     pricing: "Pay-as-you-go",
     status: "available",
-    popularity: 82,
-    bestFor: "Enterprise",
     setupSteps: [
       {
         id: 1,
@@ -220,37 +199,37 @@ const providers: Provider[] = [
       },
       {
         id: 2,
-        title: "Créer une application Azure AD",
-        description: "Créez une application dans Azure Active Directory",
+        title: "Créer un principal de service",
+        description: "Créez un principal de service pour l'authentification",
         instructions: [
-          "Allez dans 'Azure Active Directory'",
-          "Cliquez sur 'Inscriptions d'applications'",
-          "Cliquez sur 'Nouvelle inscription'",
-          "Nommez l'application 'GreenOps AI'"
+          "Ouvrez Azure CLI ou PowerShell",
+          "Connectez-vous avec 'az login'",
+          "Créez le principal avec 'az ad sp create-for-rbac'",
+          "Notez l'ID d'application et le secret"
         ],
         isCompleted: false
       },
       {
         id: 3,
-        title: "Générer un secret client",
-        description: "Générez un secret pour l'authentification",
+        title: "Attribuer les rôles",
+        description: "Attribuez les rôles nécessaires au principal de service",
         instructions: [
-          "Allez dans 'Certificats et secrets'",
-          "Cliquez sur 'Nouveau secret client'",
-          "Ajoutez une description et choisissez une expiration",
-          "Copiez la valeur du secret"
+          "Allez dans 'Azure Active Directory' > 'Applications d'entreprise'",
+          "Sélectionnez votre principal de service",
+          "Allez dans 'Rôles et administrateurs'",
+          "Ajoutez 'Lecteur de facturation' et 'Lecteur de coûts'"
         ],
         isCompleted: false
       },
       {
         id: 4,
-        title: "Attribuer les permissions",
-        description: "Attribuez les rôles nécessaires à l'application",
+        title: "Configurer l'accès aux ressources",
+        description: "Configurez l'accès aux ressources Azure",
         instructions: [
-          "Allez dans 'Autorisations API'",
-          "Cliquez sur 'Ajouter une autorisation'",
-          "Sélectionnez 'Microsoft Graph'",
-          "Ajoutez les permissions : 'Directory.Read.All', 'User.Read'"
+          "Allez dans 'Gestion des coûts + facturation'",
+          "Sélectionnez votre abonnement",
+          "Allez dans 'Contrôle d'accès (IAM)'",
+          "Ajoutez le principal de service avec les rôles appropriés"
         ],
         isCompleted: false
       }
@@ -260,23 +239,21 @@ const providers: Provider[] = [
     id: "digitalocean",
     name: "DigitalOcean",
     shortName: "DO",
-    company: "aws", // Utilise le logo AWS pour l'instant
-    description: "Simple & Développeurs",
+    company: "aws", // Utilise le logo AWS comme placeholder
+    description: "Simple & Développeurs avec des droplets et Kubernetes",
     setupComplexity: "Facile",
     estimatedTime: "5-8 min",
-    features: ["Droplets", "Spaces", "Functions"],
+    features: ["Droplets", "Kubernetes", "Spaces"],
     pricing: "Pay-as-you-go",
     status: "available",
-    popularity: 75,
-    bestFor: "Développeurs",
     setupSteps: [
       {
         id: 1,
         title: "Créer un compte DigitalOcean",
-        description: "Créez un compte sur DigitalOcean",
+        description: "Créez un compte DigitalOcean",
         instructions: [
           "Allez sur digitalocean.com",
-          "Cliquez sur 'S'inscrire'",
+          "Cliquez sur 'Sign Up'",
           "Remplissez vos informations",
           "Ajoutez une méthode de paiement"
         ],
@@ -286,11 +263,11 @@ const providers: Provider[] = [
       {
         id: 2,
         title: "Générer un token API",
-        description: "Générez un token d'accès API",
+        description: "Générez un token API pour l'authentification",
         instructions: [
           "Allez dans 'API' > 'Tokens/Keys'",
-          "Cliquez sur 'Générer un nouveau token'",
-          "Nommez-le 'GreenOps AI'",
+          "Cliquez sur 'Generate New Token'",
+          "Nommez-le 'greenops-ai'",
           "Copiez le token généré"
         ],
         isCompleted: false
@@ -304,31 +281,18 @@ export function AddProviderDialog() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<"idle" | "connecting" | "success" | "error">("idle");
-  const [credentials, setCredentials] = useState({
-    accessKey: "",
-    secretKey: "",
-    region: "",
-    projectId: "",
-    serviceAccountKey: ""
-  });
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleProviderSelect = (provider: Provider) => {
     setSelectedProvider(provider);
     setCurrentStep(1);
     setConnectionStatus("idle");
-    setCredentials({
-      accessKey: "",
-      secretKey: "",
-      region: "",
-      projectId: "",
-      serviceAccountKey: ""
-    });
   };
 
   const handleStepComplete = (stepId: number) => {
     if (selectedProvider) {
-      const updatedSteps = selectedProvider.setupSteps.map(step => 
-        step.id === stepId ? { ...step, isCompleted: true } : step
+      const updatedSteps = selectedProvider.setupSteps.map(step =>
+        step.id === stepId ? { ...step, isCompleted: !step.isCompleted } : step
       );
       setSelectedProvider({ ...selectedProvider, setupSteps: updatedSteps });
     }
@@ -336,7 +300,6 @@ export function AddProviderDialog() {
 
   const handleConnect = async () => {
     if (!selectedProvider) return;
-    
     setIsConnecting(true);
     setConnectionStatus("connecting");
 
@@ -367,6 +330,11 @@ export function AddProviderDialog() {
     }
   };
 
+  const filteredProviders = providers.filter(provider =>
+    provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    provider.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -375,334 +343,287 @@ export function AddProviderDialog() {
           Ajouter un fournisseur
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Ajouter un fournisseur cloud</DialogTitle>
-          <DialogDescription>
-            Connectez votre compte cloud pour surveiller les coûts et optimiser vos ressources
-          </DialogDescription>
-        </DialogHeader>
-
-        {!selectedProvider ? (
-          <div className="space-y-6">
-            {/* Header simple */}
-            <div className="text-center">
-              <h3 className="text-lg font-medium text-muted-foreground">
-                {providers.length} fournisseurs disponibles
-              </h3>
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
+        {/* Navigation Bar */}
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex items-center justify-between px-6 py-4">
+            <div className="flex items-center space-x-6">
+              <h2 className="text-lg font-semibold">GreenOps AI</h2>
+              <nav className="flex items-center space-x-4 text-sm">
+                <a href="#" className="text-muted-foreground hover:text-foreground">Vue d'ensemble</a>
+                <a href="#" className="text-muted-foreground hover:text-foreground">Fournisseurs</a>
+                <a href="#" className="text-muted-foreground hover:text-foreground">Intégrations</a>
+                <a href="#" className="text-muted-foreground hover:text-foreground">Documentation</a>
+              </nav>
             </div>
-
-            {/* Grille compacte des fournisseurs */}
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-              {providers.map((provider) => (
-                <Card 
-                  key={provider.id} 
-                  className="hover:shadow-md transition-shadow border h-48 flex flex-col"
-                >
-                  <CardHeader className="pb-2 flex-shrink-0">
-                    <div className="flex items-center space-x-2">
-                      <CompanyLogo company={provider.company} size={24} />
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-sm font-semibold truncate leading-tight">
-                          {provider.name}
-                        </CardTitle>
-                      </div>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="flex-1 flex flex-col justify-between space-y-2">
-                    {/* Description compacte */}
-                    <p className="text-xs text-muted-foreground line-clamp-2 leading-tight">
-                      {provider.description}
-                    </p>
-
-                    {/* Métriques ultra-compactes */}
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Complexité:</span>
-                        <Badge variant="outline" className={`text-xs px-1 py-0 ${getComplexityColor(provider.setupComplexity)}`}>
-                          {provider.setupComplexity}
-                        </Badge>
-                      </div>
-
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Temps:</span>
-                        <span className="font-medium">{provider.estimatedTime}</span>
-                      </div>
-                    </div>
-
-                    {/* Services clés (très limités) */}
-                    <div className="flex flex-wrap gap-1">
-                      {provider.features.slice(0, 1).map((feature) => (
-                        <Badge key={feature} variant="secondary" className="text-xs px-1 py-0">
-                          {feature}
-                        </Badge>
-                      ))}
-                      {provider.features.length > 1 && (
-                        <Badge variant="outline" className="text-xs px-1 py-0">
-                          +{provider.features.length - 1}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Bouton de connexion compact */}
-                    <Button
-                      size="sm"
-                      className="w-full text-xs h-8"
-                      onClick={() => {
-                        if (provider.id === "google-cloud") {
-                          signIn('google', { callbackUrl: '/dashboard/cloud-providers' });
-                        } else {
-                          handleProviderSelect(provider);
-                        }
-                      }}
-                    >
-                      <Link className="mr-1 h-3 w-3" />
-                      Configurer {provider.shortName}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="flex items-center space-x-3">
+              <Button variant="outline" size="sm">Documentation</Button>
+              <Button size="sm">Commencer</Button>
             </div>
           </div>
-        ) : (
-          <div className="space-y-6">
-            {/* Header du provider sélectionné */}
-            <div className="flex items-center space-x-4 p-4 bg-muted rounded-lg">
-              <CompanyLogo company={selectedProvider.company} size={40} />
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold">{selectedProvider.name}</h3>
-                <p className="text-muted-foreground">{selectedProvider.description}</p>
+        </div>
+
+        {/* Search Bar */}
+        <div className="px-6 py-4 border-b">
+          <div className="relative max-w-md mx-auto">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher par fournisseur..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="p-6">
+          {!selectedProvider ? (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="text-center">
+                <h3 className="text-2xl font-semibold mb-2">
+                  Intégrations Cloud
+                </h3>
+                <p className="text-muted-foreground">
+                  Connectez vos fournisseurs cloud pour surveiller les coûts et optimiser vos ressources
+                </p>
               </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setSelectedProvider(null)}
-              >
-                Changer
-              </Button>
-            </div>
 
-            {/* Workflow de configuration */}
-            <Tabs value={currentStep.toString()} className="space-y-4">
-              <TabsList className="grid w-full grid-cols-4">
-                {selectedProvider.setupSteps.map((step) => (
-                  <TabsTrigger 
-                    key={step.id} 
-                    value={step.id.toString()}
-                    onClick={() => setCurrentStep(step.id)}
-                    className="flex items-center space-x-2"
+              {/* Integration Cards Grid */}
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {filteredProviders.map((provider) => (
+                  <Card 
+                    key={provider.id} 
+                    className="hover:shadow-lg transition-all duration-200 border-2 hover:border-primary/20 cursor-pointer group"
+                    onClick={() => handleProviderSelect(provider)}
                   >
-                    {step.isCompleted ? (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    ) : (
-                      <div className="h-4 w-4 rounded-full border-2 border-muted-foreground flex items-center justify-center">
-                        <span className="text-xs">{step.id}</span>
-                      </div>
-                    )}
-                    <span className="hidden sm:inline">Étape {step.id}</span>
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              {selectedProvider.setupSteps.map((step) => (
-                <TabsContent key={step.id} value={step.id.toString()} className="space-y-4">
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-lg font-semibold">{step.title}</h4>
-                      <p className="text-muted-foreground">{step.description}</p>
-                    </div>
-
-                    <div className="space-y-3">
-                      {step.instructions.map((instruction, index) => (
-                        <div key={index} className="flex items-start space-x-3 p-3 bg-muted rounded-lg">
-                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                            {index + 1}
-                          </div>
-                          <p className="text-sm">{instruction}</p>
+                    <CardHeader className="pb-4">
+                      {/* Integration Icons */}
+                      <div className="flex items-center justify-center space-x-2 mb-4">
+                        <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
+                          <CompanyLogo company={provider.company} size={20} />
                         </div>
-                      ))}
-                    </div>
-
-                    {step.link && (
-                      <Button variant="outline" asChild>
-                        <a href={step.link} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Ouvrir {selectedProvider.shortName} Console
-                        </a>
-                      </Button>
-                    )}
-
-                    {step.codeSnippet && (
-                      <div className="space-y-2">
-                        <Label>Code de configuration</Label>
-                        <div className="relative">
-                          <Textarea 
-                            value={step.codeSnippet} 
-                            readOnly 
-                            className="font-mono text-sm"
-                            rows={4}
-                          />
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="absolute top-2 right-2"
-                            onClick={() => copyToClipboard(step.codeSnippet!)}
-                          >
-                            <Copy className="h-4 w-4" />
-                          </Button>
+                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        </div>
+                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <div className="w-4 h-4 bg-white rounded"></div>
                         </div>
                       </div>
-                    )}
+                      
+                      <CardTitle className="text-lg font-semibold text-center">
+                        {provider.name}
+                      </CardTitle>
+                    </CardHeader>
 
-                    <div className="flex justify-between">
-                      <Button
-                        variant="outline"
-                        onClick={() => handleStepComplete(step.id)}
-                        disabled={step.isCompleted}
-                      >
-                        {step.isCompleted ? (
-                          <>
-                            <CheckCircle className="mr-2 h-4 w-4" />
-                            Terminé
-                          </>
-                        ) : (
-                          "Marquer comme terminé"
+                    <CardContent className="space-y-4">
+                      <CardDescription className="text-sm text-center line-clamp-3">
+                        {provider.description}
+                      </CardDescription>
+
+                      {/* Features */}
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {provider.features.slice(0, 2).map((feature) => (
+                          <Badge key={feature} variant="secondary" className="text-xs">
+                            {feature}
+                          </Badge>
+                        ))}
+                        {provider.features.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{provider.features.length - 2}
+                          </Badge>
                         )}
-                      </Button>
+                      </div>
 
-                      {step.id < selectedProvider.setupSteps.length && (
-                        <Button onClick={() => setCurrentStep(step.id + 1)}>
-                          Suivant
+                      {/* Action Button */}
+                      <Button 
+                        className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (provider.id === "google-cloud") {
+                            signIn('google', { callbackUrl: '/dashboard/cloud-providers' });
+                          } else {
+                            handleProviderSelect(provider);
+                          }
+                        }}
+                      >
+                        ESSAYER
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Selected Provider Header */}
+              <div className="flex items-center space-x-4 p-4 bg-muted rounded-lg">
+                <CompanyLogo company={selectedProvider.company} size={40} />
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold">{selectedProvider.name}</h3>
+                  <p className="text-muted-foreground">{selectedProvider.description}</p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setSelectedProvider(null)}
+                >
+                  Changer
+                </Button>
+              </div>
+
+              {/* Setup Workflow */}
+              <Tabs value={currentStep.toString()} className="space-y-4">
+                <TabsList className="grid w-full grid-cols-4">
+                  {selectedProvider.setupSteps.map((step) => (
+                    <TabsTrigger 
+                      key={step.id} 
+                      value={step.id.toString()}
+                      onClick={() => setCurrentStep(step.id)}
+                      className="flex items-center space-x-2"
+                    >
+                      {step.isCompleted ? (
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <div className="h-4 w-4 rounded-full border-2 border-muted-foreground flex items-center justify-center">
+                          <span className="text-xs">{step.id}</span>
+                        </div>
+                      )}
+                      <span className="hidden sm:inline">Étape {step.id}</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+
+                {selectedProvider.setupSteps.map((step) => (
+                  <TabsContent key={step.id} value={step.id.toString()} className="space-y-4">
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-lg font-semibold">{step.title}</h4>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleStepComplete(step.id)}
+                        >
+                          {step.isCompleted ? "Marquer comme incomplet" : "Marquer comme terminé"}
+                        </Button>
+                      </div>
+                      
+                      <p className="text-muted-foreground">{step.description}</p>
+                      
+                      <div className="space-y-2">
+                        <h5 className="font-medium">Instructions :</h5>
+                        <ol className="list-decimal list-inside space-y-1 text-sm">
+                          {step.instructions.map((instruction, index) => (
+                            <li key={index} className="text-muted-foreground">{instruction}</li>
+                          ))}
+                        </ol>
+                      </div>
+
+                      {step.link && (
+                        <Button variant="outline" size="sm" asChild>
+                          <a href={step.link} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            Ouvrir le lien
+                          </a>
                         </Button>
                       )}
                     </div>
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
+                  </TabsContent>
+                ))}
+              </Tabs>
 
-            {/* Formulaire de connexion */}
-            {currentStep === selectedProvider.setupSteps.length && (
-              <div className="space-y-4 p-4 border rounded-lg">
-                <h4 className="text-lg font-semibold">Configuration finale</h4>
-                
-                <div className="grid gap-4 md:grid-cols-2">
-                  {selectedProvider.id === "aws" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="accessKey">Access Key ID</Label>
-                        <Input
-                          id="accessKey"
-                          value={credentials.accessKey}
-                          onChange={(e) => setCredentials({...credentials, accessKey: e.target.value})}
-                          placeholder="AKIA..."
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="secretKey">Secret Access Key</Label>
-                        <Input
-                          id="secretKey"
-                          type="password"
-                          value={credentials.secretKey}
-                          onChange={(e) => setCredentials({...credentials, secretKey: e.target.value})}
-                          placeholder="Votre clé secrète"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="region">Région</Label>
-                        <Input
-                          id="region"
-                          value={credentials.region}
-                          onChange={(e) => setCredentials({...credentials, region: e.target.value})}
-                          placeholder="us-east-1"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {selectedProvider.id === "azure" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="tenantId">Tenant ID</Label>
-                        <Input
-                          id="tenantId"
-                          value={credentials.accessKey}
-                          onChange={(e) => setCredentials({...credentials, accessKey: e.target.value})}
-                          placeholder="00000000-0000-0000-0000-000000000000"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="clientId">Client ID</Label>
-                        <Input
-                          id="clientId"
-                          value={credentials.secretKey}
-                          onChange={(e) => setCredentials({...credentials, secretKey: e.target.value})}
-                          placeholder="00000000-0000-0000-0000-000000000000"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="clientSecret">Client Secret</Label>
-                        <Input
-                          id="clientSecret"
-                          type="password"
-                          value={credentials.region}
-                          onChange={(e) => setCredentials({...credentials, region: e.target.value})}
-                          placeholder="Votre secret client"
-                        />
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {connectionStatus === "error" && (
-                  <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Erreur de connexion. Vérifiez vos identifiants et réessayez.
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                {connectionStatus === "success" && (
-                  <Alert>
-                    <CheckCircle className="h-4 w-4" />
-                    <AlertDescription>
-                      Connexion réussie ! {selectedProvider.name} est maintenant connecté.
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={() => setSelectedProvider(null)}>
-                    Annuler
-                  </Button>
-                  <Button 
-                    onClick={handleConnect}
-                    disabled={isConnecting || connectionStatus === "success"}
-                  >
-                    {isConnecting ? (
+              {/* Connection Form */}
+              {currentStep === selectedProvider.setupSteps.length && (
+                <div className="space-y-4 p-4 border rounded-lg">
+                  <h4 className="text-lg font-semibold">Configuration finale</h4>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {selectedProvider.id === "aws" && (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Connexion...
-                      </>
-                    ) : connectionStatus === "success" ? (
-                      <>
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Connecté
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="mr-2 h-4 w-4" />
-                        Connecter {selectedProvider.shortName}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Access Key ID</label>
+                          <Input placeholder="AKIA..." />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Secret Access Key</label>
+                          <Input type="password" placeholder="••••••••" />
+                        </div>
                       </>
                     )}
-                  </Button>
+                    {selectedProvider.id === "azure" && (
+                      <>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Tenant ID</label>
+                          <Input placeholder="00000000-0000-0000-0000-000000000000" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Client ID</label>
+                          <Input placeholder="00000000-0000-0000-0000-000000000000" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Client Secret</label>
+                          <Input type="password" placeholder="••••••••" />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Subscription ID</label>
+                          <Input placeholder="00000000-0000-0000-0000-000000000000" />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Connection Status */}
+                  {connectionStatus === "connecting" && (
+                    <Alert>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <AlertDescription>
+                        Connexion en cours...
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {connectionStatus === "success" && (
+                    <Alert>
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <AlertDescription>
+                        Connexion réussie ! Votre fournisseur est maintenant configuré.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {connectionStatus === "error" && (
+                    <Alert>
+                      <AlertCircle className="h-4 w-4 text-red-500" />
+                      <AlertDescription>
+                        Erreur de connexion. Vérifiez vos informations et réessayez.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={handleConnect}
+                      disabled={isConnecting}
+                      className="flex-1"
+                    >
+                      {isConnecting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Connexion...
+                        </>
+                      ) : (
+                        "Se connecter"
+                      )}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
