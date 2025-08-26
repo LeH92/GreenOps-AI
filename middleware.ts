@@ -1,9 +1,11 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from 'next/server'
 
-export function middleware(request: NextRequest) {
-  return NextResponse.redirect(new URL("/dashboard/default", request.url));
+export async function middleware(request: NextRequest) {
+  // Middleware désactivé - laisser passer toutes les requêtes
+  console.log('🔓 Middleware disabled - allowing all requests')
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/dashboard", "/"]
-};
+  matcher: []  // Matcher vide = middleware ne s'exécute jamais
+}

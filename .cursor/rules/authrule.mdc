@@ -1,0 +1,160 @@
+---
+alwaysApply: false
+---
+# .cursorrules - GreenOps AI Dashboard Project Rules
+
+## Project Context
+This is a Next.js 15 dashboard built from the Kiranism ShadCN template for GreenOps AI - a FinOps/GreenOps platform for cloud cost monitoring and carbon footprint tracking.
+
+## Architecture & Stack
+- **Framework**: Next.js 15 with App Router
+- **UI Library**: ShadCN/UI components + Tailwind CSS
+- **Charts**: Recharts library (already configured)
+- **Database**: Prisma ORM (to be added)
+- **Auth**: NextAuth.js (from template)
+- **State**: React hooks + Zustand (existing stores)
+- **Icons**: Lucide React
+- **Forms**: React Hook Form + Zod validation
+
+## Coding Standards
+
+### TypeScript
+- Use strict TypeScript with proper typing
+- Prefer interfaces over types for object shapes
+- Export types from dedicated types/ folders
+- Use generic types for reusable components
+- Always define props interfaces for components
+
+### React Patterns
+- Use functional components with hooks only
+- Prefer server components when possible (App Router)
+- Use 'use client' directive only when necessary
+- Follow the existing component structure from template
+- Keep components single-responsibility
+
+### File Organization
+- Follow the existing template structure:
+  ```
+  src/
+  ├── app/                    # App Router pages
+  ├── components/             # Shared components
+  │   ├── ui/                # ShadCN components (don't modify)
+  │   ├── charts/            # Chart components
+  │   └── dashboard/         # Dashboard-specific components
+  ├── lib/                   # Utilities
+  ├── hooks/                 # Custom hooks
+  └── stores/                # Zustand stores
+  ```
+
+### Component Patterns
+- Use the existing ShadCN components from the template
+- Follow the established patterns for cards, forms, tables
+- Maintain the existing design system and spacing
+- Use the template's responsive patterns
+- Keep the same navigation and layout structure
+
+## ShadCN/UI Usage Rules
+- ALWAYS use existing ShadCN components before creating custom ones
+- Import from "@/components/ui/" for base components
+- Use cn() utility for conditional classes
+- Follow the template's variant patterns
+- Maintain accessibility standards from existing components
+
+## Styling Guidelines
+- Use Tailwind CSS classes only
+- Follow the existing color scheme and spacing
+- Use the template's responsive breakpoints
+- Maintain the existing dark/light theme support
+- Use semantic color variables (hsl(var(--primary)))
+
+## Data Patterns
+- Support both mock data (DRY_RUN=true) and real APIs
+- Use proper loading states and error handling
+- Follow the existing API route patterns in /app/api/
+- Use proper TypeScript types for all data structures
+- Implement proper caching strategies
+
+## Charts & Visualizations
+- Use Recharts library (already configured in template)
+- Follow existing chart component patterns
+- Make all charts responsive and accessible
+- Use consistent color schemes across charts
+- Include proper tooltips and legends
+
+## API Route Patterns
+- Follow Next.js 15 App Router API route structure
+- Use proper HTTP methods and status codes
+- Include error handling and validation
+- Support both development (mock) and production modes
+- Return consistent response formats
+
+## Business Logic - GreenOps Specific
+- Focus on FinOps metrics: costs, usage, budgets, alerts
+- Include carbon footprint calculations and visualizations
+- Support multiple cloud providers (OpenAI, AWS, GCP, Azure)
+- Implement budget tracking and threshold alerting
+- Provide cost optimization recommendations
+
+## Performance Rules
+- Use React.memo() for expensive components
+- Implement proper loading states
+- Lazy load heavy components
+- Optimize chart rendering with proper keys
+- Use proper image optimization
+
+## Security Considerations
+- Never expose API keys in client-side code
+- Use environment variables properly
+- Implement proper input validation
+- Follow the template's auth patterns
+- Encrypt sensitive data storage
+
+## Testing Approach
+- Write tests for utility functions
+- Test component rendering and interactions
+- Mock API calls in tests
+- Test both mock and real data scenarios
+
+## Git Commit Convention
+- Use conventional commits format
+- Be descriptive about changes made
+- Commit frequently with working code
+- Include issue references when applicable
+
+## Code Comments
+- Document complex business logic
+- Explain carbon footprint calculations
+- Comment on data transformation logic
+- Document environment variable usage
+
+## Error Handling
+- Use error boundaries for component errors
+- Implement proper API error responses
+- Show user-friendly error messages
+- Log errors appropriately for debugging
+
+## Accessibility
+- Maintain ARIA labels from template components
+- Ensure keyboard navigation works
+- Use semantic HTML elements
+- Follow WCAG guidelines
+- Test with screen readers
+
+## When Suggesting Code Changes
+1. Always analyze the existing template patterns first
+2. Maintain consistency with the established architecture
+3. Use existing components and utilities when possible
+4. Follow the same naming conventions
+5. Include proper TypeScript types
+6. Maintain responsive design patterns
+7. Consider both light and dark theme support
+8. Test suggestions against the existing codebase structure
+
+## Development Workflow
+- Start with mock data implementation
+- Build UI components first, then integrate APIs
+- Test each feature thoroughly before moving to next
+- Maintain the existing development server setup
+- Use the established build and deployment patterns
+
+Remember: The goal is to extend the existing template efficiently while maintaining its quality, patterns, and user experience standards for the specific use case of FinOps/GreenOps dashboard.

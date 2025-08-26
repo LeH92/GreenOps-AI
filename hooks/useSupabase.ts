@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
+import { BudgetStatus } from '@/types/greenops'
 import type { 
   CostMetrics, 
   ProviderConnection, 
@@ -241,7 +242,7 @@ export const useSupabaseData = () => {
           currentSpend,
           percentUsed,
           alertThresholds: budget.alert_thresholds,
-          status: percentUsed >= 100 ? 'exceeded' : percentUsed >= 80 ? 'warning' : 'healthy',
+          status: percentUsed >= 100 ? BudgetStatus.EXCEEDED : percentUsed >= 80 ? BudgetStatus.WARNING : BudgetStatus.HEALTHY,
           isActive: budget.is_active,
           providers: [], // TODO: Get associated providers
           trend: 0, // TODO: Calculate trend
