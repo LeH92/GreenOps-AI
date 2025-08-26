@@ -1,0 +1,213 @@
+{
+  "weeklyUsage": [
+    {
+      "date": "2025-08-19",
+      "tokens": 1250000,
+      "requests": 3456,
+      "cost": 156.78,
+      "carbon": 12.34,
+      "avgLatency": 245
+    },
+    {
+      "date": "2025-08-20",
+      "tokens": 1380000,
+      "requests": 3789,
+      "cost": 172.45,
+      "carbon": 13.67,
+      "avgLatency": 238
+    },
+    {
+      "date": "2025-08-21",
+      "tokens": 1520000,
+      "requests": 4123,
+      "cost": 189.23,
+      "carbon": 15.12,
+      "avgLatency": 252
+    },
+    {
+      "date": "2025-08-22",
+      "tokens": 1670000,
+      "requests": 4456,
+      "cost": 207.89,
+      "carbon": 16.78,
+      "avgLatency": 261
+    },
+    {
+      "date": "2025-08-23",
+      "tokens": 1810000,
+      "requests": 4789,
+      "cost": 225.67,
+      "carbon": 18.45,
+      "avgLatency": 248
+    },
+    {
+      "date": "2025-08-24",
+      "tokens": 1120000,
+      "requests": 3123,
+      "cost": 138.90,
+      "carbon": 11.23,
+      "avgLatency": 235
+    },
+    {
+      "date": "2025-08-25",
+      "tokens": 980000,
+      "requests": 2789,
+      "cost": 121.45,
+      "carbon": 9.87,
+      "avgLatency": 228
+    }
+  ],
+  "carbonFootprint": {
+    "total": 234.56,
+    "breakdown": {
+      "ai_inference": 156.78,
+      "cloud_compute": 45.67,
+      "data_transfer": 23.45,
+      "storage": 8.66
+    },
+    "trend": 6.68,
+    "offsetRecommendations": [
+      {
+        "provider": "Carbonfund.org",
+        "cost": 23.46,
+        "amount": 234.56
+      },
+      {
+        "provider": "TerraPass",
+        "cost": 21.89,
+        "amount": 234.56
+      },
+      {
+        "provider": "NativeEnergy",
+        "cost": 25.12,
+        "amount": 234.56
+      }
+    ]
+  },
+  "serviceBreakdown": {
+    "openai": {
+      "tokens": 15432000,
+      "requests": 45678,
+      "cost": 1234.56,
+      "carbon": 156.78,
+      "percentage": 66.8
+    },
+    "aws": {
+      "tokens": 0,
+      "requests": 123456,
+      "cost": 789.23,
+      "carbon": 45.67,
+      "percentage": 19.5
+    },
+    "gcp": {
+      "tokens": 0,
+      "requests": 67890,
+      "cost": 523.45,
+      "carbon": 23.45,
+      "percentage": 10.0
+    },
+    "azure": {
+      "tokens": 0,
+      "requests": 0,
+      "cost": 0,
+      "carbon": 0,
+      "percentage": 0
+    }
+  },
+  "regionalData": [
+    {
+      "region": "us-east-1",
+      "cost": 1234.56,
+      "carbonIntensity": 0.385,
+      "carbonFootprint": 156.78,
+      "usagePercentage": 52.5
+    },
+    {
+      "region": "us-central1",
+      "cost": 523.45,
+      "carbonIntensity": 0.298,
+      "carbonFootprint": 45.67,
+      "percentage": 22.3
+    },
+    {
+      "region": "us-west-2",
+      "cost": 298.45,
+      "carbonIntensity": 0.412,
+      "carbonFootprint": 23.45,
+      "percentage": 12.7
+    },
+    {
+      "region": "europe-west1",
+      "cost": 289.45,
+      "carbonIntensity": 0.234,
+      "carbonFootprint": 8.66,
+      "percentage": 12.5
+    }
+  ],
+  "optimizationRecommendations": [
+    {
+      "title": "Switch to GPT-3.5-turbo for Non-Critical Tasks",
+      "description": "Replace GPT-4 with GPT-3.5-turbo for routine tasks to reduce costs by 70% while maintaining acceptable quality.",
+      "costSavings": 345.67,
+      "carbonReduction": 45.23,
+      "difficulty": 2,
+      "category": "cost",
+      "actions": [
+        "Audit current GPT-4 usage patterns",
+        "Identify tasks suitable for GPT-3.5-turbo",
+        "Implement model selection logic",
+        "Monitor quality metrics"
+      ]
+    },
+    {
+      "title": "Implement Request Batching",
+      "description": "Batch multiple API requests to reduce overhead and improve efficiency.",
+      "costSavings": 123.45,
+      "carbonReduction": 12.34,
+      "difficulty": 3,
+      "category": "efficiency",
+      "actions": [
+        "Analyze request patterns",
+        "Design batching strategy",
+        "Implement queue system",
+        "Test performance improvements"
+      ]
+    },
+    {
+      "title": "Optimize AWS EC2 Instance Types",
+      "description": "Switch from t3.medium to t3.small for development workloads to reduce compute costs.",
+      "costSavings": 89.12,
+      "carbonReduction": 8.91,
+      "difficulty": 1,
+      "category": "cost",
+      "actions": [
+        "Monitor current instance utilization",
+        "Test t3.small performance",
+        "Update instance types",
+        "Monitor application performance"
+      ]
+    },
+    {
+      "title": "Enable GCP Carbon-Free Energy",
+      "description": "Switch to carbon-free energy regions for Google Cloud Platform workloads.",
+      "costSavings": 0,
+      "carbonReduction": 15.67,
+      "difficulty": 2,
+      "category": "carbon",
+      "actions": [
+        "Identify carbon-free regions",
+        "Plan migration strategy",
+        "Update deployment configurations",
+        "Monitor carbon footprint reduction"
+      ]
+    }
+  ],
+  "trends": {
+    "weeklyGrowth": 8.45,
+    "monthlyGrowth": 12.34,
+    "costEfficiency": 0.85,
+    "carbonEfficiency": 0.78,
+    "peakUsage": "2025-08-23",
+    "lowestUsage": "2025-08-25"
+  }
+}

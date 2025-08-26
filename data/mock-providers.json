@@ -1,0 +1,143 @@
+{
+  "providers": [
+    {
+      "id": "prov_01h8x2k9m3n4p5q6r7s8t9u0v",
+      "name": "OpenAI Production",
+      "type": "openai",
+      "status": "connected",
+      "lastSync": "2025-08-25T14:30:00Z",
+      "monthlyCost": 1234.56,
+      "isActive": true,
+      "config": {
+        "organization": "org-greenops-ai",
+        "defaultModel": "gpt-4",
+        "maxTokens": 4000,
+        "temperature": 0.7
+      },
+      "usage": {
+        "totalTokens": 15432000,
+        "totalRequests": 45678,
+        "models": {
+          "gpt-4": {
+            "tokens": 8920000,
+            "requests": 12345,
+            "cost": 678.90
+          },
+          "gpt-3.5-turbo": {
+            "tokens": 6512000,
+            "requests": 33333,
+            "cost": 555.66
+          }
+        },
+        "services": {
+          "chat_completions": {
+            "requests": 45678,
+            "cost": 1234.56
+          }
+        }
+      },
+      "errorMessage": null
+    },
+    {
+      "id": "prov_02h8x2k9m3n4p5q6r7s8t9u0v",
+      "name": "AWS Production",
+      "type": "aws",
+      "status": "connected",
+      "lastSync": "2025-08-25T14:25:00Z",
+      "monthlyCost": 789.23,
+      "isActive": true,
+      "config": {
+        "region": "us-east-1",
+        "accessKeyId": "AKIA...",
+        "defaultInstanceType": "t3.medium"
+      },
+      "usage": {
+        "totalHours": 2160,
+        "totalRequests": 123456,
+        "services": {
+          "ec2": {
+            "hours": 1440,
+            "instances": 2,
+            "cost": 432.15
+          },
+          "s3": {
+            "requests": 89000,
+            "storage_gb": 1250,
+            "cost": 234.56
+          },
+          "lambda": {
+            "requests": 34456,
+            "duration_ms": 4567890,
+            "cost": 122.52
+          }
+        }
+      },
+      "errorMessage": null
+    },
+    {
+      "id": "prov_03h8x2k9m3n4p5q6r7s8t9u0v",
+      "name": "Google Cloud Platform",
+      "type": "gcp",
+      "status": "connected",
+      "lastSync": "2025-08-25T14:20:00Z",
+      "monthlyCost": 523.45,
+      "isActive": true,
+      "config": {
+        "projectId": "greenops-ai-prod",
+        "region": "us-central1",
+        "defaultZone": "us-central1-a"
+      },
+      "usage": {
+        "totalHours": 1680,
+        "totalRequests": 67890,
+        "services": {
+          "compute": {
+            "hours": 1200,
+            "instances": 3,
+            "cost": 345.67
+          },
+          "storage": {
+            "requests": 45000,
+            "storage_gb": 890,
+            "cost": 123.45
+          },
+          "bigquery": {
+            "queries": 1234,
+            "bytes_processed": 456789012345,
+            "cost": 54.33
+          }
+        }
+      },
+      "errorMessage": null
+    },
+    {
+      "id": "prov_04h8x2k9m3n4p5q6r7s8t9u0v",
+      "name": "Azure Development",
+      "type": "azure",
+      "status": "disconnected",
+      "lastSync": null,
+      "monthlyCost": 0,
+      "isActive": false,
+      "config": {
+        "subscriptionId": "sub-12345678-1234-1234-1234-123456789012",
+        "resourceGroup": "greenops-dev-rg",
+        "region": "East US"
+      },
+      "usage": {
+        "totalHours": 0,
+        "totalRequests": 0,
+        "services": {}
+      },
+      "errorMessage": "API key expired. Please update your Azure credentials to reconnect this provider."
+    }
+  ],
+  "summary": {
+    "totalProviders": 4,
+    "connectedProviders": 3,
+    "disconnectedProviders": 1,
+    "totalMonthlyCost": 2547.24,
+    "totalTokens": 15432000,
+    "totalRequests": 237024,
+    "totalCarbonKg": 234.56
+  }
+}
