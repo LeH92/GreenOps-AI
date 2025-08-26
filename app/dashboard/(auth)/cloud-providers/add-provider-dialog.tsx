@@ -375,7 +375,7 @@ export function AddProviderDialog() {
           Ajouter un fournisseur
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Ajouter un fournisseur cloud</DialogTitle>
           <DialogDescription>
@@ -393,57 +393,62 @@ export function AddProviderDialog() {
             </div>
 
             {/* Grille compacte des fournisseurs */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
               {providers.map((provider) => (
                 <Card 
                   key={provider.id} 
-                  className="hover:shadow-md transition-shadow border"
+                  className="hover:shadow-md transition-shadow border h-48 flex flex-col"
                 >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center space-x-3">
-                      <CompanyLogo company={provider.company} size={32} />
+                  <CardHeader className="pb-2 flex-shrink-0">
+                    <div className="flex items-center space-x-2">
+                      <CompanyLogo company={provider.company} size={24} />
                       <div className="flex-1 min-w-0">
-                        <CardTitle className="text-base font-semibold truncate">
+                        <CardTitle className="text-sm font-semibold truncate leading-tight">
                           {provider.name}
                         </CardTitle>
-                        <CardDescription className="text-sm truncate">
-                          {provider.description}
-                        </CardDescription>
                       </div>
                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-3">
-                    {/* Métriques compactes */}
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Complexité:</span>
-                      <Badge variant="outline" className={getComplexityColor(provider.setupComplexity)}>
-                        {provider.setupComplexity}
-                      </Badge>
+                  <CardContent className="flex-1 flex flex-col justify-between space-y-2">
+                    {/* Description compacte */}
+                    <p className="text-xs text-muted-foreground line-clamp-2 leading-tight">
+                      {provider.description}
+                    </p>
+
+                    {/* Métriques ultra-compactes */}
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Complexité:</span>
+                        <Badge variant="outline" className={`text-xs px-1 py-0 ${getComplexityColor(provider.setupComplexity)}`}>
+                          {provider.setupComplexity}
+                        </Badge>
+                      </div>
+
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Temps:</span>
+                        <span className="font-medium">{provider.estimatedTime}</span>
+                      </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Temps:</span>
-                      <span className="font-medium">{provider.estimatedTime}</span>
-                    </div>
-
-                    {/* Services clés (limités) */}
+                    {/* Services clés (très limités) */}
                     <div className="flex flex-wrap gap-1">
-                      {provider.features.slice(0, 2).map((feature) => (
-                        <Badge key={feature} variant="secondary" className="text-xs">
+                      {provider.features.slice(0, 1).map((feature) => (
+                        <Badge key={feature} variant="secondary" className="text-xs px-1 py-0">
                           {feature}
                         </Badge>
                       ))}
-                      {provider.features.length > 2 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{provider.features.length - 2}
+                      {provider.features.length > 1 && (
+                        <Badge variant="outline" className="text-xs px-1 py-0">
+                          +{provider.features.length - 1}
                         </Badge>
                       )}
                     </div>
 
-                                        {/* Bouton de connexion principal */}
+                    {/* Bouton de connexion compact */}
                     <Button
-                      className="w-full"
+                      size="sm"
+                      className="w-full text-xs h-8"
                       onClick={() => {
                         if (provider.id === "google-cloud") {
                           signIn('google', { callbackUrl: '/dashboard/cloud-providers' });
@@ -452,7 +457,7 @@ export function AddProviderDialog() {
                         }
                       }}
                     >
-                      <Link className="mr-2 h-4 w-4" />
+                      <Link className="mr-1 h-3 w-3" />
                       Configurer {provider.shortName}
                     </Button>
                   </CardContent>
