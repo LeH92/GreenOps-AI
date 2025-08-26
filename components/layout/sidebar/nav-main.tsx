@@ -14,42 +14,38 @@ import {
   useSidebar
 } from "@/components/ui/sidebar";
 import {
-  ActivityIcon,
-  ArchiveRestoreIcon,
-  BadgeDollarSignIcon,
-  BrainCircuitIcon,
-  BrainIcon,
-  Building2Icon,
-  CalendarIcon,
-  ChartBarDecreasingIcon,
-  ChartPieIcon,
+  // FinOps & GreenOps Icons
+  LayoutDashboard,
+  TrendingUp,
+  Plug,
+  DollarSign,
+  Activity,
+  Target,
+  Bell,
+  FileText,
+  Leaf,
+  Zap,
+  Settings,
+  Key,
+  Users,
   ChevronRight,
-  ClipboardCheckIcon,
-  ClipboardMinusIcon,
-  ComponentIcon,
-  CookieIcon,
-  FingerprintIcon,
-  FolderDotIcon,
-  FolderIcon,
-  GaugeIcon,
-  GraduationCapIcon,
-  ImagesIcon,
-  KeyIcon,
-  MailIcon,
-  MessageSquareIcon,
-  ProportionsIcon,
-  SettingsIcon,
-  ShoppingBagIcon,
-  SquareCheckIcon,
-  SquareKanbanIcon,
-  StickyNoteIcon,
-  UserIcon,
-  UsersIcon,
-  WalletMinimalIcon,
-  type LucideIcon,
-  GithubIcon,
-  RedoDotIcon,
-  BrushCleaningIcon
+  // LLM & AI Icons
+  Brain,
+  MessageSquare,
+  Image,
+  Bot,
+  Sparkles,
+  // Cloud & Infrastructure Icons
+  Cloud,
+  Server,
+  Database,
+  Shield,
+  // Environment & Carbon Icons
+  TreePine,
+  Recycle,
+  BarChart3,
+  PieChart,
+  type LucideIcon
 } from "lucide-react";
 import Link from "next/link";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -80,208 +76,163 @@ type NavItem = {
 
 export const navItems: NavGroup[] = [
   {
-    title: "Dashboards",
+    title: "Vue d'ensemble",
     items: [
       {
-        title: "Default",
+        title: "Dashboard",
         href: "/dashboard/default",
-        icon: ChartPieIcon
+        icon: LayoutDashboard
       },
       {
-        title: "E-commerce",
-        href: "#",
-        icon: ShoppingBagIcon,
-        items: [
-          { title: "Dashboard", href: "/dashboard/ecommerce" },
-          { title: "Product List", href: "/dashboard/pages/products" },
-          { title: "Product Detail", href: "/dashboard/pages/products/1" },
-          { title: "Add Product", href: "/dashboard/pages/products/create" },
-          { title: "Order List", href: "/dashboard/pages/orders" },
-          { title: "Order Detail", href: "/dashboard/pages/orders/detail" }
-        ]
-      },
-      { title: "Sales", href: "/dashboard/sales", icon: BadgeDollarSignIcon },
-      { title: "CRM", href: "/dashboard/crm", icon: ChartBarDecreasingIcon },
-      {
-        title: "Website Analytics",
-        href: "/dashboard/website-analytics",
-        icon: GaugeIcon
-      },
-      {
-        title: "Project Management",
-        href: "/dashboard/project-management",
-        icon: FolderDotIcon
-      },
-      {
-        title: "File Manager",
-        href: "/dashboard/file-manager",
-        icon: FolderIcon
-      },
-      { title: "Crypto", href: "/dashboard/crypto", icon: WalletMinimalIcon },
-      { title: "Academy/School", href: "/dashboard/academy", icon: GraduationCapIcon },
-      { title: "Hospital Management", href: "/dashboard/hospital-management", icon: ActivityIcon },
-      { title: "Hotel Dashboard", href: "/dashboard/hotel", icon: Building2Icon, isComing: true },
-      { title: "Finance", href: "/dashboard/finance", icon: WalletMinimalIcon, isNew: true }
+        title: "Analytics",
+        href: "/dashboard/analytics",
+        icon: TrendingUp,
+        isComing: true
+      }
     ]
   },
   {
-    title: "AI",
+    title: "Cloud & Infrastructure",
     items: [
-      { title: "AI Chat", href: "/dashboard/apps/ai-chat", icon: BrainIcon },
       {
-        title: "AI Chat V2",
-        href: "/dashboard/apps/ai-chat",
-        icon: BrainCircuitIcon,
-        isComing: true
+        title: "Fournisseurs Cloud",
+        href: "/dashboard/cloud-providers",
+        icon: Cloud,
+        items: [
+          { title: "AWS", href: "/dashboard/cloud-providers/aws" },
+          { title: "Google Cloud", href: "/dashboard/cloud-providers/gcp" },
+          { title: "Azure", href: "/dashboard/cloud-providers/azure" }
+        ]
       },
       {
-        title: "Image Generator",
-        href: "/dashboard/apps/ai-image-generator",
-        icon: ImagesIcon,
+        title: "Coûts & Usage",
+        href: "/dashboard/costs",
+        icon: DollarSign
+      },
+      {
+        title: "Rapports d'Usage",
+        href: "/dashboard/usage",
+        icon: Activity
+      }
+    ]
+  },
+  {
+    title: "Appels API",
+    items: [
+      {
+        title: "Vue d'ensemble",
+        href: "/dashboard/api-overview",
+        icon: Activity,
+        isDataBadge: "8.5K"
+      },
+      {
+        title: "Historique des Appels",
+        href: "/dashboard/api-history",
+        icon: MessageSquare
+      },
+      {
+        title: "Métriques API",
+        href: "/dashboard/api-metrics",
+        icon: BarChart3
+      },
+      {
+        title: "Gestion des Tokens",
+        href: "/dashboard/token-management",
+        icon: Key
+      }
+    ]
+  },
+  {
+    title: "IA & LLM",
+    items: [
+      {
+        title: "Fournisseurs IA",
+        href: "/dashboard/ai-providers",
+        icon: Brain,
+        items: [
+          { title: "OpenAI", href: "/dashboard/ai-providers/openai" },
+          { title: "Anthropic", href: "/dashboard/ai-providers/anthropic" },
+          { title: "Google AI", href: "/dashboard/ai-providers/google-ai" }
+        ]
+      },
+
+      {
+        title: "Performance IA",
+        href: "/dashboard/ai-performance",
+        icon: Zap,
         isNew: true
       }
     ]
   },
   {
-    title: "Apps",
+    title: "Contrôle Budgétaire",
     items: [
       {
-        title: "Kanban",
-        href: "/dashboard/apps/kanban",
-        icon: SquareKanbanIcon,
+        title: "Budgets",
+        href: "/dashboard/budgets",
+        icon: Target
+      },
+      {
+        title: "Alertes",
+        href: "/dashboard/alerts",
+        icon: Bell,
+        isDataBadge: "3"
+      },
+      {
+        title: "Rapports",
+        href: "/dashboard/reports",
+        icon: FileText,
         isComing: true
-      },
-      { title: "Notes", href: "/dashboard/apps/notes", icon: StickyNoteIcon, isDataBadge: "8" },
-      { title: "Chats", href: "/dashboard/apps/chat", icon: MessageSquareIcon, isDataBadge: "5" },
-      { title: "Mail", href: "/dashboard/apps/mail", icon: MailIcon, isNew: true },
-      {
-        title: "Todo List App",
-        href: "/dashboard/apps/todo-list-app",
-        icon: SquareCheckIcon,
-        isNew: true
-      },
-      {
-        title: "Tasks",
-        href: "/dashboard/apps/tasks",
-        icon: ClipboardCheckIcon
-      },
-      { title: "Calendar", href: "/dashboard/apps/calendar", icon: CalendarIcon },
-      {
-        title: "File Manager",
-        href: "/dashboard/apps/file-manager",
-        icon: ArchiveRestoreIcon,
-        isComing: true
-      },
-      { title: "Api Keys", href: "/dashboard/apps/api-keys", icon: KeyIcon },
-      { title: "POS App", href: "/dashboard/apps/pos-system", icon: CookieIcon }
+      }
     ]
   },
   {
-    title: "Pages",
+    title: "Environnement & Durabilité",
     items: [
       {
-        title: "Users List",
-        href: "/dashboard/pages/users",
-        icon: UsersIcon
+        title: "Empreinte Carbone",
+        href: "/dashboard/carbon",
+        icon: Leaf
       },
       {
-        title: "Profile",
-        href: "/dashboard/pages/profile",
-        icon: UserIcon
+        title: "Optimisation Verte",
+        href: "/dashboard/green-optimization",
+        icon: TreePine,
+        isNew: true
       },
       {
-        title: "Onboarding Flow",
-        href: "/dashboard/pages/onboarding-flow",
-        icon: RedoDotIcon
-      },
+        title: "Métriques Durables",
+        href: "/dashboard/sustainability-metrics",
+        icon: Recycle,
+        isComing: true
+      }
+    ]
+  },
+
+  {
+    title: "Configuration",
+    items: [
       {
-        title: "Empty States",
-        href: "/dashboard/pages/empty-states/01",
-        icon: BrushCleaningIcon,
-        items: [
-          { title: "Empty States 01", href: "/dashboard/pages/empty-states/01" },
-          { title: "Empty States 02", href: "/dashboard/pages/empty-states/02" },
-          { title: "Empty States 03", href: "/dashboard/pages/empty-states/03" }
-        ]
-      },
-      {
-        title: "Settings",
+        title: "Paramètres",
         href: "/dashboard/pages/settings",
-        icon: SettingsIcon,
+        icon: Settings,
         items: [
-          { title: "Profile", href: "/dashboard/pages/settings" },
-          { title: "Account", href: "/dashboard/pages/settings/account" },
-          { title: "Appearance", href: "/dashboard/pages/settings/appearance" },
-          { title: "Notifications", href: "/dashboard/pages/settings/notifications" },
-          { title: "Display", href: "/dashboard/pages/settings/display" }
+          { title: "Profil", href: "/dashboard/pages/settings" },
+          { title: "Compte", href: "/dashboard/pages/settings/account" },
+          { title: "Apparence", href: "/dashboard/pages/settings/appearance" },
+          { title: "Notifications", href: "/dashboard/pages/settings/notifications" }
         ]
       },
       {
-        title: "Pricing",
-        href: "#",
-        icon: BadgeDollarSignIcon,
-        items: [
-          { title: "Column Pricing", href: "/dashboard/pages/pricing/column" },
-          { title: "Table Pricing", href: "/dashboard/pages/pricing/table" },
-          { title: "Single Pricing", href: "/dashboard/pages/pricing/single" }
-        ]
+        title: "Clés API",
+        href: "/dashboard/api-keys",
+        icon: Key
       },
       {
-        title: "Authentication",
-        href: "/",
-        icon: FingerprintIcon,
-        items: [
-          { title: "Login v1", href: "/dashboard/login/v1" },
-          { title: "Login v2", href: "/dashboard/login/v2" },
-          { title: "Register v1", href: "/dashboard/register/v1" },
-          { title: "Register v2", href: "/dashboard/register/v2" },
-          { title: "Forgot Password", href: "/dashboard/forgot-password" }
-        ]
-      },
-      {
-        title: "Error Pages",
-        href: "/",
-        icon: FingerprintIcon,
-        items: [
-          { title: "404", href: "/dashboard/pages/error/404" },
-          { title: "500", href: "/dashboard/pages/error/500" },
-          { title: "403", href: "/dashboard/pages/error/403" }
-        ]
-      }
-    ]
-  },
-  {
-    title: "Others",
-    items: [
-      {
-        title: "Download Shadcn UI Kit",
-        href: "/pricing",
-        icon: ClipboardMinusIcon,
-        newTab: true
-      },
-      {
-        title: "Components",
-        href: "/components",
-        icon: ComponentIcon,
-        newTab: true
-      },
-      {
-        title: "Blocks",
-        href: "/blocks",
-        icon: ComponentIcon,
-        newTab: true
-      },
-      {
-        title: "Templates",
-        href: "/templates",
-        icon: ProportionsIcon,
-        newTab: true
-      },
-      {
-        title: "Github",
-        href: "https://github.com/bundui",
-        icon: GithubIcon,
-        newTab: true
+        title: "Gestion d'Équipe",
+        href: "/dashboard/team-management",
+        icon: Users,
+        isComing: true
       }
     ]
   }
@@ -315,26 +266,33 @@ export function NavMain() {
                             side={isMobile ? "bottom" : "right"}
                             align={isMobile ? "end" : "start"}
                             className="min-w-48 rounded-lg">
-                            <DropdownMenuLabel>{item.title}</DropdownMenuLabel>
-                            {item.items?.map((item) => (
+                            <DropdownMenuLabel>
+                              <Link href={item.href} className="block p-2 hover:bg-accent rounded">
+                                {item.title} - Vue d'ensemble
+                              </Link>
+                            </DropdownMenuLabel>
+                            {item.items?.map((subItem) => (
                               <DropdownMenuItem
                                 className="hover:text-foreground active:text-foreground hover:bg-[var(--primary)]/10! active:bg-[var(--primary)]/10!"
                                 asChild
-                                key={item.title}>
-                                <a href={item.href}>{item.title}</a>
+                                key={subItem.title}>
+                                <a href={subItem.href}>{subItem.title}</a>
                               </DropdownMenuItem>
                             ))}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
-                      <Collapsible className="group/collapsible block group-data-[collapsible=icon]:hidden">
+                      <Collapsible className="group/collapsible block group-data-[collapsed=icon]:hidden">
                         <CollapsibleTrigger asChild>
                           <SidebarMenuButton
                             className="hover:text-foreground active:text-foreground hover:bg-[var(--primary)]/10 active:bg-[var(--primary)]/10"
-                            tooltip={item.title}>
-                            {item.icon && <item.icon />}
-                            <span>{item.title}</span>
-                            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            tooltip={item.title}
+                            asChild>
+                            <Link href={item.href}>
+                              {item.icon && <item.icon />}
+                              <span>{item.title}</span>
+                              <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                            </Link>
                           </SidebarMenuButton>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
@@ -368,17 +326,17 @@ export function NavMain() {
                     </SidebarMenuButton>
                   )}
                   {!!item.isComing && (
-                    <SidebarMenuBadge className="peer-hover/menu-button:text-foreground opacity-50">
-                      Coming
+                    <SidebarMenuBadge className="border border-gray-300 bg-gray-50 text-gray-600 peer-hover/menu-button:text-gray-600">
+                      Bientôt
                     </SidebarMenuBadge>
                   )}
                   {!!item.isNew && (
-                    <SidebarMenuBadge className="border border-green-400 text-green-600 peer-hover/menu-button:text-green-600">
-                      New
+                    <SidebarMenuBadge className="border border-green-500 bg-green-50 text-green-700 peer-hover/menu-button:text-green-700">
+                      Nouveau
                     </SidebarMenuBadge>
                   )}
                   {!!item.isDataBadge && (
-                    <SidebarMenuBadge className="peer-hover/menu-button:text-foreground">
+                    <SidebarMenuBadge className="border border-blue-300 bg-blue-50 text-blue-700 peer-hover/menu-button:text-blue-700">
                       {item.isDataBadge}
                     </SidebarMenuBadge>
                   )}
