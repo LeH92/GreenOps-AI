@@ -339,11 +339,39 @@ export function AddProviderDialog() {
     setIsConnecting(true);
     setConnectionStatus("connecting");
 
-    // Simulation de la connexion
-    setTimeout(() => {
+    try {
+      if (selectedProvider.id === "google-cloud") {
+        // Test de connexion Google Cloud avec les credentials
+        const response = await fetch("/api/test-google-connection", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            projectId: credentials.projectId,
+            serviceAccountKey: credentials.serviceAccountKey,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setConnectionStatus("success");
+        } else {
+          setConnectionStatus("error");
+        }
+      } else {
+        // Simulation pour les autres providers
+        setTimeout(() => {
+          setConnectionStatus("success");
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Connection error:", error);
+      setConnectionStatus("error");
+    } finally {
       setIsConnecting(false);
-      setConnectionStatus("success");
-    }, 3000);
+    }
   };
 
   const copyToClipboard = (text: string) => {
