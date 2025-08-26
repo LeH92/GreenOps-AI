@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Cloud, Plus, Settings, CheckCircle, XCircle, AlertCircle, TrendingUp, DollarSign, Activity, Zap } from "lucide-react";
 import Link from "next/link";
 import { CompanyLogo } from "@/components/ui/company-logo";
-import { AddProviderDialog } from "./add-provider-dialog";
 
 
 export default function CloudProvidersPage() {
@@ -99,7 +98,6 @@ export default function CloudProvidersPage() {
             Connectez et gérez vos fournisseurs de services cloud
           </p>
         </div>
-        <AddProviderDialog />
       </div>
 
       {/* Vue d'ensemble */}
