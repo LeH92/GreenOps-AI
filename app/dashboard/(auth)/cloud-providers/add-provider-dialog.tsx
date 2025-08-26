@@ -343,20 +343,20 @@ export function AddProviderDialog() {
           Ajouter un fournisseur
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-[95vw] w-[1400px] max-h-[95vh] overflow-y-auto p-0">
         {/* Navigation Bar */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex items-center justify-between px-6 py-4">
-            <div className="flex items-center space-x-6">
-              <h2 className="text-lg font-semibold">GreenOps AI</h2>
-              <nav className="flex items-center space-x-4 text-sm">
-                <a href="#" className="text-muted-foreground hover:text-foreground">Vue d'ensemble</a>
-                <a href="#" className="text-muted-foreground hover:text-foreground">Fournisseurs</a>
-                <a href="#" className="text-muted-foreground hover:text-foreground">Intégrations</a>
-                <a href="#" className="text-muted-foreground hover:text-foreground">Documentation</a>
+          <div className="flex items-center justify-between px-8 py-6">
+            <div className="flex items-center space-x-8">
+              <h2 className="text-xl font-semibold">GreenOps AI</h2>
+              <nav className="flex items-center space-x-6 text-sm">
+                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Vue d'ensemble</a>
+                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Fournisseurs</a>
+                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Intégrations</a>
+                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Documentation</a>
               </nav>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-4">
               <Button variant="outline" size="sm">Documentation</Button>
               <Button size="sm">Commencer</Button>
             </div>
@@ -364,81 +364,83 @@ export function AddProviderDialog() {
         </div>
 
         {/* Search Bar */}
-        <div className="px-6 py-4 border-b">
-          <div className="relative max-w-md mx-auto">
+        <div className="px-8 py-6 border-b">
+          <div className="relative max-w-lg mx-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Rechercher par fournisseur..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-12 text-base"
             />
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="p-6">
+        <div className="p-8">
           {!selectedProvider ? (
             <div className="space-y-6">
               {/* Header */}
-              <div className="text-center">
-                <h3 className="text-2xl font-semibold mb-2">
+              <div className="text-center mb-8">
+                <h3 className="text-3xl font-semibold mb-4">
                   Intégrations Cloud
                 </h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
                   Connectez vos fournisseurs cloud pour surveiller les coûts et optimiser vos ressources
                 </p>
               </div>
 
               {/* Integration Cards Grid */}
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {filteredProviders.map((provider) => (
                   <Card 
                     key={provider.id} 
-                    className="hover:shadow-lg transition-all duration-200 border-2 hover:border-primary/20 cursor-pointer group"
+                    className="hover:shadow-lg transition-all duration-200 border-2 hover:border-primary/20 cursor-pointer group min-h-[280px] flex flex-col"
                     onClick={() => handleProviderSelect(provider)}
                   >
-                    <CardHeader className="pb-4">
+                    <CardHeader className="pb-6 flex-shrink-0">
                       {/* Integration Icons */}
-                      <div className="flex items-center justify-center space-x-2 mb-4">
-                        <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
-                          <CompanyLogo company={provider.company} size={20} />
+                      <div className="flex items-center justify-center space-x-3 mb-6">
+                        <div className="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                          <CompanyLogo company={provider.company} size={24} />
                         </div>
-                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <div className="w-3 h-3 bg-white rounded-full"></div>
                         </div>
-                        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
-                          <div className="w-4 h-4 bg-white rounded"></div>
+                        <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <div className="w-5 h-5 bg-white rounded"></div>
                         </div>
                       </div>
                       
-                      <CardTitle className="text-lg font-semibold text-center">
+                      <CardTitle className="text-xl font-semibold text-center">
                         {provider.name}
                       </CardTitle>
                     </CardHeader>
 
-                    <CardContent className="space-y-4">
-                      <CardDescription className="text-sm text-center line-clamp-3">
-                        {provider.description}
-                      </CardDescription>
+                    <CardContent className="flex-1 flex flex-col justify-between space-y-6">
+                      <div className="space-y-4">
+                        <CardDescription className="text-sm text-center leading-relaxed">
+                          {provider.description}
+                        </CardDescription>
 
-                      {/* Features */}
-                      <div className="flex flex-wrap gap-1 justify-center">
-                        {provider.features.slice(0, 2).map((feature) => (
-                          <Badge key={feature} variant="secondary" className="text-xs">
-                            {feature}
-                          </Badge>
-                        ))}
-                        {provider.features.length > 2 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{provider.features.length - 2}
-                          </Badge>
-                        )}
+                        {/* Features */}
+                        <div className="flex flex-wrap gap-2 justify-center">
+                          {provider.features.slice(0, 3).map((feature) => (
+                            <Badge key={feature} variant="secondary" className="text-xs px-2 py-1">
+                              {feature}
+                            </Badge>
+                          ))}
+                          {provider.features.length > 3 && (
+                            <Badge variant="outline" className="text-xs px-2 py-1">
+                              +{provider.features.length - 3}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
 
                       {/* Action Button */}
                       <Button 
-                        className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                        className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors h-10"
                         variant="outline"
                         onClick={(e) => {
                           e.stopPropagation();
