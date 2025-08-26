@@ -88,11 +88,11 @@ export function ChatWidget() {
           <div className="flex items-center space-x-4">
             <Avatar>
               <AvatarImage src={`https://bundui-images.netlify.app/avatars/04.png`} />
-              <AvatarFallback>OM</AvatarFallback>
+              <AvatarFallback>GA</AvatarFallback>
             </Avatar>
             <div>
-              <p className="text-sm leading-none font-medium">Sofia Davis</p>
-              <p className="text-muted-foreground text-sm">m@example.com</p>
+              <p className="text-sm leading-none font-medium">GreenOps AI Assistant</p>
+              <p className="text-muted-foreground text-sm">ai@greenops.com</p>
             </div>
           </div>
           <TooltipProvider delayDuration={0}>

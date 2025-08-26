@@ -11,11 +11,11 @@ import {
 } from "@/components/ui/chart";
 
 const chartData = [
-  { browser: "chrome", visitors: 100, fill: "var(--color-visitors)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-visitors)" },
-  { browser: "firefox", visitors: 150, fill: "var(--color-visitors)" },
-  { browser: "edge", visitors: 250, fill: "var(--color-visitors)" },
-  { browser: "other", visitors: 110, fill: "var(--color-visitors)" }
+  { browser: "chrome", visitors: 100, fill: "var(--chart-1)" },
+  { browser: "safari", visitors: 200, fill: "var(--chart-2)" },
+  { browser: "firefox", visitors: 150, fill: "var(--chart-3)" },
+  { browser: "edge", visitors: 250, fill: "var(--chart-4)" },
+  { browser: "other", visitors: 110, fill: "var(--chart-5)" }
 ];
 
 const chartConfig = {
@@ -51,7 +51,7 @@ export function TotalRevenueCard() {
             />
             <Line
               dataKey="visitors"
-              stroke="var(--color-visitors)"
+              stroke="var(--chart-1)"
               strokeWidth={2}
               dot={({ payload, ...props }) => {
                 return (

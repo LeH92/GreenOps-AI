@@ -12,6 +12,14 @@ import { ActiveThemeProvider } from "@/components/active-theme";
 import { DEFAULT_THEME } from "@/lib/themes";
 import { Toaster } from "@/components/ui/sonner";
 
+export const metadata = {
+  title: "GreenOps AI Dashboard",
+  description: "Modern, eco-tech focused admin dashboard for AI companies and tech startups",
+  icons: {
+    icon: "/favicon.svg",
+  },
+};
+
 export default async function RootLayout({
   children
 }: Readonly<{

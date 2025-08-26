@@ -71,8 +71,8 @@ export function TeamMembersCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Team Members</CardTitle>
-        <CardDescription>Invite your team members to collaborate.</CardDescription>
+        <CardTitle>GreenOps AI Team</CardTitle>
+        <CardDescription>Invite your team members to collaborate on AI projects.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
         {data.map((member, key) => (

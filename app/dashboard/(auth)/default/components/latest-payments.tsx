@@ -99,87 +99,50 @@ export function LatestPayments() {
         email: "maria@gmail.com",
         firstName: "Maria",
         lastName: "Garcia",
-        amount: 529.0
+        amount: 572.0
+      }
+    ],
+    []
+  );
+
+  const columns = React.useMemo<ColumnDef<Payment>[]>(
+    () => [
+      {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => {
+          const status = row.getValue("status") as string;
+          return (
+            <Badge
+              variant={status === "success" ? "default" : status === "processing" ? "secondary" : "destructive"}>
+              {status}
+            </Badge>
+          );
+        }
       },
       {
-        id: "7",
-        status: "processing",
-        email: "james34@outlook.com",
-        firstName: "James",
-        lastName: "Wilson",
-        amount: 438.0
+        accessorKey: "email",
+        header: "Email"
       },
       {
-        id: "8",
-        status: "success",
-        email: "sarah.j@yahoo.com",
-        firstName: "Sarah",
-        lastName: "Jones",
-        amount: 692.0
+        accessorKey: "firstName",
+        header: "First Name"
       },
       {
-        id: "9",
-        status: "failed",
-        email: "robert55@gmail.com",
-        firstName: "Robert",
-        lastName: "Brown",
-        amount: 512.0
+        accessorKey: "lastName",
+        header: "Last Name"
       },
       {
-        id: "10",
-        status: "success",
-        email: "emily.p@hotmail.com",
-        firstName: "Emily",
-        lastName: "Parker",
-        amount: 375.0
-      },
-      {
-        id: "11",
-        status: "success",
-        email: "david87@gmail.com",
-        firstName: "David",
-        lastName: "Miller",
-        amount: 623.0
-      },
-      {
-        id: "12",
-        status: "processing",
-        email: "jennifer@yahoo.com",
-        firstName: "Jennifer",
-        lastName: "Davis",
-        amount: 459.0
-      },
-      {
-        id: "13",
-        status: "failed",
-        email: "michael.s@hotmail.com",
-        firstName: "Michael",
-        lastName: "Smith",
-        amount: 782.0
-      },
-      {
-        id: "14",
-        status: "success",
-        email: "lisa.w@gmail.com",
-        firstName: "Lisa",
-        lastName: "Wilson",
-        amount: 347.0
-      },
-      {
-        id: "15",
-        status: "success",
-        email: "john.doe@outlook.com",
-        firstName: "John",
-        lastName: "Doe",
-        amount: 594.0
-      },
-      {
-        id: "16",
-        status: "processing",
-        email: "emma.j@gmail.com",
-        firstName: "Emma",
-        lastName: "Johnson",
-        amount: 428.0
+        accessorKey: "amount",
+        header: "Amount",
+        cell: ({ row }) => {
+          const amount = parseFloat(row.getValue("amount"));
+          const formatted = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD"
+          }).format(amount);
+          return <div className="font-medium">{formatted}</div>;
+        }
       }
     ],
     []
@@ -202,99 +165,6 @@ export function LatestPayments() {
       alert(`Tagging ${selectedRows.length} payments`);
     }
   };
-
-  const columns = React.useMemo<ColumnDef<Payment>[]>(
-    () => [
-      {
-        id: "select",
-        header: ({ table }) => (
-          <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-            aria-label="Select all"
-          />
-        ),
-        cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select row"
-          />
-        ),
-        enableSorting: false,
-        enableHiding: false
-      },
-      {
-        accessorKey: "name",
-        header: "Customer",
-        cell: ({ row }) => (
-          <div>
-            {row.original.firstName} {row.original.lastName}
-          </div>
-        )
-      },
-      {
-        accessorKey: "email",
-        header: "Email",
-        cell: ({ row }) => <div>{row.original.email}</div>
-      },
-      {
-        accessorKey: "amount",
-        header: () => <div className="text-right">Amount</div>,
-        cell: ({ row }) => {
-          const amount = Number.parseFloat(row.original.amount.toString());
-          return <div className="text-right font-medium">${amount.toFixed(2)}</div>;
-        }
-      },
-      {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => {
-          const status = row.original.status;
-
-          const statusMap = {
-            success: "success",
-            processing: "info",
-            failed: "destructive"
-          } as const;
-
-          const statusClass = statusMap[status] ?? "default";
-
-          return (
-            <Badge variant={statusClass} className="capitalize">
-              {status.replace("-", " ")}
-            </Badge>
-          );
-        }
-      },
-      {
-        id: "actions",
-        cell: ({ row }) => {
-          return (
-            <div className="text-end">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="size-8 p-0">
-                    <span className="sr-only">Open menu</span>
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem>View details</DropdownMenuItem>
-                  <DropdownMenuItem>Download receipt</DropdownMenuItem>
-                  <DropdownMenuItem>Contact customer</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          );
-        }
-      }
-    ],
-    []
-  );
 
   const table = useReactTable({
     data,
@@ -321,7 +191,7 @@ export function LatestPayments() {
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle>Latest Payments</CardTitle>
+        <CardTitle>Latest AI Model Transactions</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">

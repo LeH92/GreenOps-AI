@@ -2,13 +2,9 @@ import Image from "next/image";
 
 export default function Logo() {
   return (
-    <Image
-      src="/logo.png"
-      width={30}
-      height={30}
-      className="me-1 rounded-[5px] transition-all group-data-collapsible:size-7 group-data-[collapsible=icon]:size-8"
-      alt="shadcn ui kit logo"
-      unoptimized
-    />
+    <div className="flex items-center gap-2 font-bold text-xl text-primary">
+      <span className="text-2xl">🌱</span>
+      <span className="hidden group-data-[collapsible=icon]:hidden">GreenOps AI</span>
+    </div>
   );
 }

@@ -53,9 +53,9 @@ export function ExerciseMinutes() {
     <Card className="h-full">
       <CardHeader className="flex items-start justify-between">
         <div className="space-y-1.5">
-          <CardTitle>Exercise Minutes</CardTitle>
+          <CardTitle>AI Performance Metrics</CardTitle>
           <CardDescription>
-            Your exercise minutes are ahead of where you normally are.
+            Your AI performance metrics are ahead of where you normally are.
           </CardDescription>
         </div>
         <ExportButton />
@@ -103,13 +103,12 @@ export function ExerciseMinutes() {
               dataKey="average"
               activeDot={{
                 r: 6,
-                style: { fill: "var(--theme-primary)", opacity: 0.25 }
+                style: { fill: "var(--chart-1)", opacity: 0.25 }
               }}
               style={
                 {
-                  stroke: "var(--theme-primary)",
-                  opacity: 0.35,
-                  "--theme-primary": `var(--primary)`
+                  stroke: "var(--chart-1)",
+                  opacity: 0.35
                 } as React.CSSProperties
               }
             />
@@ -119,12 +118,11 @@ export function ExerciseMinutes() {
               strokeWidth={2}
               activeDot={{
                 r: 8,
-                style: { fill: "var(--theme-primary)" }
+                style: { fill: "var(--chart-2)" }
               }}
               style={
                 {
-                  stroke: "var(--theme-primary)",
-                  "--theme-primary": `var(--primary)`
+                  stroke: "var(--chart-2)"
                 } as React.CSSProperties
               }
             />

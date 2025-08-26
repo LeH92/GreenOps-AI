@@ -46,8 +46,8 @@ const chartData = [
 
 const chartConfig = {
   desktop: {
-    label: "Subscription",
-    color: "var(--primary)"
+    label: "AI Models",
+    color: "var(--chart-1)"
   }
 } satisfies ChartConfig;
 
@@ -55,7 +55,7 @@ export function SubscriptionsCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Subscriptions</CardTitle>
+        <CardTitle>AI Model Deployments</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="font-display text-3xl leading-6">+4850</div>
@@ -72,7 +72,7 @@ export function SubscriptionsCard() {
             accessibilityLayer
             data={chartData}>
             <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-            <Bar dataKey="subscription" fill="var(--color-desktop)" radius={5}>
+            <Bar dataKey="subscription" fill="var(--chart-1)" radius={5}>
               <LabelList position="top" offset={12} className="fill-foreground" fontSize={12} />
             </Bar>
           </BarChart>

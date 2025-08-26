@@ -7,6 +7,14 @@
 @import "./themes.css";
 
 :root {
+  /* GreenOps AI Color Palette */
+  --greenops-primary: #10B981;      /* Modern green */
+  --greenops-secondary: #34D399;    /* Light green */
+  --greenops-accent: #3B82F6;       /* Tech blue */
+  --greenops-warning: #F59E0B;      /* Amber */
+  --greenops-error: #EF4444;        /* Red */
+  
+  /* Base colors with green theme */
   --base-50: oklch(0.985 0.0013 286.84);
   --base-100: oklch(0.967 0.0027 286.38);
   --base-200: oklch(0.92 0.0053 286.32);
@@ -26,32 +34,32 @@
   --card-foreground: var(--base-800);
   --popover: var(--color-white);
   --popover-foreground: var(--base-800);
-  --primary: var(--base-950);
+  --primary: var(--greenops-primary);
   --primary-foreground: var(--color-white);
-  --secondary: var(--base-300);
+  --secondary: var(--greenops-secondary);
   --secondary-foreground: var(--base-800);
   --muted: var(--color-neutral-100);
   --muted-foreground: var(--color-neutral-500);
-  --accent: var(--base-200);
-  --accent-foreground: var(--base-800);
-  --destructive: oklch(0.577 0.245 27.325);
+  --accent: var(--greenops-accent);
+  --accent-foreground: var(--color-white);
+  --destructive: var(--greenops-error);
   --border: var(--base-200);
   --input: var(--base-300);
-  --ring: var(--base-800);
-  --chart-1: var(--base-950);
-  --chart-2: var(--base-600);
-  --chart-3: var(--base-800);
-  --chart-4: var(--base-400);
-  --chart-5: var(--base-300);
+  --ring: var(--greenops-primary);
+  --chart-1: var(--greenops-primary);
+  --chart-2: var(--greenops-secondary);
+  --chart-3: var(--greenops-accent);
+  --chart-4: var(--greenops-warning);
+  --chart-5: var(--greenops-error);
   --radius: 0.5rem;
   --sidebar: var(--base-100);
   --sidebar-foreground: var(--base-800);
-  --sidebar-primary: var(--base-950);
+  --sidebar-primary: var(--greenops-primary);
   --sidebar-primary-foreground: var(--color-white);
-  --sidebar-accent: var(--base-200);
+  --sidebar-accent: var(--greenops-secondary);
   --sidebar-accent-foreground: var(--base-800);
   --sidebar-border: var(--base-200);
-  --sidebar-ring: var(--base-800);
+  --sidebar-ring: var(--greenops-primary);
 
   --display-weight: 700;
 
@@ -75,31 +83,31 @@
   --card-foreground: var(--base-200);
   --popover: var(--base-950);
   --popover-foreground: var(--base-200);
-  --primary: var(--base-50);
+  --primary: var(--greenops-primary);
   --primary-foreground: var(--base-900);
-  --secondary: var(--base-500);
+  --secondary: var(--greenops-secondary);
   --secondary-foreground: var(--base-200);
   --muted: var(--base-900);
   --muted-foreground: var(--base-400);
-  --accent: var(--base-900);
+  --accent: var(--greenops-accent);
   --accent-foreground: var(--base-200);
-  --destructive: oklch(0.704 0.191 22.216);
+  --destructive: var(--greenops-error);
   --border: var(--base-800);
   --input: var(--base-700);
-  --ring: var(--base-200);
-  --chart-1: var(--base-50);
-  --chart-2: var(--base-400);
-  --chart-3: var(--base-200);
-  --chart-4: var(--base-600);
-  --chart-5: var(--base-700);
+  --ring: var(--greenops-primary);
+  --chart-1: var(--greenops-primary);
+  --chart-2: var(--greenops-secondary);
+  --chart-3: var(--greenops-accent);
+  --chart-4: var(--greenops-warning);
+  --chart-5: var(--greenops-error);
   --sidebar: var(--base-900);
   --sidebar-foreground: var(--base-200);
-  --sidebar-primary: var(--base-50);
+  --sidebar-primary: var(--greenops-primary);
   --sidebar-primary-foreground: var(--base-900);
-  --sidebar-accent: var(--base-800);
+  --sidebar-accent: var(--greenops-secondary);
   --sidebar-accent-foreground: var(--base-200);
   --sidebar-border: var(--base-800);
-  --sidebar-ring: var(--base-200);
+  --sidebar-ring: var(--greenops-primary);
 }
 
 @theme inline {

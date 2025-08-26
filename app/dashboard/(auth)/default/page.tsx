@@ -2,6 +2,7 @@ import { generateMeta } from "@/lib/utils";
 
 import CustomDateRangePicker from "@/components/custom-date-range-picker";
 import { Button } from "@/components/ui/button";
+import { ColorDemo } from "@/components/ui/color-demo";
 
 import {
   ChatWidget,
@@ -17,9 +18,9 @@ import { toast } from "sonner";
 
 export async function generateMetadata() {
   return generateMeta({
-    title: "Admin Dashboard",
+    title: "GreenOps AI Dashboard",
     description:
-      "The admin dashboard template offers a sleek and efficient interface for monitoring important data and user interactions. Built with shadcn/ui.",
+      "The GreenOps AI dashboard offers a sleek and efficient interface for monitoring important data and user interactions. Built with shadcn/ui.",
     canonical: "/default"
   });
 }
@@ -28,7 +29,7 @@ export default function Page() {
   return (
     <div className="space-y-4">
       <div className="flex flex-row items-center justify-between">
-        <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Dashboard</h1>
+        <h1 className="text-xl font-bold tracking-tight lg:text-2xl">GreenOps AI Dashboard</h1>
         <div className="flex items-center space-x-2">
           <CustomDateRangePicker />
           <Button>
@@ -49,6 +50,9 @@ export default function Page() {
           <LatestPayments />
         </div>
         <PaymentMethodCard />
+        <div className="lg:col-span-3">
+          <ColorDemo />
+        </div>
       </div>
     </div>
   );

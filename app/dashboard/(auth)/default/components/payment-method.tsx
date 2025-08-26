@@ -22,8 +22,8 @@ export function PaymentMethodCard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Payment Method</CardTitle>
-        <CardDescription>Add a new payment method to your account.</CardDescription>
+        <CardTitle>GreenOps AI Billing</CardTitle>
+        <CardDescription>Add a new payment method to your GreenOps AI account.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6">
         <RadioGroup defaultValue="card" className="grid grid-cols-3 gap-4">
