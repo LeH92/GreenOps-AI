@@ -28,7 +28,8 @@ import {
   Zap,
   Clock,
   Star,
-  TrendingUp
+  TrendingUp,
+  Link
 } from "lucide-react";
 import { CompanyLogo } from "@/components/ui/company-logo";
 
@@ -36,7 +37,7 @@ interface Provider {
   id: string;
   name: string;
   shortName: string;
-  company: "aws" | "google-cloud" | "azure" | "digitalocean" | "linode" | "vultr";
+  company: "aws" | "google-cloud" | "azure";
   description: string;
   setupComplexity: "Facile" | "Moyenne" | "Difficile";
   estimatedTime: string;
@@ -258,7 +259,7 @@ const providers: Provider[] = [
     id: "digitalocean",
     name: "DigitalOcean",
     shortName: "DO",
-    company: "aws", // Utilise le même logo pour l'instant
+    company: "aws", // Utilise le logo AWS pour l'instant
     description: "Simple & Développeurs",
     setupComplexity: "Facile",
     estimatedTime: "5-8 min",
@@ -376,145 +377,83 @@ export function AddProviderDialog() {
 
         {!selectedProvider ? (
           <div className="space-y-6">
-            {/* Filtres et recherche */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                  <TrendingUp className="mr-2 h-3 w-3" />
-                  Tous les fournisseurs
-                </Badge>
-                <span className="text-sm text-muted-foreground">
-                  {providers.length} fournisseurs disponibles
-                </span>
-              </div>
+            {/* Header simple */}
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-muted-foreground">
+                {providers.length} fournisseurs disponibles
+              </h3>
             </div>
 
-            {/* Grille des fournisseurs */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
+            {/* Grille compacte des fournisseurs */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {providers.map((provider) => (
                 <Card 
                   key={provider.id} 
-                  className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-2 hover:border-primary/20 group"
-                  onClick={() => handleProviderSelect(provider)}
+                  className="hover:shadow-md transition-shadow border"
                 >
-                  <CardHeader className="pb-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="relative">
-                          <CompanyLogo company={provider.company} size={48} />
-                          {provider.popularity > 90 && (
-                            <div className="absolute -top-2 -right-2 bg-yellow-400 rounded-full p-1">
-                              <Star className="h-3 w-3 text-white fill-current" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="space-y-1">
-                          <CardTitle className="text-xl font-semibold group-hover:text-primary transition-colors">
-                            {provider.name}
-                          </CardTitle>
-                          <CardDescription className="text-base">
-                            {provider.description}
-                          </CardDescription>
-                        </div>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center space-x-3">
+                      <CompanyLogo company={provider.company} size={32} />
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-base font-semibold truncate">
+                          {provider.name}
+                        </CardTitle>
+                        <CardDescription className="text-sm truncate">
+                          {provider.description}
+                        </CardDescription>
                       </div>
-                      <Badge 
-                        variant={provider.status === "available" ? "default" : "secondary"}
-                        className={provider.status === "coming-soon" ? "bg-yellow-100 text-yellow-800" : ""}
-                      >
-                        {provider.status === "available" ? "Disponible" : 
-                         provider.status === "coming-soon" ? "Bientôt" : "Beta"}
-                      </Badge>
                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-4">
-                    {/* Métriques principales */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center justify-center mb-1">
-                          <Clock className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <div className="text-sm font-medium">{provider.estimatedTime}</div>
-                        <div className="text-xs text-muted-foreground">Temps estimé</div>
-                      </div>
-                      <div className="text-center p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center justify-center mb-1">
-                          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                        <div className="text-sm font-medium">{provider.popularity}%</div>
-                        <div className="text-xs text-muted-foreground">Popularité</div>
-                      </div>
-                    </div>
-
-                    {/* Complexité */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Complexité:</span>
+                  <CardContent className="space-y-3">
+                    {/* Métriques compactes */}
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Complexité:</span>
                       <Badge variant="outline" className={getComplexityColor(provider.setupComplexity)}>
                         {provider.setupComplexity}
                       </Badge>
                     </div>
 
-                    {/* Idéal pour */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Idéal pour:</span>
-                      <span className="text-sm font-medium text-primary">{provider.bestFor}</span>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Temps:</span>
+                      <span className="font-medium">{provider.estimatedTime}</span>
                     </div>
 
-                    {/* Services clés */}
-                    <div>
-                      <p className="text-sm font-medium mb-2 text-muted-foreground">Services clés:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {provider.features.slice(0, 3).map((feature) => (
-                          <Badge key={feature} variant="secondary" className="text-xs">
-                            {feature}
-                          </Badge>
-                        ))}
-                        {provider.features.length > 3 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{provider.features.length - 3} autres
-                          </Badge>
-                        )}
-                      </div>
+                    {/* Services clés (limités) */}
+                    <div className="flex flex-wrap gap-1">
+                      {provider.features.slice(0, 2).map((feature) => (
+                        <Badge key={feature} variant="secondary" className="text-xs">
+                          {feature}
+                        </Badge>
+                      ))}
+                      {provider.features.length > 2 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{provider.features.length - 2}
+                        </Badge>
+                      )}
                     </div>
 
-                    {/* CTA */}
-                    <Button className="w-full mt-4" variant="outline">
-                      <Cloud className="mr-2 h-4 w-4" />
+                    {/* Bouton de connexion principal */}
+                    <Button 
+                      className="w-full" 
+                      onClick={() => handleProviderSelect(provider)}
+                    >
+                      <Link className="mr-2 h-4 w-4" />
                       Configurer {provider.shortName}
                     </Button>
                   </CardContent>
                 </Card>
               ))}
             </div>
-
-            {/* Footer informatif */}
-            <div className="text-center py-6 border-t">
-              <p className="text-sm text-muted-foreground">
-                Tous les fournisseurs sont testés et approuvés pour une intégration sécurisée
-              </p>
-            </div>
           </div>
         ) : (
           <div className="space-y-6">
             {/* Header du provider sélectionné */}
-            <div className="flex items-center space-x-4 p-6 bg-gradient-to-r from-muted/50 to-muted rounded-xl">
-              <CompanyLogo company={selectedProvider.company} size={56} />
+            <div className="flex items-center space-x-4 p-4 bg-muted rounded-lg">
+              <CompanyLogo company={selectedProvider.company} size={40} />
               <div className="flex-1">
-                <h3 className="text-2xl font-bold">{selectedProvider.name}</h3>
-                <p className="text-muted-foreground text-lg">{selectedProvider.description}</p>
-                <div className="flex items-center space-x-4 mt-2">
-                  <Badge variant="outline" className={getComplexityColor(selectedProvider.setupComplexity)}>
-                    {selectedProvider.setupComplexity}
-                  </Badge>
-                  <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>{selectedProvider.estimatedTime}</span>
-                  </div>
-                  <div className="flex items-center space-x-1 text-sm text-muted-foreground">
-                    <Star className="h-4 w-4 fill-current text-yellow-400" />
-                    <span>{selectedProvider.popularity}%</span>
-                  </div>
-                </div>
+                <h3 className="text-xl font-semibold">{selectedProvider.name}</h3>
+                <p className="text-muted-foreground">{selectedProvider.description}</p>
               </div>
               <Button 
                 variant="outline" 
@@ -526,75 +465,69 @@ export function AddProviderDialog() {
             </div>
 
             {/* Workflow de configuration */}
-            <Tabs value={currentStep.toString()} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4 h-auto p-1">
+            <Tabs value={currentStep.toString()} className="space-y-4">
+              <TabsList className="grid w-full grid-cols-4">
                 {selectedProvider.setupSteps.map((step) => (
                   <TabsTrigger 
                     key={step.id} 
                     value={step.id.toString()}
                     onClick={() => setCurrentStep(step.id)}
-                    className="flex flex-col items-center space-y-2 h-auto py-4 px-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    className="flex items-center space-x-2"
                   >
-                    <div className="relative">
-                      {step.isCompleted ? (
-                        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-                          <CheckCircle className="h-5 w-5 text-white" />
-                        </div>
-                      ) : (
-                        <div className="w-8 h-8 rounded-full border-2 border-muted-foreground flex items-center justify-center">
-                          <span className="text-sm font-medium">{step.id}</span>
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-xs text-center leading-tight">{step.title}</span>
+                    {step.isCompleted ? (
+                      <CheckCircle className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <div className="h-4 w-4 rounded-full border-2 border-muted-foreground flex items-center justify-center">
+                        <span className="text-xs">{step.id}</span>
+                      </div>
+                    )}
+                    <span className="hidden sm:inline">Étape {step.id}</span>
                   </TabsTrigger>
                 ))}
               </TabsList>
 
               {selectedProvider.setupSteps.map((step) => (
-                <TabsContent key={step.id} value={step.id.toString()} className="space-y-6">
-                  <div className="space-y-6">
-                    <div className="text-center space-y-2">
-                      <h4 className="text-2xl font-bold">{step.title}</h4>
-                      <p className="text-muted-foreground text-lg max-w-2xl mx-auto">{step.description}</p>
+                <TabsContent key={step.id} value={step.id.toString()} className="space-y-4">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-lg font-semibold">{step.title}</h4>
+                      <p className="text-muted-foreground">{step.description}</p>
                     </div>
 
-                    <div className="grid gap-4 max-w-3xl mx-auto">
+                    <div className="space-y-3">
                       {step.instructions.map((instruction, index) => (
-                        <div key={index} className="flex items-start space-x-4 p-4 bg-muted/30 rounded-lg border-l-4 border-primary">
-                          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">
+                        <div key={index} className="flex items-start space-x-3 p-3 bg-muted rounded-lg">
+                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
                             {index + 1}
                           </div>
-                          <p className="text-base leading-relaxed">{instruction}</p>
+                          <p className="text-sm">{instruction}</p>
                         </div>
                       ))}
                     </div>
 
                     {step.link && (
-                      <div className="text-center">
-                        <Button variant="outline" size="lg" asChild>
-                          <a href={step.link} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-2 h-5 w-5" />
-                            Ouvrir {selectedProvider.shortName} Console
-                          </a>
-                        </Button>
-                      </div>
+                      <Button variant="outline" asChild>
+                        <a href={step.link} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Ouvrir {selectedProvider.shortName} Console
+                        </a>
+                      </Button>
                     )}
 
                     {step.codeSnippet && (
-                      <div className="space-y-3 max-w-2xl mx-auto">
-                        <Label className="text-base font-semibold">Code de configuration</Label>
+                      <div className="space-y-2">
+                        <Label>Code de configuration</Label>
                         <div className="relative">
                           <Textarea 
                             value={step.codeSnippet} 
                             readOnly 
-                            className="font-mono text-sm bg-muted/50"
+                            className="font-mono text-sm"
                             rows={4}
                           />
                           <Button
                             size="sm"
                             variant="outline"
-                            className="absolute top-3 right-3"
+                            className="absolute top-2 right-2"
                             onClick={() => copyToClipboard(step.codeSnippet!)}
                           >
                             <Copy className="h-4 w-4" />
@@ -603,17 +536,15 @@ export function AddProviderDialog() {
                       </div>
                     )}
 
-                    <div className="flex justify-between max-w-2xl mx-auto">
+                    <div className="flex justify-between">
                       <Button
                         variant="outline"
-                        size="lg"
                         onClick={() => handleStepComplete(step.id)}
                         disabled={step.isCompleted}
-                        className="min-w-[140px]"
                       >
                         {step.isCompleted ? (
                           <>
-                            <CheckCircle className="mr-2 h-5 w-5" />
+                            <CheckCircle className="mr-2 h-4 w-4" />
                             Terminé
                           </>
                         ) : (
@@ -622,7 +553,7 @@ export function AddProviderDialog() {
                       </Button>
 
                       {step.id < selectedProvider.setupSteps.length && (
-                        <Button size="lg" onClick={() => setCurrentStep(step.id + 1)}>
+                        <Button onClick={() => setCurrentStep(step.id + 1)}>
                           Suivant
                         </Button>
                       )}
@@ -634,44 +565,38 @@ export function AddProviderDialog() {
 
             {/* Formulaire de connexion */}
             {currentStep === selectedProvider.setupSteps.length && (
-              <div className="space-y-6 p-6 border rounded-xl bg-muted/20">
-                <div className="text-center space-y-2">
-                  <h4 className="text-2xl font-bold">Configuration finale</h4>
-                  <p className="text-muted-foreground">Entrez vos identifiants pour finaliser la connexion</p>
-                </div>
+              <div className="space-y-4 p-4 border rounded-lg">
+                <h4 className="text-lg font-semibold">Configuration finale</h4>
                 
-                <div className="grid gap-6 max-w-2xl mx-auto">
+                <div className="grid gap-4 md:grid-cols-2">
                   {selectedProvider.id === "aws" && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="accessKey" className="text-base font-medium">Access Key ID</Label>
+                        <Label htmlFor="accessKey">Access Key ID</Label>
                         <Input
                           id="accessKey"
                           value={credentials.accessKey}
                           onChange={(e) => setCredentials({...credentials, accessKey: e.target.value})}
                           placeholder="AKIA..."
-                          className="h-12 text-base"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="secretKey" className="text-base font-medium">Secret Access Key</Label>
+                        <Label htmlFor="secretKey">Secret Access Key</Label>
                         <Input
                           id="secretKey"
                           type="password"
                           value={credentials.secretKey}
                           onChange={(e) => setCredentials({...credentials, secretKey: e.target.value})}
                           placeholder="Votre clé secrète"
-                          className="h-12 text-base"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="region" className="text-base font-medium">Région</Label>
+                        <Label htmlFor="region">Région</Label>
                         <Input
                           id="region"
                           value={credentials.region}
                           onChange={(e) => setCredentials({...credentials, region: e.target.value})}
                           placeholder="us-east-1"
-                          className="h-12 text-base"
                         />
                       </div>
                     </>
@@ -680,24 +605,22 @@ export function AddProviderDialog() {
                   {selectedProvider.id === "google-cloud" && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="projectId" className="text-base font-medium">Project ID</Label>
+                        <Label htmlFor="projectId">Project ID</Label>
                         <Input
                           id="projectId"
                           value={credentials.projectId}
                           onChange={(e) => setCredentials({...credentials, projectId: e.target.value})}
                           placeholder="votre-project-id"
-                          className="h-12 text-base"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="serviceAccountKey" className="text-base font-medium">Service Account Key (JSON)</Label>
+                        <Label htmlFor="serviceAccountKey">Service Account Key (JSON)</Label>
                         <Textarea
                           id="serviceAccountKey"
                           value={credentials.serviceAccountKey}
                           onChange={(e) => setCredentials({...credentials, serviceAccountKey: e.target.value})}
                           placeholder="Collez le contenu JSON de votre clé de compte de service"
-                          rows={6}
-                          className="text-sm"
+                          rows={4}
                         />
                       </div>
                     </>
@@ -706,34 +629,31 @@ export function AddProviderDialog() {
                   {selectedProvider.id === "azure" && (
                     <>
                       <div className="space-y-2">
-                        <Label htmlFor="tenantId" className="text-base font-medium">Tenant ID</Label>
+                        <Label htmlFor="tenantId">Tenant ID</Label>
                         <Input
                           id="tenantId"
                           value={credentials.accessKey}
                           onChange={(e) => setCredentials({...credentials, accessKey: e.target.value})}
                           placeholder="00000000-0000-0000-0000-000000000000"
-                          className="h-12 text-base"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="clientId" className="text-base font-medium">Client ID</Label>
+                        <Label htmlFor="clientId">Client ID</Label>
                         <Input
                           id="clientId"
                           value={credentials.secretKey}
                           onChange={(e) => setCredentials({...credentials, secretKey: e.target.value})}
                           placeholder="00000000-0000-0000-0000-000000000000"
-                          className="h-12 text-base"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="clientSecret" className="text-base font-medium">Client Secret</Label>
+                        <Label htmlFor="clientSecret">Client Secret</Label>
                         <Input
                           id="clientSecret"
                           type="password"
                           value={credentials.region}
                           onChange={(e) => setCredentials({...credentials, region: e.target.value})}
                           placeholder="Votre secret client"
-                          className="h-12 text-base"
                         />
                       </div>
                     </>
@@ -741,7 +661,7 @@ export function AddProviderDialog() {
                 </div>
 
                 {connectionStatus === "error" && (
-                  <Alert className="max-w-2xl mx-auto">
+                  <Alert>
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                       Erreur de connexion. Vérifiez vos identifiants et réessayez.
@@ -750,37 +670,35 @@ export function AddProviderDialog() {
                 )}
 
                 {connectionStatus === "success" && (
-                  <Alert className="max-w-2xl mx-auto border-green-200 bg-green-50">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <AlertDescription className="text-green-800">
+                  <Alert>
+                    <CheckCircle className="h-4 w-4" />
+                    <AlertDescription>
                       Connexion réussie ! {selectedProvider.name} est maintenant connecté.
                     </AlertDescription>
                   </Alert>
                 )}
 
-                <div className="flex justify-center space-x-4">
-                  <Button variant="outline" size="lg" onClick={() => setSelectedProvider(null)}>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setSelectedProvider(null)}>
                     Annuler
                   </Button>
                   <Button 
-                    size="lg"
                     onClick={handleConnect}
                     disabled={isConnecting || connectionStatus === "success"}
-                    className="min-w-[180px]"
                   >
                     {isConnecting ? (
                       <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Connexion...
                       </>
                     ) : connectionStatus === "success" ? (
                       <>
-                        <CheckCircle className="mr-2 h-5 w-5" />
+                        <CheckCircle className="mr-2 h-4 w-4" />
                         Connecté
                       </>
                     ) : (
                       <>
-                        <Zap className="mr-2 h-5 w-5" />
+                        <Zap className="mr-2 h-4 w-4" />
                         Connecter {selectedProvider.shortName}
                       </>
                     )}
