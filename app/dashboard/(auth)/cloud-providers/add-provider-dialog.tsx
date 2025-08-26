@@ -343,10 +343,10 @@ export function AddProviderDialog() {
           Ajouter un fournisseur
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[95vw] w-[1400px] max-h-[95vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-[98vw] w-[1600px] max-h-[95vh] overflow-y-auto p-0">
         {/* Navigation Bar */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex items-center justify-between px-8 py-6">
+          <div className="flex items-center justify-between px-12 py-6">
             <div className="flex items-center space-x-8">
               <h2 className="text-xl font-semibold">GreenOps AI</h2>
               <nav className="flex items-center space-x-6 text-sm">
@@ -364,7 +364,7 @@ export function AddProviderDialog() {
         </div>
 
         {/* Search Bar */}
-        <div className="px-8 py-6 border-b">
+        <div className="px-12 py-6 border-b">
           <div className="relative max-w-lg mx-auto">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -377,7 +377,7 @@ export function AddProviderDialog() {
         </div>
 
         {/* Main Content */}
-        <div className="p-8">
+        <div className="p-8 px-12">
           {!selectedProvider ? (
             <div className="space-y-6">
               {/* Header */}
@@ -391,7 +391,7 @@ export function AddProviderDialog() {
               </div>
 
               {/* Integration Cards Grid */}
-              <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {filteredProviders.map((provider) => (
                   <Card 
                     key={provider.id} 
