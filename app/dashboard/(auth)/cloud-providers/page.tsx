@@ -7,6 +7,7 @@ import { Cloud, Plus, Settings, CheckCircle, XCircle, AlertCircle, TrendingUp, D
 import Link from "next/link";
 import { CompanyLogo } from "@/components/ui/company-logo";
 import { AddProviderDialog } from "./add-provider-dialog";
+import { GoogleCloudStatus } from "./google-cloud-status";
 
 export default function CloudProvidersPage() {
   const providers = [
@@ -156,6 +157,9 @@ export default function CloudProvidersPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
+          {/* Google Cloud Status */}
+          <GoogleCloudStatus />
+          
           <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3">
             {providers.map((provider) => (
               <Card key={provider.name} className="relative overflow-hidden">

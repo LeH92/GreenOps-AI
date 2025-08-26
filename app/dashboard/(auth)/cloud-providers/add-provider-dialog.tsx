@@ -31,6 +31,7 @@ import {
   TrendingUp,
   Link
 } from "lucide-react";
+import { signIn } from "next-auth/react";
 import { CompanyLogo } from "@/components/ui/company-logo";
 
 interface Provider {
@@ -340,32 +341,11 @@ export function AddProviderDialog() {
     setConnectionStatus("connecting");
 
     try {
-      if (selectedProvider.id === "google-cloud") {
-        // Test de connexion Google Cloud avec les credentials
-        const response = await fetch("/api/test-google-connection", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            projectId: credentials.projectId,
-            serviceAccountKey: credentials.serviceAccountKey,
-          }),
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          setConnectionStatus("success");
-        } else {
-          setConnectionStatus("error");
-        }
-      } else {
-        // Simulation pour les autres providers
-        setTimeout(() => {
-          setConnectionStatus("success");
-        }, 2000);
-      }
+      // Simulation de la connexion pour les autres providers
+      setTimeout(() => {
+        setIsConnecting(false);
+        setConnectionStatus("success");
+      }, 2000);
     } catch (error) {
       console.error("Connection error:", error);
       setConnectionStatus("error");
@@ -461,10 +441,16 @@ export function AddProviderDialog() {
                       )}
                     </div>
 
-                    {/* Bouton de connexion principal */}
-                    <Button 
-                      className="w-full" 
-                      onClick={() => handleProviderSelect(provider)}
+                                        {/* Bouton de connexion principal */}
+                    <Button
+                      className="w-full"
+                      onClick={() => {
+                        if (provider.id === "google-cloud") {
+                          signIn('google', { callbackUrl: '/dashboard/cloud-providers' });
+                        } else {
+                          handleProviderSelect(provider);
+                        }
+                      }}
                     >
                       <Link className="mr-2 h-4 w-4" />
                       Configurer {provider.shortName}
@@ -625,30 +611,6 @@ export function AddProviderDialog() {
                           value={credentials.region}
                           onChange={(e) => setCredentials({...credentials, region: e.target.value})}
                           placeholder="us-east-1"
-                        />
-                      </div>
-                    </>
-                  )}
-
-                  {selectedProvider.id === "google-cloud" && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="projectId">Project ID</Label>
-                        <Input
-                          id="projectId"
-                          value={credentials.projectId}
-                          onChange={(e) => setCredentials({...credentials, projectId: e.target.value})}
-                          placeholder="votre-project-id"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="serviceAccountKey">Service Account Key (JSON)</Label>
-                        <Textarea
-                          id="serviceAccountKey"
-                          value={credentials.serviceAccountKey}
-                          onChange={(e) => setCredentials({...credentials, serviceAccountKey: e.target.value})}
-                          placeholder="Collez le contenu JSON de votre clé de compte de service"
-                          rows={4}
                         />
                       </div>
                     </>
