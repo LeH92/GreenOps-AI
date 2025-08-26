@@ -3,6 +3,8 @@ import { generateMeta } from "@/lib/utils";
 import CustomDateRangePicker from "@/components/custom-date-range-picker";
 import { Button } from "@/components/ui/button";
 import { ColorDemo } from "@/components/ui/color-demo";
+import { SupabaseTest } from "@/components/supabase-test";
+import { SupabaseApiTest } from "@/components/supabase-api-test";
 
 import {
   ChatWidget,
@@ -52,6 +54,12 @@ export default function Page() {
         <PaymentMethodCard />
         <div className="lg:col-span-3">
           <ColorDemo />
+        </div>
+        <div className="lg:col-span-3">
+          <SupabaseTest />
+        </div>
+        <div className="lg:col-span-3">
+          <SupabaseApiTest />
         </div>
       </div>
     </div>
