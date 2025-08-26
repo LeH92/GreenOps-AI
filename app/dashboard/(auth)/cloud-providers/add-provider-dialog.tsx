@@ -343,7 +343,13 @@ export function AddProviderDialog() {
           Ajouter un fournisseur
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[98vw] w-[1600px] max-h-[95vh] overflow-y-auto p-0">
+      <DialogContent className="max-w-[99vw] w-[1800px] max-h-[95vh] overflow-y-auto p-0">
+        <DialogHeader className="sr-only">
+          <DialogTitle>Intégrations Cloud</DialogTitle>
+          <DialogDescription>
+            Connectez vos fournisseurs cloud pour surveiller les coûts et optimiser vos ressources
+          </DialogDescription>
+        </DialogHeader>
         {/* Navigation Bar */}
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between px-12 py-6">
@@ -391,7 +397,7 @@ export function AddProviderDialog() {
               </div>
 
               {/* Integration Cards Grid */}
-              <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
                 {filteredProviders.map((provider) => (
                   <Card 
                     key={provider.id} 
