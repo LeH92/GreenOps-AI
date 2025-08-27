@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Activity, Zap, CheckCircle, AlertCircle } from "lucide-react";
+import { formatInteger, formatPercentage } from "@/lib/format-utils";
 
 export function ApiRequestsCard() {
   const totalRequests = 8560;
@@ -35,7 +36,7 @@ export function ApiRequestsCard() {
         <Activity className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-blue-600">{totalRequests.toLocaleString()}</div>
+        <div className="text-2xl font-bold text-blue-600">{formatInteger(totalRequests)}</div>
         <p className="text-xs text-muted-foreground mb-3">
           Ce mois
         </p>
@@ -45,7 +46,7 @@ export function ApiRequestsCard() {
             <span className="text-sm text-muted-foreground">Taux de succès</span>
             <div className="flex items-center space-x-2">
               <span className={`text-sm font-semibold ${getSuccessRateColor()}`}>
-                {successRate.toFixed(1)}%
+                {formatPercentage(successRate)}
               </span>
               <CheckCircle className="h-4 w-4 text-green-600" />
             </div>

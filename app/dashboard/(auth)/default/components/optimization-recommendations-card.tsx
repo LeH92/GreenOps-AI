@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Zap, DollarSign, Leaf, TrendingUp, Target, Sparkles } from "lucide-react";
+import { formatCurrency } from "@/lib/format-utils";
 
 export function OptimizationRecommendationsCard() {
   const recommendations = [
@@ -88,92 +89,65 @@ export function OptimizationRecommendationsCard() {
   }, 0);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Sparkles className="h-5 w-5" />
-          <span>Recommandations d'Optimisation</span>
+    <Card className="modern-card">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center space-x-2 text-base">
+          <Sparkles className="h-4 w-4" />
+          <span>Recommandations</span>
         </CardTitle>
-        <CardDescription>
-          Économies potentielles et améliorations détectées
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div className="p-2 bg-green-50 border border-green-200 rounded-lg">
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-semibold text-green-800">Économies totales</p>
-              <p className="text-sm text-green-700">${totalSavings.toFixed(0)}/mois</p>
+              <p className="text-sm font-semibold text-green-800">Économies totales</p>
+              <p className="text-xs text-green-700">{formatCurrency(totalSavings)}/mois</p>
             </div>
-            <TrendingUp className="h-8 w-8 text-green-600" />
+            <TrendingUp className="h-6 w-6 text-green-600" />
           </div>
         </div>
-
-        <div className="space-y-3">
-          {recommendations.map((recommendation) => (
-            <div key={recommendation.id} className="p-3 border rounded-lg">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  {getTypeIcon(recommendation.type)}
-                  <h4 className="font-medium text-sm">{recommendation.title}</h4>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant="outline" className={getImpactBadge(recommendation.impact)}>
-                    {recommendation.impact === "high" ? "Élevé" : 
-                     recommendation.impact === "medium" ? "Moyen" : "Faible"}
-                  </Badge>
-                  <Badge variant="outline" className={getStatusBadge(recommendation.status)}>
-                    {getStatusText(recommendation.status)}
-                  </Badge>
-                </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {recommendations.slice(0, 2).map((recommendation) => (
+          <div key={recommendation.id} className="p-2.5 border rounded-lg bg-muted/20 hover:bg-muted/40 transition-colors">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                {getTypeIcon(recommendation.type)}
+                <h4 className="font-medium text-xs">{recommendation.title}</h4>
               </div>
-              
-              <p className="text-sm text-muted-foreground mb-3">
-                {recommendation.description}
-              </p>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Économies</span>
-                  <span className="font-semibold text-green-600">{recommendation.savings}</span>
-                </div>
-                
-                {recommendation.status === "in-progress" && (
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Progression</span>
-                      <span>{recommendation.progress}%</span>
-                    </div>
-                    <Progress value={recommendation.progress} className="h-2" />
-                  </div>
-                )}
-
-                <div className="flex space-x-2 pt-2">
-                  {recommendation.status === "pending" && (
-                    <Button size="sm" className="flex-1">
-                      <Zap className="mr-2 h-4 w-4" />
-                      Appliquer
-                    </Button>
-                  )}
-                  {recommendation.status === "in-progress" && (
-                    <Button variant="outline" size="sm" className="flex-1">
-                      Suivre
-                    </Button>
-                  )}
-                  {recommendation.status === "completed" && (
-                    <Button variant="outline" size="sm" className="flex-1">
-                      Voir détails
-                    </Button>
-                  )}
-                </div>
-              </div>
+              <Badge variant="outline" className={`text-xs ${getImpactBadge(recommendation.impact)}`}>
+                {recommendation.impact === "high" ? "H" : 
+                 recommendation.impact === "medium" ? "M" : "L"}
+              </Badge>
             </div>
-          ))}
-        </div>
+            
+            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+              {recommendation.description}
+            </p>
 
-        <div className="pt-2">
-          <Button variant="outline" size="sm" className="w-full">
-            Voir toutes les recommandations
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-semibold text-green-600">{recommendation.savings}</span>
+              {recommendation.status === "in-progress" && (
+                <div className="flex items-center space-x-1">
+                  <Progress value={recommendation.progress} className="h-1 w-12" />
+                  <span className="text-xs text-muted-foreground">{recommendation.progress}%</span>
+                </div>
+              )}
+              {recommendation.status === "pending" && (
+                <Button size="sm" className="h-6 px-2 text-xs">
+                  Appliquer
+                </Button>
+              )}
+              {recommendation.status === "completed" && (
+                <Badge variant="outline" className="text-xs bg-green-100 text-green-800">
+                  ✓
+                </Badge>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <div className="pt-1">
+          <Button variant="outline" size="sm" className="w-full h-8 text-xs">
+            Voir toutes ({recommendations.length})
           </Button>
         </div>
       </CardContent>

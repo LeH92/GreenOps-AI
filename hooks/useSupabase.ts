@@ -18,6 +18,13 @@ import type {
   Budget as BudgetRow, 
   Alert as AlertRow 
 } from '@/types/supabase'
+import type { 
+  GCPConnectionStatus,
+  GCPOAuthTokens,
+  GCPBillingData,
+  GCPProject,
+  GCPBillingAccount 
+} from '@/src/types/gcp-oauth'
 
 /**
  * Authentication hook for Supabase
@@ -376,6 +383,209 @@ export const useSupabaseData = () => {
     }
   }
 
+  /**
+   * Get GCP connection status for a user
+   */
+  const getGCPConnectionStatus = async (userId: string): Promise<GCPConnectionStatus | null> => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const { data: connection, error } = await supabase
+        .from('gcp_connections')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        throw error
+      }
+
+      return connection || null
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch GCP connection status')
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /**
+   * Store or update GCP connection
+   */
+  const upsertGCPConnection = async (connectionData: {
+    user_id: string
+    connection_status: 'connected' | 'disconnected' | 'error' | 'expired'
+    account_info: {
+      email: string
+      name: string
+      billingAccounts: GCPBillingAccount[]
+      projects: GCPProject[]
+    }
+    tokens_encrypted: string
+  }) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const { data, error } = await supabase
+        .from('gcp_connections')
+        .upsert({
+          ...connectionData,
+          last_sync: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+      return data
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to store GCP connection')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /**
+   * Store GCP billing data
+   */
+  const storeGCPBillingData = async (billingData: GCPBillingData[], userId: string) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const records = billingData.map(data => ({
+        user_id: userId,
+        project_id: data.projectId,
+        billing_account_id: data.billingAccountId,
+        cost: data.cost,
+        currency: data.currency,
+        start_date: data.startDate,
+        end_date: data.endDate,
+        services: data.services,
+        created_at: new Date().toISOString(),
+      }))
+
+      const { data, error } = await supabase
+        .from('gcp_billing_data')
+        .insert(records)
+        .select()
+
+      if (error) throw error
+      return data
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to store GCP billing data')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /**
+   * Get GCP billing data for a user
+   */
+  const getGCPBillingData = async (userId: string, startDate?: string, endDate?: string): Promise<GCPBillingData[]> => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      let query = supabase
+        .from('gcp_billing_data')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      if (startDate) {
+        query = query.gte('start_date', startDate)
+      }
+      if (endDate) {
+        query = query.lte('end_date', endDate)
+      }
+
+      const { data: billingRecords, error } = await query
+
+      if (error) throw error
+
+      // Transform back to GCPBillingData format
+      const billingData: GCPBillingData[] = billingRecords?.map(record => ({
+        projectId: record.project_id,
+        billingAccountId: record.billing_account_id,
+        cost: record.cost,
+        currency: record.currency,
+        startDate: record.start_date,
+        endDate: record.end_date,
+        services: record.services || [],
+      })) || []
+
+      return billingData
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch GCP billing data')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /**
+   * Disconnect GCP account
+   */
+  const disconnectGCP = async (userId: string) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const { error } = await supabase
+        .from('gcp_connections')
+        .update({
+          connection_status: 'disconnected',
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', userId)
+
+      if (error) throw error
+      
+      return true
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to disconnect GCP')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  /**
+   * Delete all GCP data for a user
+   */
+  const deleteGCPData = async (userId: string) => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Delete billing data
+      await supabase
+        .from('gcp_billing_data')
+        .delete()
+        .eq('user_id', userId)
+
+      // Delete connection
+      await supabase
+        .from('gcp_connections')
+        .delete()
+        .eq('user_id', userId)
+
+      return true
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete GCP data')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     loading,
     error,
@@ -384,6 +594,13 @@ export const useSupabaseData = () => {
     getBudgets,
     getAlerts,
     createProvider,
-    createBudget
+    createBudget,
+    // GCP-specific methods
+    getGCPConnectionStatus,
+    upsertGCPConnection,
+    storeGCPBillingData,
+    getGCPBillingData,
+    disconnectGCP,
+    deleteGCPData
   }
 }

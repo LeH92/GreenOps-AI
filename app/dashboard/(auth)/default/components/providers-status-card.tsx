@@ -41,7 +41,7 @@ export function ProvidersStatusCard() {
   const connectedAIProviders = aiProviders.filter(p => p.status === 'connected').length;
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Cloud className="h-5 w-5" />
@@ -51,23 +51,23 @@ export function ProvidersStatusCard() {
           Vue d'ensemble de vos connexions cloud et IA
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="flex-1 space-y-8">
         {/* Cloud Providers */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-semibold text-sm">Cloud Providers</h4>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-semibold text-base">Cloud Providers</h4>
             <Badge variant="outline" className="bg-blue-100 text-blue-800">
               {connectedCloudProviders}/3 connectés
             </Badge>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
                             {cloudProviders.map((provider) => (
-                  <div key={provider.name} className="flex items-center justify-between p-2 border rounded-lg">
+                  <div key={provider.name} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
                     <div className="flex items-center space-x-3">
-                      <CompanyLogo company={provider.company} size={24} />
+                      <CompanyLogo company={provider.company} size={28} />
                       <div>
-                        <p className="font-medium text-sm">{provider.name}</p>
-                        <p className="text-xs text-muted-foreground">{provider.cost}/mois</p>
+                        <p className="font-medium text-base">{provider.name}</p>
+                        <p className="text-sm text-muted-foreground">{provider.cost}/mois</p>
                       </div>
                     </div>
                 <div className="flex items-center space-x-2">
@@ -83,20 +83,20 @@ export function ProvidersStatusCard() {
 
         {/* AI Providers */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="font-semibold text-sm">Fournisseurs IA</h4>
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="font-semibold text-base">Fournisseurs IA</h4>
             <Badge variant="outline" className="bg-purple-100 text-purple-800">
               {connectedAIProviders}/3 connectés
             </Badge>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {aiProviders.map((provider) => (
-              <div key={provider.name} className="flex items-center justify-between p-2 border rounded-lg">
+              <div key={provider.name} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
                 <div className="flex items-center space-x-3">
-                  <CompanyLogo company={provider.company} size={24} />
+                  <CompanyLogo company={provider.company} size={28} />
                   <div>
-                    <p className="font-medium text-sm">{provider.name}</p>
-                    <p className="text-xs text-muted-foreground">{provider.cost}/mois</p>
+                    <p className="font-medium text-base">{provider.name}</p>
+                    <p className="text-sm text-muted-foreground">{provider.cost}/mois</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -110,15 +110,15 @@ export function ProvidersStatusCard() {
           </div>
         </div>
 
-        <div className="flex space-x-2 pt-2">
+        <div className="flex space-x-3 pt-4">
           <Link href="/dashboard/cloud-providers" className="flex-1">
-            <Button variant="outline" size="sm" className="w-full">
+            <Button variant="outline" size="default" className="w-full">
               <Cloud className="mr-2 h-4 w-4" />
               Gérer Cloud
             </Button>
           </Link>
           <Link href="/dashboard/ai-providers" className="flex-1">
-            <Button variant="outline" size="sm" className="w-full">
+            <Button variant="outline" size="default" className="w-full">
               <Brain className="mr-2 h-4 w-4" />
               Gérer IA
             </Button>

@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Leaf, TrendingDown, TreePine, Recycle } from "lucide-react";
+import { formatPercentage } from "@/lib/format-utils";
 
 export function CarbonFootprintCard() {
   const carbonFootprint = 15.6; // kg CO2
@@ -57,7 +58,7 @@ export function CarbonFootprintCard() {
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Utilisation de l'objectif</span>
             <span className={getStatusColor()}>
-              {usagePercentage.toFixed(1)}%
+              {formatPercentage(usagePercentage)}
             </span>
           </div>
           <Progress 

@@ -22,15 +22,16 @@ export default async function AuthLayout({
         defaultOpen={defaultOpen}
         style={
           {
-            "--sidebar-width": "calc(var(--spacing) * 64)",
-            "--header-height": "calc(var(--spacing) * 14)"
+            "--sidebar-width": "16rem",
+            "--sidebar-width-icon": "3rem",
+            "--header-height": "3.5rem"
           } as React.CSSProperties
         }>
         <AppSidebar variant="inset" />
         <SidebarInset>
           <SiteHeader />
-          <div className="flex flex-1 flex-col">
-            <div className="@container/main p-4 xl:group-data-[theme-content-layout=centered]/layout:container xl:group-data-[theme-content-layout=centered]/layout:mx-auto">
+          <div className="flex flex-1 flex-col min-h-screen">
+            <div className="@container/main flex-1 px-2 pt-0 pb-6 xl:group-data-[theme-content-layout=centered]/layout:container xl:group-data-[theme-content-layout=centered]/layout:mx-auto">
               {children}
             </div>
           </div>

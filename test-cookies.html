@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cookies et Authentification - GreenOps AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { border-color: #4CAF50; background-color: #f1f8e9; }
+        .error { border-color: #f44336; background-color: #ffebee; }
+        .warning { border-color: #ff9800; background-color: #fff3e0; }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1976D2; }
+        .result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .cookie-list {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .cookie-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Cookies et Authentification - GreenOps AI</h1>
+        
+        <div class="section">
+            <h2>📋 État actuel</h2>
+            <p>Cette page vous aide à diagnostiquer les problèmes de cookies et d'authentification.</p>
+            <button onclick="checkCookies()">🔍 Vérifier les Cookies</button>
+            <button onclick="checkAuth()">🔐 Tester l'Authentification</button>
+            <button onclick="clearCookies()">🗑️ Nettoyer les Cookies</button>
+        </div>
+
+        <div class="section">
+            <h2>🍪 Cookies actuels</h2>
+            <div id="cookieList" class="cookie-list">
+                Cliquez sur "Vérifier les Cookies" pour voir la liste
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔐 Test d'authentification</h2>
+            <div id="authResult" class="result">
+                Cliquez sur "Tester l'Authentification" pour vérifier
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📝 Instructions de résolution</h2>
+            <ol>
+                <li><strong>Vérifiez les cookies</strong> : Cliquez sur le bouton ci-dessus</li>
+                <li><strong>Si aucun cookie NextAuth</strong> : Vous devez vous reconnecter</li>
+                <li><strong>Nettoyez les cookies</strong> : Utilisez le bouton "Nettoyer"</li>
+                <li><strong>Reconnectez-vous</strong> : Allez sur <code>http://localhost:3000/login</code></li>
+                <li><strong>Testez à nouveau</strong> : Vérifiez que l'authentification fonctionne</li>
+            </ol>
+        </div>
+
+        <div class="section">
+            <h2>🚀 Test du bouton GCP</h2>
+            <p>Une fois authentifié, testez le bouton "Connecter Google Cloud" :</p>
+            <a href="http://localhost:3000/dashboard/cloud-providers" target="_blank">
+                <button>🌐 Aller à Cloud Providers</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function checkCookies() {
+            const cookies = document.cookie.split(';');
+            const cookieList = document.getElementById('cookieList');
+            
+            if (cookies.length === 1 && cookies[0] === '') {
+                cookieList.innerHTML = '<div class="error">❌ Aucun cookie trouvé</div>';
+                return;
+            }
+
+            let html = '<h3>Cookies trouvés :</h3>';
+            let hasNextAuthCookie = false;
+
+            cookies.forEach(cookie => {
+                if (cookie.trim()) {
+                    const [name, value] = cookie.trim().split('=');
+                    const isNextAuth = name.includes('next-auth') || name.includes('auth');
+                    
+                    if (isNextAuth) {
+                        hasNextAuthCookie = true;
+                        html += `<div class="cookie-item success">
+                            <strong>✅ ${name}</strong>
+                            <span>${value.substring(0, 50)}${value.length > 50 ? '...' : ''}</span>
+                        </div>`;
+                    } else {
+                        html += `<div class="cookie-item">
+                            <strong>${name}</strong>
+                            <span>${value.substring(0, 50)}${value.length > 50 ? '...' : ''}</span>
+                        </div>`;
+                    }
+                }
+            });
+
+            if (!hasNextAuthCookie) {
+                html += '<div class="error">❌ Aucun cookie NextAuth trouvé - Authentification requise</div>';
+            } else {
+                html += '<div class="success">✅ Cookies NextAuth trouvés - Authentification possible</div>';
+            }
+
+            cookieList.innerHTML = html;
+        }
+
+        async function checkAuth() {
+            const resultDiv = document.getElementById('authResult');
+            resultDiv.textContent = '🔄 Vérification en cours...';
+
+            try {
+                const response = await fetch('/api/test-auth');
+                const data = await response.json();
+                
+                if (data.authenticated) {
+                    resultDiv.innerHTML = `<div class="success">✅ Authentifié avec succès !
+Utilisateur: ${data.user?.email || 'N/A'}
+Session: ${data.sessionExists ? 'Active' : 'Inactive'}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Non authentifié
+Raison: ${data.error || 'Session invalide'}
+Détails: ${JSON.stringify(data, null, 2)}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Erreur de connexion
+Erreur: ${error.message}</div>`;
+            }
+        }
+
+        function clearCookies() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer tous les cookies ?')) {
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                alert('Cookies supprimés ! Rechargez la page et reconnectez-vous.');
+                location.reload();
+            }
+        }
+
+        // Vérification automatique au chargement
+        window.onload = function() {
+            checkCookies();
+        };
+    </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { DollarSign, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
+import { formatCurrency, formatPercentage, formatCurrencyWithDecimals } from "@/lib/format-utils";
 
 export function CostOverviewCard() {
   const totalCost = 1727.80;
@@ -29,36 +30,42 @@ export function CostOverviewCard() {
   };
 
   return (
-    <Card className="relative overflow-hidden">
+    <Card className="metric-card group">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Coût Total Mensuel</CardTitle>
-        {getStatusIcon()}
+        <div className="text-sm font-medium text-muted-foreground">
+          Coût Total Mensuel
+        </div>
+        <div className="p-2 rounded-lg bg-green-100 text-green-600 group-hover:bg-green-200 transition-colors">
+          <DollarSign className="h-4 w-4" />
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-green-600">${totalCost.toLocaleString()}</div>
-        <p className="text-xs text-muted-foreground mb-3">
-          Budget: ${budget.toLocaleString()}
-        </p>
+      <CardContent className="flex-1 flex flex-col justify-between">
+        <div className="space-y-1">
+          <div className="text-2xl font-bold text-green-600">{formatCurrency(totalCost)}</div>
+          <div className="text-xs text-muted-foreground">
+            Budget: {formatCurrency(budget)}
+          </div>
+        </div>
         
-        <div className="space-y-2">
+        <div className="space-y-3 mt-4">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Utilisation du budget</span>
+            <span className="text-muted-foreground">Utilisation</span>
             <span className={getStatusColor()}>
-              {usagePercentage.toFixed(1)}%
+              {formatPercentage(usagePercentage)}
             </span>
           </div>
           <Progress 
             value={Math.min(usagePercentage, 100)} 
             className="h-2"
           />
-        </div>
-
-        <div className="flex items-center justify-between mt-4">
-          <Badge variant="outline" className={getStatusBadge()}>
-            {isOverBudget ? "Dépassé" : isNearLimit ? "Attention" : "Normal"}
-          </Badge>
-          <div className="text-xs text-muted-foreground">
-            Reste: ${(budget - totalCost).toFixed(2)}
+          
+          <div className="flex items-center justify-between">
+            <Badge variant="outline" className={getStatusBadge()}>
+              {isOverBudget ? "Dépassé" : isNearLimit ? "Attention" : "Normal"}
+            </Badge>
+            <div className="text-xs text-muted-foreground">
+              Reste: {formatCurrencyWithDecimals(budget - totalCost)}
+            </div>
           </div>
         </div>
       </CardContent>

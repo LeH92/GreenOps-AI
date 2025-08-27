@@ -55,7 +55,7 @@ async function refreshAccessToken(token: ExtendedJWT): Promise<ExtendedJWT> {
   }
 }
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -112,6 +112,8 @@ const handler = NextAuth({
     error: "/login",
   },
   debug: process.env.NODE_ENV === "development",
-});
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

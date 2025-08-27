@@ -12,7 +12,7 @@ import {
   CarbonFootprintChart,
   LogosShowcase
 } from "@/app/dashboard/(auth)/default/components";
-import { Download, RefreshCw, Settings } from "lucide-react";
+import { Download, RefreshCw, Settings, TrendingUp } from "lucide-react";
 
 export async function generateMetadata() {
   return generateMeta({
@@ -25,87 +25,131 @@ export async function generateMetadata() {
 
 export default function Page() {
   return (
-    <div className="space-y-6">
-      {/* Header avec métriques principales */}
-      <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">GreenOps AI Dashboard</h1>
-          <p className="text-muted-foreground">
-            Vue d'ensemble de vos coûts cloud, empreinte carbone et optimisations
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <CustomDateRangePicker />
-          <Button variant="outline">
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Actualiser
-          </Button>
-          <Button>
-            <Download className="mr-2 h-4 w-4" />
-            <span className="hidden lg:inline">Exporter</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Métriques principales - 4 cartes en haut */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <CostOverviewCard />
-        <CarbonFootprintCard />
-        <ApiRequestsCard />
-        <div className="flex items-center justify-center p-6 border rounded-lg bg-gradient-to-br from-green-50 to-blue-50">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">$234</div>
-            <p className="text-sm text-muted-foreground">Économies ce mois</p>
-            <p className="text-xs text-green-600">+12% vs mois dernier</p>
+    <div className="dashboard-container">
+      {/* Header compact */}
+      <div className="dashboard-header">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">GreenOps AI Dashboard</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Surveillance en temps réel de vos coûts cloud et empreinte carbone
+            </p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <CustomDateRangePicker />
+            <Button variant="outline" size="sm">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Actualiser
+            </Button>
+            <Button size="sm">
+              <Download className="mr-2 h-4 w-4" />
+              Exporter
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Section principale - 2 colonnes */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* Colonne gauche - 2 cartes */}
-        <div className="space-y-6">
-          <ProvidersStatusCard />
-          <AlertsCard />
+      {/* Layout principal optimisé */}
+      <div className="dashboard-layout">
+        {/* Colonne principale gauche */}
+        <div className="dashboard-main-column">
+          {/* Métriques compactes */}
+          <div className="metrics-grid">
+            <CostOverviewCard />
+            <CarbonFootprintCard />
+            <ApiRequestsCard />
+            <div className="metric-card group">
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-sm font-medium text-muted-foreground">Économies</div>
+                <div className="p-2 rounded-lg bg-green-100 text-green-600 group-hover:bg-green-200 transition-colors">
+                  <TrendingUp className="h-4 w-4" />
+                </div>
+              </div>
+              <div className="flex flex-col justify-between flex-1">
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold text-green-600">$234</div>
+                  <div className="text-xs text-muted-foreground">grâce aux optimisations</div>
+                </div>
+                <div className="flex items-center space-x-1 mt-3">
+                  <div className="text-xs font-medium text-green-600">+12%</div>
+                  <div className="text-xs text-muted-foreground">vs mois dernier</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Graphiques côte à côte */}
+          <div className="charts-grid">
+            <CostEvolutionChart />
+            <CarbonFootprintChart />
+          </div>
+
+          {/* Statut des fournisseurs élargi */}
+          <div className="providers-section">
+            <ProvidersStatusCard />
+          </div>
         </div>
 
-        {/* Colonne centrale - 1 grande carte */}
-        <div className="lg:col-span-2">
-          <OptimizationRecommendationsCard />
+        {/* Colonne sidebar droite */}
+        <div className="dashboard-sidebar">
+          {/* Recommandations optimisées */}
+          <div className="recommendations-section">
+            <OptimizationRecommendationsCard />
+          </div>
+
+          {/* Alertes compactes */}
+          <div className="alerts-section">
+            <AlertsCard />
+          </div>
+
+          {/* Actions rapides compactes */}
+          <div className="actions-section">
+            <div className="modern-card">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-foreground">Actions Rapides</h3>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="outline" 
+                  className="h-16 flex-col space-y-2 hover:bg-primary/5 transition-all"
+                >
+                  <div className="p-1.5 rounded bg-primary/10 text-primary">
+                    <Settings className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-medium">Configurer</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="h-16 flex-col space-y-2 hover:bg-blue-500/5 transition-all"
+                >
+                  <div className="p-1.5 rounded bg-blue-100 text-blue-600">
+                    <Download className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-medium">Rapport</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="h-16 flex-col space-y-2 hover:bg-green-500/5 transition-all"
+                >
+                  <div className="p-1.5 rounded bg-green-100 text-green-600">
+                    <RefreshCw className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-medium">Sync</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="h-16 flex-col space-y-2 hover:bg-purple-500/5 transition-all"
+                >
+                  <div className="p-1.5 rounded bg-purple-100 text-purple-600">
+                    <TrendingUp className="h-4 w-4" />
+                  </div>
+                  <span className="text-xs font-medium">Analyser</span>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Section inférieure - Graphiques et détails */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <CostEvolutionChart />
-        <CarbonFootprintChart />
-      </div>
-
-      {/* Section actions rapides */}
-      <div className="p-6 border rounded-lg bg-gray-50">
-        <h3 className="text-lg font-semibold mb-4">Actions Rapides</h3>
-        <div className="grid gap-4 md:grid-cols-4">
-          <Button variant="outline" className="h-20 flex-col space-y-2">
-            <Settings className="h-6 w-6" />
-            <span className="text-sm">Configurer un fournisseur</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex-col space-y-2">
-            <Download className="h-6 w-6" />
-            <span className="text-sm">Télécharger un rapport</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex-col space-y-2">
-            <RefreshCw className="h-6 w-6" />
-            <span className="text-sm">Synchroniser les données</span>
-          </Button>
-          <Button variant="outline" className="h-20 flex-col space-y-2">
-            <Settings className="h-6 w-6" />
-            <span className="text-sm">Paramètres avancés</span>
-          </Button>
-        </div>
-      </div>
-
-      {/* Showcase des logos */}
-      <LogosShowcase />
     </div>
   );
 }

@@ -107,7 +107,7 @@ export default function AnthropicProviderPage() {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalRequests.toLocaleString()}</div>
+                          <div className="text-2xl font-bold">{totalRequests.toLocaleString('en-US')}</div>
             <p className="text-xs text-muted-foreground">ce mois</p>
           </CardContent>
         </Card>

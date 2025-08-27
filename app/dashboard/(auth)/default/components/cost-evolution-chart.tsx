@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { TrendingUp, TrendingDown, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency, formatChangePercentage } from "@/lib/format-utils";
 
 // Données fictives pour l'évolution des coûts par fournisseur
 const costData = [
@@ -28,7 +29,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         <p className="font-semibold text-gray-800">{label}</p>
         {payload.map((entry: any, index: number) => (
           <p key={index} style={{ color: entry.color }} className="text-sm">
-            {entry.name}: ${entry.value}
+            {entry.name}: {formatCurrency(entry.value)}
           </p>
         ))}
       </div>
@@ -55,7 +56,7 @@ export function CostEvolutionChart() {
         <div className="flex items-center space-x-2">
           <DollarSign className="h-4 w-4 text-green-600" />
           <Badge variant={percentageChange > 0 ? "destructive" : "default"}>
-            {percentageChange > 0 ? "+" : ""}{percentageChange.toFixed(1)}%
+            {formatChangePercentage(percentageChange)}
           </Badge>
         </div>
       </CardHeader>
@@ -65,11 +66,11 @@ export function CostEvolutionChart() {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
               <span className="text-muted-foreground">Total ce mois:</span>
-              <span className="font-semibold">${totalCurrent.toLocaleString()}</span>
+              <span className="font-semibold">{formatCurrency(totalCurrent)}</span>
             </div>
             <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
               <span className="text-muted-foreground">Moyenne/mois:</span>
-              <span className="font-semibold">${(totalCurrent / 12).toFixed(0)}</span>
+              <span className="font-semibold">{formatCurrency(Math.round(totalCurrent / 12))}</span>
             </div>
           </div>
 
@@ -88,7 +89,7 @@ export function CostEvolutionChart() {
                   tick={{ fontSize: 12 }}
                   axisLine={false}
                   tickLine={false}
-                  tickFormatter={(value) => `$${value}`}
+                  tickFormatter={(value) => formatCurrency(value)}
                 />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend />

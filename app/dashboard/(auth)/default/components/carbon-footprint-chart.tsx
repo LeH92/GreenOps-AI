@@ -5,6 +5,7 @@ import { Line, LineChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Leaf, TrendingDown, TrendingUp, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { formatChangePercentage, formatNumber } from "@/lib/format-utils";
 
 // Données fictives pour l'empreinte carbone
 const carbonData = [
@@ -61,7 +62,7 @@ export function CarbonFootprintChart() {
         <div className="flex items-center space-x-2">
           <Leaf className="h-4 w-4 text-green-600" />
           <Badge variant={carbonChange < 0 ? "default" : "destructive"}>
-            {carbonChange > 0 ? "+" : ""}{carbonChange.toFixed(1)}%
+            {formatChangePercentage(carbonChange)}
           </Badge>
         </div>
       </CardHeader>
@@ -70,7 +71,7 @@ export function CarbonFootprintChart() {
           {/* Métriques rapides */}
           <div className="grid grid-cols-3 gap-3 text-sm">
             <div className="text-center p-2 bg-green-50 rounded">
-              <div className="text-lg font-bold text-green-600">{currentMonth.carbon.toFixed(1)}</div>
+              <div className="text-lg font-bold text-green-600">{formatNumber(currentMonth.carbon)}</div>
               <div className="text-xs text-muted-foreground">tCO2e/mois</div>
             </div>
             <div className="text-center p-2 bg-blue-50 rounded">

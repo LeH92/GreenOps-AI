@@ -71,7 +71,7 @@ export function AlertsCard() {
   };
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2">
           <Bell className="h-5 w-5" />
@@ -84,7 +84,7 @@ export function AlertsCard() {
           Notifications importantes de vos services
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex-1 space-y-4">
         {alerts.map((alert) => (
           <div key={alert.id} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
             <div className="flex-shrink-0 mt-1">
