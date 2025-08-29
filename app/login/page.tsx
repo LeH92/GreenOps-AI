@@ -23,16 +23,6 @@ export default function LoginPage() {
     <AuthLayout
       title="Welcome back"
       description="Sign in to your GreenOps AI account"
-      footerContent={
-        <AuthCardFooter>
-          <p>
-            Don&apos;t have an account?{' '}
-            <a href="/signup" className="text-primary hover:text-primary/80 font-medium transition-colors">
-              Sign up
-            </a>
-          </p>
-        </AuthCardFooter>
-      }
     >
       <LoginForm />
     </AuthLayout>

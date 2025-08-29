@@ -27,21 +27,21 @@ export default function Page() {
   return (
     <div className="dashboard-container">
       {/* Header compact */}
-      <div className="dashboard-header">
+      <div className="dashboard-header fade-in">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">GreenOps AI Dashboard</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-foreground">GreenOps AI Dashboard</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Surveillance en temps réel de vos coûts cloud et empreinte carbone
             </p>
           </div>
           <div className="flex items-center space-x-2">
             <CustomDateRangePicker />
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="hover-raise">
               <RefreshCw className="mr-2 h-4 w-4" />
               Actualiser
             </Button>
-            <Button size="sm">
+            <Button size="sm" className="hover-raise">
               <Download className="mr-2 h-4 w-4" />
               Exporter
             </Button>
@@ -52,13 +52,19 @@ export default function Page() {
       {/* Layout principal optimisé */}
       <div className="dashboard-layout">
         {/* Colonne principale gauche */}
-        <div className="dashboard-main-column">
+        <div className="dashboard-main-column fade-in">
           {/* Métriques compactes */}
           <div className="metrics-grid">
-            <CostOverviewCard />
-            <CarbonFootprintCard />
-            <ApiRequestsCard />
-            <div className="metric-card group">
+            <div className="metric-card group accent-bar hover-raise">
+              <CostOverviewCard />
+            </div>
+            <div className="metric-card group accent-bar hover-raise">
+              <CarbonFootprintCard />
+            </div>
+            <div className="metric-card group accent-bar hover-raise">
+              <ApiRequestsCard />
+            </div>
+            <div className="metric-card group hover-raise">
               <div className="flex items-center justify-between mb-3">
                 <div className="text-sm font-medium text-muted-foreground">Économies</div>
                 <div className="p-2 rounded-lg bg-green-100 text-green-600 group-hover:bg-green-200 transition-colors">
@@ -79,7 +85,7 @@ export default function Page() {
           </div>
 
           {/* Graphiques côte à côte */}
-          <div className="charts-grid">
+          <div className="charts-grid fade-in">
             <CostEvolutionChart />
             <CarbonFootprintChart />
           </div>
@@ -91,27 +97,31 @@ export default function Page() {
         </div>
 
         {/* Colonne sidebar droite */}
-        <div className="dashboard-sidebar">
+        <div className="dashboard-sidebar fade-in">
           {/* Recommandations optimisées */}
           <div className="recommendations-section">
-            <OptimizationRecommendationsCard />
+            <div className="modern-card hover-raise">
+              <OptimizationRecommendationsCard />
+            </div>
           </div>
 
           {/* Alertes compactes */}
           <div className="alerts-section">
-            <AlertsCard />
+            <div className="modern-card hover-raise">
+              <AlertsCard />
+            </div>
           </div>
 
           {/* Actions rapides compactes */}
           <div className="actions-section">
-            <div className="modern-card">
+            <div className="modern-card hover-raise">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-foreground">Actions Rapides</h3>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <Button 
                   variant="outline" 
-                  className="h-16 flex-col space-y-2 hover:bg-primary/5 transition-all"
+                  className="h-16 flex-col space-y-2 hover:bg-primary/5 transition-all hover-raise"
                 >
                   <div className="p-1.5 rounded bg-primary/10 text-primary">
                     <Settings className="h-4 w-4" />
@@ -120,7 +130,7 @@ export default function Page() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="h-16 flex-col space-y-2 hover:bg-blue-500/5 transition-all"
+                  className="h-16 flex-col space-y-2 hover:bg-blue-500/5 transition-all hover-raise"
                 >
                   <div className="p-1.5 rounded bg-blue-100 text-blue-600">
                     <Download className="h-4 w-4" />
@@ -129,7 +139,7 @@ export default function Page() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="h-16 flex-col space-y-2 hover:bg-green-500/5 transition-all"
+                  className="h-16 flex-col space-y-2 hover:bg-green-500/5 transition-all hover-raise"
                 >
                   <div className="p-1.5 rounded bg-green-100 text-green-600">
                     <RefreshCw className="h-4 w-4" />
@@ -138,7 +148,7 @@ export default function Page() {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="h-16 flex-col space-y-2 hover:bg-purple-500/5 transition-all"
+                  className="h-16 flex-col space-y-2 hover:bg-purple-500/5 transition-all hover-raise"
                 >
                   <div className="p-1.5 rounded bg-purple-100 text-purple-600">
                     <TrendingUp className="h-4 w-4" />

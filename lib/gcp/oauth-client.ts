@@ -57,13 +57,18 @@ export class GCPOAuthClient {
         throw new Error('No access token received from Google');
       }
 
+      // Google retourne expiry_date comme timestamp, pas comme Date
+      const expiryDate = tokens.expiry_date ? new Date(tokens.expiry_date) : new Date(Date.now() + 3600000);
+      
       return {
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token || '',
         expires_in: tokens.expiry_date ? Math.floor((tokens.expiry_date - Date.now()) / 1000) : 3600,
         token_type: tokens.token_type || 'Bearer',
         scope: tokens.scope || GCP_OAUTH_SCOPES.join(' '),
-        expires_at: new Date(tokens.expiry_date || Date.now() + 3600000),
+        expires_at: expiryDate,
+        // Garder aussi le timestamp original pour compatibilité
+        expiry_date: tokens.expiry_date,
       };
     } catch (error: any) {
       console.error('Error exchanging code for tokens:', error);
@@ -86,13 +91,18 @@ export class GCPOAuthClient {
         throw new Error('Failed to refresh access token');
       }
 
+      // Google retourne expiry_date comme timestamp, pas comme Date
+      const expiryDate = credentials.expiry_date ? new Date(credentials.expiry_date) : new Date(Date.now() + 3600000);
+      
       return {
         access_token: credentials.access_token,
         refresh_token: refreshToken, // Keep original refresh token
         expires_in: credentials.expiry_date ? Math.floor((credentials.expiry_date - Date.now()) / 1000) : 3600,
         token_type: credentials.token_type || 'Bearer',
         scope: credentials.scope || GCP_OAUTH_SCOPES.join(' '),
-        expires_at: new Date(credentials.expiry_date || Date.now() + 3600000),
+        expires_at: expiryDate,
+        // Garder aussi le timestamp original pour compatibilité
+        expiry_date: credentials.expiry_date,
       };
     } catch (error: any) {
       console.error('Error refreshing access token:', error);

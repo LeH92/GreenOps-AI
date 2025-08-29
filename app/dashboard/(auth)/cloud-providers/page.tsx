@@ -12,6 +12,7 @@ import { GCPConnectButton } from "@/components/gcp/GCPConnectButton";
 import { useState, useEffect } from "react";
 import { formatCurrency } from "@/lib/format-utils";
 import { GCPWizard2Steps } from "@/components/gcp/GCPWizard2Steps";
+import { GCPDebugPanel } from "@/components/gcp/GCPDebugPanel";
 
 
 export default function CloudProvidersPage() {
@@ -409,6 +410,9 @@ export default function CloudProvidersPage() {
         onClose={() => setIsWizardOpen(false)}
         onProjectSelected={handleProjectSelected}
       />
+
+      {/* Panel de debug GCP */}
+      <GCPDebugPanel />
     </div>
   );
 }

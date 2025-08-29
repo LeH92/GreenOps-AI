@@ -14,9 +14,45 @@ export class GCPDataFetcher {
   private oauth2Client: any;
   private tokens: GCPOAuthTokens;
 
-  constructor(tokens: GCPOAuthTokens) {
-    this.tokens = tokens;
-    this.oauth2Client = gcpOAuthClient.getAuthenticatedClient(tokens);
+  constructor(tokens: GCPOAuthTokens | string) {
+    // Si c'est une string, c'est probablement des tokens encryptés
+    if (typeof tokens === 'string') {
+      try {
+        this.tokens = JSON.parse(tokens);
+        console.log('🔓 Tokens décryptés depuis string:', {
+          hasAccessToken: !!this.tokens.access_token,
+          hasRefreshToken: !!this.tokens.refresh_token,
+          expiresAt: this.tokens.expires_at,
+          expiryDate: this.tokens.expiry_date,
+          tokenType: this.tokens.token_type
+        });
+      } catch (error) {
+        console.error('❌ Erreur parsing tokens:', error);
+        throw new Error('Invalid token format. Expected GCPOAuthTokens or valid JSON string.');
+      }
+    } else {
+      this.tokens = tokens;
+      console.log('🔓 Tokens reçus directement:', {
+        hasAccessToken: !!this.tokens.access_token,
+        hasRefreshToken: !!this.tokens.refresh_token,
+        expiresAt: this.tokens.expires_at,
+        expiryDate: this.tokens.expiry_date,
+        tokenType: this.tokens.token_type
+      });
+    }
+    
+    // Vérifier que les tokens sont valides
+    if (!this.tokens.access_token) {
+      throw new Error('Access token is required');
+    }
+    
+    // Normaliser les dates si nécessaire
+    if (this.tokens.expires_at && typeof this.tokens.expires_at === 'string') {
+      this.tokens.expires_at = new Date(this.tokens.expires_at);
+    }
+    
+    this.oauth2Client = gcpOAuthClient.getAuthenticatedClient(this.tokens);
+    console.log('✅ OAuth2 client créé avec succès');
   }
 
   /**

@@ -13,8 +13,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 
 import { useAuth } from '@/hooks/useAuth'
 import { signInSchema, type SignInFormData } from '@/lib/auth-validation'
-import { AuthError, AuthSuccess } from './auth-errors'
-import { AuthLoadingButton } from './loading-states'
+import { AuthError } from './auth-errors'
+import { AuthLoadingButton, AuthRedirectLoading } from './loading-states'
 import { AuthLink } from './auth-layout'
 
 /**
@@ -25,7 +25,6 @@ import { AuthLink } from './auth-layout'
 export function LoginForm() {
   const { signIn, loading, error, clearError } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   // Form setup with react-hook-form and zod validation
@@ -44,14 +43,12 @@ export function LoginForm() {
   const onSubmit = async (data: SignInFormData) => {
     try {
       clearError()
-      setSuccessMessage(null)
 
       console.log('🔐 Attempting sign in with:', { email: data.email, rememberMe: data.rememberMe })
       
       // Test avec des identifiants de démonstration
       if (data.email === 'test@example.com' && data.password === 'test123') {
         console.log('✅ Demo login successful, redirecting to dashboard...')
-        setSuccessMessage('✅ Connexion réussie ! Redirection vers le dashboard...')
         setIsRedirecting(true)
         
         // Redirection directe pour les identifiants de test
@@ -65,7 +62,6 @@ export function LoginForm() {
       const response = await signIn(data)
 
       if (response.success) {
-        setSuccessMessage('✅ Connexion réussie ! Redirection vers le dashboard...')
         setIsRedirecting(true)
         console.log('✅ Sign in successful, redirecting...')
         
@@ -93,29 +89,32 @@ export function LoginForm() {
     if (error) {
       clearError()
     }
-    if (successMessage) {
-      setSuccessMessage(null)
-    }
+  }
+
+  // Si on est en train de rediriger, afficher seulement l'animation centrée
+  if (isRedirecting) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <AuthRedirectLoading />
+      </div>
+    )
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Success Message */}
-        <AuthSuccess message={successMessage} />
-
         {/* Error Message */}
         <AuthError error={error} />
 
-                    {/* Development Helper */}
-            {process.env.NODE_ENV === 'development' && (
-              <div className="bg-muted/50 border rounded p-3 text-xs text-muted-foreground">
-                <p><strong>Mode développement :</strong></p>
-                <p>• <strong>Test rapide :</strong> test@example.com / test123</p>
-                <p>• Comptes de test sur <a href="/test-accounts" className="text-primary hover:underline">/test-accounts</a></p>
-                <p>• Tests complets sur <a href="/auth-test" className="text-primary hover:underline">/auth-test</a></p>
-              </div>
-            )}
+        {/* Development Helper */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="bg-muted/50 border rounded p-3 text-xs text-muted-foreground">
+            <p><strong>Mode développement :</strong></p>
+            <p>• <strong>Test rapide :</strong> test@example.com / test123</p>
+            <p>• Comptes de test sur <a href="/test-accounts" className="text-primary hover:underline">/test-accounts</a></p>
+            <p>• Tests complets sur <a href="/auth-test" className="text-primary hover:underline">/auth-test</a></p>
+          </div>
+        )}
 
         {/* Email Field */}
         <FormField
@@ -156,30 +155,26 @@ export function LoginForm() {
                     placeholder="Enter your password"
                     autoComplete="current-password"
                     disabled={loading}
+                    className="pr-10"
                     {...field}
                     onChange={(e) => {
                       field.onChange(e)
                       handleInputChange()
                     }}
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={togglePasswordVisibility}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                    onClick={() => setShowPassword(!showPassword)}
                     disabled={loading}
-                    tabIndex={-1}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4 text-muted-foreground" />
                     ) : (
                       <Eye className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span className="sr-only">
-                      {showPassword ? 'Hide password' : 'Show password'}
-                    </span>
-                  </Button>
+                  </button>
                 </div>
               </FormControl>
               <FormMessage />
@@ -218,11 +213,11 @@ export function LoginForm() {
         {/* Submit Button */}
         <AuthLoadingButton
           type="submit"
-          loading={loading || isRedirecting}
+          loading={loading}
           disabled={loading || isRedirecting}
           className="w-full"
         >
-          {loading ? 'Signing in...' : isRedirecting ? 'Redirecting to dashboard...' : 'Sign in'}
+          {loading ? 'Signing in...' : 'Sign in'}
         </AuthLoadingButton>
 
         {/* Sign Up Link */}

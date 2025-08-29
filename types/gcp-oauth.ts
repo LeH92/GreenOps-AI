@@ -6,6 +6,9 @@ export interface GCPOAuthTokens {
   token_type: string;
   scope: string;
   expires_at: Date;
+  // Google OAuth retourne aussi ces champs
+  expiry_date?: number;
+  id_token?: string;
 }
 
 export interface GCPBillingAccount {
