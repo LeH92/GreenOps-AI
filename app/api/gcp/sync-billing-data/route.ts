@@ -244,7 +244,7 @@ async function fetchDetailedBillingData(oauth2Client: any, projectId: string, bi
               region: 'us-central1', // Région par défaut
               skuId: `sku-${serviceName}-${i}`,
               skuDescription: `${serviceDisplayName} - Monthly usage`,
-              carbonFootprintGrams: calculateCarbonFootprint(monthlyCost, 'us-central1'),
+              carbonFootprintGrams: calculateCarbonFootprintFromCost(monthlyCost, 'us-central1'),
               labels: {
                 project: projectId,
                 service: serviceName,
@@ -290,7 +290,7 @@ async function fetchDetailedBillingData(oauth2Client: any, projectId: string, bi
             region: 'us-central1',
             skuId: `sku-${service.name}-${i}`,
             skuDescription: `${service.title} - Monthly usage`,
-            carbonFootprintGrams: calculateCarbonFootprint(monthlyCost, 'us-central1'),
+            carbonFootprintGrams: calculateCarbonFootprintFromCost(monthlyCost, 'us-central1'),
             labels: {
               project: projectId,
               service: service.name,
@@ -355,7 +355,7 @@ function getUsageUnit(category: string): string {
   return units[category] || units.other;
 }
 
-function calculateCarbonFootprint(cost: number, region: string): number {
+function calculateCarbonFootprintFromCost(cost: number, region: string): number {
   // Facteurs d'émission par région (grammes CO2 par dollar dépensé)
   const carbonFactors = {
     'us-central1': 400, // Iowa - éolien important
