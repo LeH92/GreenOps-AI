@@ -20,7 +20,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Building2,
-  FolderOpen
+  FolderOpen,
+  X
 } from 'lucide-react';
 
 interface GCPProject {
@@ -64,7 +65,7 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
   const [projects, setProjects] = useState<GCPProject[]>([]);
   const [billingAccounts, setBillingAccounts] = useState<GCPBillingAccount[]>([]);
   const [selectedBillingAccount, setSelectedBillingAccount] = useState<string>("");
-  const [selectedProject, setSelectedProject] = useState<string>("");
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncProgress, setSyncProgress] = useState(0);
@@ -74,52 +75,112 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
 
   useEffect(() => {
     if (isOpen && user && session) {
-      loadGCPData();
+      // Charger directement depuis l'API (pas de snapshot)
+      console.log('🔎 Wizard opened: loading data directly from API');
+      loadGCPDataDirect();
     }
-  }, [isOpen]); // Removed user and session to prevent auto-refresh
+  }, [isOpen]); // no auto-refresh of heavy APIs
 
-  const loadGCPData = async () => {
-    if (!user || !session) return;
-    
+  // Gérer la touche Escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        handleForceClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [isOpen, currentStep]);
+
+  const handleDebugConnection = async () => {
+    if (!user || !session) {
+      toast({
+        title: "Authentification requise",
+        description: "Veuillez vous connecter pour déboguer la connexion GCP",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('🔍 Starting GCP connection debug...');
     setIsLoading(true);
+    
     try {
-      // Charger les projets et comptes de facturation via la nouvelle route API
-      const response = await fetch('/api/gcp/projects', {
+      const response = await fetch('/api/gcp/debug-connection', {
         headers: {
           'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
         }
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.data) {
-          setProjects(data.data.projects || []);
-          setBillingAccounts(data.data.billingAccounts || []);
-          console.log(`Loaded ${data.data.projects.length} projects and ${data.data.billingAccounts.length} billing accounts`);
-        }
-      } else {
-        const errorData = await response.json();
-        console.error('API Error:', errorData);
+      const debugData = await response.json();
+      console.log('🔍 Debug response:', debugData);
+
+      if (debugData.success) {
+        // Afficher les détails du debug
+        const details = debugData.debug;
+        console.log('✅ Debug Details:', {
+          billingAccounts: details.billingAccountsCount,
+          projects: details.projectsCount,
+          accountInfo: details.accountInfo,
+          connectionStatus: details.connectionStatus
+        });
+
+        toast({
+          title: "Connexion GCP OK ✅",
+          description: `${details.billingAccountsCount} comptes de facturation et ${details.projectsCount} projets trouvés`,
+        });
         
-        if (response.status === 403 && errorData.error === 'GCP APIs not enabled') {
-          toast({
-            title: "APIs GCP non activées",
-            description: "Veuillez activer les APIs requises dans Google Cloud Console",
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Erreur de chargement",
-            description: errorData.error || "Impossible de charger les données GCP",
-            variant: "destructive",
+        // Si le debug trouve des données, les utiliser directement
+        if (details.billingAccounts && details.projects) {
+          const transformedBillingAccounts = details.billingAccounts.map((acc: any) => ({
+            name: acc.name,
+            displayName: acc.displayName,
+            open: acc.open
+          }));
+          const transformedProjects = details.projects.map((proj: any) => ({
+            projectId: proj.projectId,
+            name: proj.name,
+            projectNumber: proj.projectNumber,
+            billingAccountName: proj.billingAccountName
+          }));
+          
+          setBillingAccounts(transformedBillingAccounts);
+          setProjects(transformedProjects);
+          
+          console.log('✅ Debug data applied to wizard:', {
+            billingAccounts: transformedBillingAccounts,
+            projects: transformedProjects
           });
         }
+        
+      } else {
+        console.error('❌ Debug failed:', debugData);
+        
+        // Afficher les détails de l'erreur
+        const errorDetails = debugData.debug || {};
+        let errorMessage = debugData.error || "Erreur inconnue";
+        
+        if (errorDetails.isApiError) {
+          errorMessage = "APIs Google Cloud non activées";
+        } else if (errorDetails.isPermissionError) {
+          errorMessage = "Permissions insuffisantes (403)";
+        }
+        
+        toast({
+          title: "Problème de connexion GCP ❌",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
-    } catch (error) {
-      console.error('Error loading GCP data:', error);
+    } catch (error: any) {
+      console.error('❌ Debug error:', error);
       toast({
-        title: "Erreur de chargement",
-        description: "Impossible de charger les données GCP",
+        title: "Erreur de debug",
+        description: error.message,
         variant: "destructive",
       });
     } finally {
@@ -127,13 +188,260 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
     }
   };
 
-  const handleBillingAccountSelect = (billingAccountId: string) => {
-    setSelectedBillingAccount(billingAccountId);
-    setSelectedProject(""); // Reset project selection
+  const handleTestBilling = async () => {
+    if (!user || !session) {
+      toast({
+        title: "Authentification requise",
+        description: "Veuillez vous connecter pour tester les comptes de facturation",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    console.log('🧪 Testing GCP billing accounts specifically...');
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch('/api/gcp/test-billing', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const testData = await response.json();
+      console.log('🧪 Billing test response:', testData);
+
+      if (testData.success) {
+        const data = testData.data;
+        console.log('✅ Billing Test Success:', {
+          billingAccounts: data.billingAccountsCount,
+          projects: data.projectsCount,
+          connectionStatus: data.connectionInfo.status
+        });
+
+        // Appliquer les données directement si elles sont trouvées
+        if (data.billingAccounts) {
+          const transformedBillingAccounts = data.billingAccounts.map((acc: any) => ({
+            name: acc.name,
+            displayName: acc.displayName,
+            open: acc.open
+          }));
+          setBillingAccounts(transformedBillingAccounts);
+          console.log('✅ Applied billing accounts from test:', transformedBillingAccounts);
+        }
+        
+        if (data.projects) {
+          const transformedProjects = data.projects.map((proj: any) => ({
+            projectId: proj.projectId,
+            name: proj.name,
+            projectNumber: proj.projectNumber,
+            billingAccountName: proj.billingAccountName
+          }));
+          setProjects(transformedProjects);
+          console.log('✅ Applied projects from test:', transformedProjects);
+        }
+
+        toast({
+          title: "Test Billing Réussi ✅",
+          description: `${data.billingAccountsCount} comptes de facturation trouvés directement`,
+        });
+        
+      } else {
+        console.error('❌ Billing test failed:', testData);
+        
+        const errorDetails = testData.debug || {};
+        let errorMessage = testData.error || "Erreur inconnue";
+        
+        if (errorDetails.isApiError) {
+          errorMessage = "Cloud Billing API non activée";
+        } else if (errorDetails.isPermissionError) {
+          errorMessage = "Permissions Billing insuffisantes (403)";
+        }
+        
+        toast({
+          title: "Test Billing Échoué ❌",
+          description: errorMessage,
+          variant: "destructive",
+        });
+
+        // Afficher les détails de l'erreur dans la console
+        console.error('❌ Billing Error Details:', {
+          error: testData.error,
+          debug: errorDetails,
+          isApiError: errorDetails.isApiError,
+          isPermissionError: errorDetails.isPermissionError
+        });
+      }
+    } catch (error: any) {
+      console.error('❌ Billing test error:', error);
+      toast({
+        title: "Erreur de test billing",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleProjectSelect = (projectId: string) => {
-    setSelectedProject(projectId);
+  const handleForceReload = async () => {
+    console.log('🔄 Force reloading GCP data - bypassing all cache...');
+    
+    // Reset tous les états
+    setProjects([]);
+    setBillingAccounts([]);
+    setSelectedBillingAccount("");
+    setSelectedProjects([]);
+    
+    // Forcer le rechargement
+    await loadGCPDataDirect();
+  };
+
+  // Charge directement depuis l'API GCP (pas de snapshot)
+  const loadGCPDataDirect = async () => {
+    if (!user || !session) {
+      console.log('❌ No user or session available for GCP data loading');
+      return;
+    }
+    
+    console.log('🔄 Loading GCP data DIRECTLY from API for user:', user.email);
+    setIsLoading(true);
+    
+    try {
+      // Appel direct à l'API live qui récupère les données fraîches depuis Google Cloud
+      console.log('📡 Calling /api/gcp/fetch-live for fresh data...');
+      
+      // Timeout de 15 secondes pour éviter les blocages
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+      const response = await fetch('/api/gcp/fetch-live', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      console.log('📡 Direct API response status:', response.status, response.statusText);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('✅ Direct API Response:', data);
+        
+        if (data.success && data.data) {
+          const projects = data.data.projects || [];
+          const rawBillingAccounts = data.data.billingAccounts || [];
+          
+          // Transformer les données pour correspondre au format attendu par le wizard
+          const transformedBillingAccounts = rawBillingAccounts.map((account: any) => ({
+            name: account.name || '',
+            displayName: account.displayName || '',
+            open: account.open || false
+          }));
+          
+          setProjects(projects);
+          setBillingAccounts(transformedBillingAccounts);
+          console.log(`✅ Direct load: ${projects.length} projects and ${rawBillingAccounts.length} billing accounts`);
+          console.log('✅ Transformed billing accounts:', transformedBillingAccounts);
+
+          if (transformedBillingAccounts.length === 0) {
+            toast({
+              title: "Aucun compte de facturation",
+              description: "Aucun compte de facturation GCP trouvé. Vérifiez vos permissions.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Données chargées",
+              description: `${transformedBillingAccounts.length} comptes de facturation et ${projects.length} projets trouvés`,
+            });
+          }
+        } else {
+          console.error('❌ Invalid API response structure:', data);
+          toast({
+            title: "Erreur de données",
+            description: "Structure de réponse invalide de l'API",
+            variant: "destructive",
+          });
+        }
+      } else {
+        const errorData = await response.json();
+        console.error('❌ Direct API Error:', response.status, errorData);
+        
+        if (response.status === 403 && errorData.error === 'GCP APIs not enabled') {
+          toast({
+            title: "APIs GCP non activées",
+            description: "Veuillez activer les APIs requises dans Google Cloud Console",
+            variant: "destructive",
+          });
+        } else if (response.status === 401) {
+          toast({
+            title: "Authentification requise",
+            description: "Veuillez vous reconnecter à Google Cloud",
+            variant: "destructive",
+          });
+        } else if (response.status === 404) {
+          toast({
+            title: "Connexion GCP introuvable",
+            description: "Aucune connexion GCP active trouvée. Reconnectez-vous.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Erreur de chargement",
+            description: errorData.error || `Erreur ${response.status}: ${response.statusText}`,
+            variant: "destructive",
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error('❌ Direct API Error:', error);
+      
+      if (error.name === 'AbortError') {
+        toast({
+          title: "Timeout de chargement",
+          description: "Le chargement a pris trop de temps (15s). Vérifiez votre connexion.",
+          variant: "destructive",
+        });
+      } else {
+      toast({
+          title: "Erreur réseau",
+          description: `Impossible de contacter l'API: ${error.message}`,
+        variant: "destructive",
+      });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleBillingAccountSelect = (billingAccountId: string) => {
+    setSelectedBillingAccount(billingAccountId);
+    setSelectedProjects([]); // Reset project selection
+  };
+
+  const handleProjectToggle = (projectId: string) => {
+    setSelectedProjects(prev => 
+      prev.includes(projectId) 
+        ? prev.filter(id => id !== projectId)
+        : [...prev, projectId]
+    );
+  };
+
+  const handleSelectAllProjects = () => {
+    const availableProjects = projects
+      .filter(p => p.billingAccountName === selectedBillingAccount)
+      .map(p => p.projectId);
+    
+    setSelectedProjects(prev => 
+      prev.length === availableProjects.length 
+        ? [] 
+        : availableProjects
+    );
   };
 
   const handleNextStep = () => {
@@ -157,10 +465,10 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
   };
 
   const handleSynchronize = async () => {
-    if (!selectedProject) {
+    if (selectedProjects.length === 0) {
       toast({
         title: "Sélection requise",
-        description: "Veuillez sélectionner un projet",
+        description: "Veuillez sélectionner au moins un projet",
         variant: "destructive",
       });
       return;
@@ -168,39 +476,62 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
 
     setIsSyncing(true);
     setSyncProgress(0);
-    setSyncStatus('Démarrage de la synchronisation...');
+    setSyncStatus('Préparation de la synchronisation...');
 
     try {
-      // Simuler la synchronisation avec progression
+      // 1) Pas besoin de charger les métadonnées, on a déjà les données
+
+      // 2) Déclencher le fetch complet côté serveur
+      setSyncStatus('Connexion aux APIs Google...');
+      const response = await fetch('/api/gcp/sync-billing-data', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          selectedProjects,
+          billingAccountId: selectedBillingAccount
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Synchronization failed');
+      }
+
+      const result = await response.json();
+
       const steps = [
-        'Connexion au projet GCP...',
-        'Récupération des métadonnées...',
-        'Synchronisation des coûts...',
-        'Mise à jour de la base de données...',
+        `Récupération des projets (${selectedProjects.length})...`,
+        `Récupération des coûts...`,
+        `Analyse des services...`,
+        `Calcul de l'empreinte carbone...`,
+        `Stockage des données...`,
         'Finalisation...'
       ];
 
       for (let i = 0; i < steps.length; i++) {
         setSyncStatus(steps[i]);
-        setSyncProgress((i + 1) * (100 / steps.length));
-        await new Promise(resolve => setTimeout(resolve, 800)); // Simuler le délai
+        setSyncProgress(Math.round(((i + 1) / steps.length) * 100));
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
 
-      // Synchronisation réussie
-      setSyncStatus('Synchronisation terminée avec succès !');
+      setSyncStatus(`Synchronisation terminée ! ${result.results?.projectsProcessed || selectedProjects.length} projets traités`);
       setSyncProgress(100);
 
-      // Attendre un peu puis passer à l'étape finale
-      setTimeout(() => {
-        setCurrentStep('completed');
-      }, 1500);
+      toast({
+        title: "Synchronisation réussie",
+        description: `${result.results?.projectsProcessed || selectedProjects.length} projet(s) synchronisé(s)`
+      });
 
-    } catch (error) {
+      setTimeout(() => setCurrentStep('completed'), 1200);
+    } catch (error: any) {
       console.error('Error during synchronization:', error);
       setSyncStatus('Erreur lors de la synchronisation');
       toast({
         title: "Erreur de synchronisation",
-        description: "Une erreur s'est produite lors de la synchronisation",
+        description: error.message || "Une erreur s'est produite lors de la synchronisation",
         variant: "destructive",
       });
     } finally {
@@ -209,8 +540,9 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
   };
 
   const handleComplete = () => {
-    if (selectedProject && onProjectSelected) {
-      const project = projects.find(p => p.projectId === selectedProject);
+    if (selectedProjects.length > 0 && onProjectSelected) {
+      // Pour la compatibilité, on passe le premier projet sélectionné
+      const project = projects.find(p => p.projectId === selectedProjects[0]);
       if (project) {
         onProjectSelected(project);
       }
@@ -219,7 +551,7 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
     // Reset wizard state
     setCurrentStep('account-selection');
     setSelectedBillingAccount("");
-    setSelectedProject("");
+    setSelectedProjects([]);
     setSyncProgress(0);
     setSyncStatus("");
   };
@@ -264,19 +596,108 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
     );
   };
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    // Si on clique sur le backdrop (pas sur la card)
+    if (e.target === e.currentTarget) {
+      handleForceClose();
+    }
+  };
+
+  const handleForceClose = async () => {
+    // Si en cours de synchronisation, empêcher la fermeture
+    if (isSyncing) {
+      toast({
+        title: "Synchronisation en cours",
+        description: "Veuillez attendre la fin de la synchronisation avant de fermer.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Si des projets sont sélectionnés ou qu'on est à l'étape de sync, demander confirmation
+    if ((selectedProjects.length > 0 || currentStep === 'synchronization') && currentStep !== 'completed') {
+      const confirmed = window.confirm(
+        "Êtes-vous sûr de vouloir fermer le wizard ?\n\nCela déconnectera votre compte GCP et vous devrez recommencer le processus de connexion."
+      );
+      
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    // Si le wizard n'est pas terminé, déconnecter GCP
+    if (currentStep !== 'completed') {
+      console.log('⚠️ Wizard fermé avant completion - déconnexion GCP');
+      
+      try {
+        // Appeler l'API de déconnexion
+        const response = await fetch('/api/gcp/disconnect', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          toast({
+            title: "Connexion GCP fermée",
+            description: "Le wizard a été fermé. Reconnectez-vous pour continuer.",
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        console.error('Error disconnecting GCP:', error);
+        toast({
+          title: "Erreur de déconnexion",
+          description: "Impossible de déconnecter proprement. Veuillez vérifier votre connexion.",
+          variant: "destructive",
+        });
+      }
+    }
+
+    // Fermer le wizard et reset l'état
+    onClose();
+    setCurrentStep('account-selection');
+    setSelectedBillingAccount("");
+    setSelectedProjects([]);
+    setSyncProgress(0);
+    setSyncStatus("");
+    setIsSyncing(false);
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      onClick={handleBackdropClick}
+    >
+      <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <CardHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <div>
           <CardTitle className="flex items-center gap-2">
             <Cloud className="h-6 w-6 text-blue-500" />
             Configuration Google Cloud Platform
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground mt-1">
             Connectez et synchronisez vos projets GCP en 2 étapes simples
           </p>
+              <p className="text-xs text-muted-foreground mt-1 opacity-70">
+                Appuyez sur Échap ou cliquez en dehors pour fermer
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleForceClose}
+              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+              disabled={isSyncing}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
 
         <CardContent className="p-6">
@@ -295,15 +716,188 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
               {isLoading ? (
                 <div className="text-center py-8">
                   <Loader2 className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
-                  <p>Chargement des comptes de facturation...</p>
+                  <p className="font-medium">Chargement des comptes de facturation...</p>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Récupération des données depuis Google Cloud Platform
+                  </p>
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-xs text-red-800 font-medium mb-2">
+                      🚨 Chargement bloqué ? Solutions d'urgence :
+                    </p>
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={() => {
+                          console.log('🚨 Emergency: Forcing page reload...');
+                          window.location.reload();
+                        }} 
+                        variant="destructive" 
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Recharger Page
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          console.log('🚨 Emergency: Closing wizard...');
+                          onClose();
+                        }} 
+                        variant="outline" 
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Fermer Wizard
+                      </Button>
+                      <Button 
+                        onClick={async () => {
+                          console.log('🚨 Emergency: Testing live API...');
+                          try {
+                            const response = await fetch('/api/gcp/fetch-live', {
+                              headers: { 'Authorization': `Bearer ${session?.access_token}` }
+                            });
+                            const data = await response.json();
+                            if (data.success) {
+                              const rawBillingAccounts = data.data.billingAccounts || [];
+                              const transformedBillingAccounts = rawBillingAccounts.map((acc: any) => ({
+                                name: acc.name,
+                                displayName: acc.displayName,
+                                open: acc.open
+                              }));
+                              setBillingAccounts(transformedBillingAccounts);
+                              setProjects(data.data.projects || []);
+                              setIsLoading(false);
+                              alert(`✅ ${rawBillingAccounts.length} comptes trouvés!`);
+                            } else {
+                              alert(`❌ ${data.error}`);
+                            }
+                          } catch (e) {
+                            alert(`❌ ${e.message}`);
+                          }
+                        }} 
+                        variant="secondary" 
+                        size="sm"
+                        className="text-xs"
+                      >
+                        Test Direct
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               ) : billingAccounts.length === 0 ? (
                 <div className="text-center py-8">
                   <XCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
-                  <p className="text-red-600">Aucun compte de facturation trouvé</p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Vérifiez que vous avez accès aux comptes de facturation GCP
+                  <p className="text-red-600 font-medium">Aucun compte de facturation trouvé</p>
+                  <p className="text-sm text-muted-foreground mt-2 mb-4">
+                    Vérifiez que vous avez accès aux comptes de facturation GCP et que les APIs sont activées
                   </p>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        onClick={loadGCPDataDirect} 
+                        variant="outline" 
+                        size="sm"
+                        disabled={isLoading}
+                      >
+                        <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                        Recharger API
+                      </Button>
+                      <Button 
+                        onClick={handleForceReload} 
+                        variant="default" 
+                        size="sm"
+                        disabled={isLoading}
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Force Reload
+                      </Button>
+                      <Button 
+                        onClick={handleDebugConnection} 
+                        variant="secondary" 
+                        size="sm"
+                        disabled={isLoading}
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Debug
+                      </Button>
+                      <Button 
+                        onClick={handleTestBilling} 
+                        variant="destructive" 
+                        size="sm"
+                        disabled={isLoading}
+                      >
+                        <Database className="h-4 w-4 mr-2" />
+                        Test Billing
+                      </Button>
+                      <Button 
+                        onClick={async () => {
+                          console.log('🧪 Testing fetch-live API directly...');
+                          setIsLoading(true);
+                          try {
+                            const response = await fetch('/api/gcp/fetch-live', {
+                              headers: {
+                                'Authorization': `Bearer ${session?.access_token}`,
+                              }
+                            });
+                            const data = await response.json();
+                            console.log('Live fetch test:', data);
+                            
+                            if (data.success) {
+                              const rawBillingAccounts = data.data.billingAccounts || [];
+                              const transformedBillingAccounts = rawBillingAccounts.map((acc: any) => ({
+                                name: acc.name,
+                                displayName: acc.displayName,
+                                open: acc.open
+                              }));
+                              setBillingAccounts(transformedBillingAccounts);
+                              setProjects(data.data.projects || []);
+                              alert(`✅ Live fetch réussi! ${rawBillingAccounts.length || 0} comptes, ${data.data.projects?.length || 0} projets`);
+                            } else {
+                              alert(`❌ Erreur: ${data.error}`);
+                            }
+                          } catch (e) {
+                            console.error('Live fetch test failed:', e);
+                            alert('Test failed: ' + e.message);
+                          } finally {
+                            setIsLoading(false);
+                          }
+                        }} 
+                        variant="secondary" 
+                        size="sm"
+                        disabled={isLoading}
+                      >
+                        Test Live
+                      </Button>
+                    </div>
+                    <div className="text-xs text-muted-foreground space-y-2">
+                      <div>
+                        <p><strong>APIs requises :</strong></p>
+                        <ul className="list-disc list-inside space-y-0.5 ml-2">
+                          <li>Cloud Billing API</li>
+                          <li>Cloud Resource Manager API</li>
+                          <li>BigQuery API</li>
+                          <li>Cloud Monitoring API</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="border-t border-border/30 pt-2">
+                        <p><strong>Rôles IAM requis :</strong></p>
+                        <ul className="list-disc list-inside space-y-0.5 ml-2">
+                          <li>Billing Account Viewer</li>
+                          <li>Project Viewer</li>
+                          <li>Monitoring Viewer</li>
+                        </ul>
+                      </div>
+
+                      <div className="border-t border-border/30 pt-2">
+                        <p><strong>Étapes de dépannage :</strong></p>
+                        <ol className="list-decimal list-inside space-y-0.5 ml-2">
+                          <li>Cliquez sur "Test Billing" pour diagnostiquer</li>
+                          <li>Vérifiez les APIs dans Google Cloud Console</li>
+                          <li>Vérifiez vos permissions de facturation</li>
+                          <li>Reconnectez-vous si nécessaire</li>
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -319,7 +913,7 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
                         {billingAccounts.map((account) => (
                           <SelectItem key={account.name} value={account.name}>
                             <div className="flex items-center justify-between w-full">
-                              <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2">
                                 <DollarSign className="h-4 w-4 text-green-600" />
                                 <div className="flex flex-col">
                                   <span className="font-medium">{getUniqueBillingAccountName(account, billingAccounts)}</span>
@@ -341,40 +935,94 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
 
                   {selectedBillingAccount && (
                     <div className="mt-6">
-                      <h4 className="font-medium text-foreground mb-4 flex items-center gap-2">
-                        <FolderOpen className="h-4 w-4 text-blue-500" />
-                        Projets disponibles ({projects.filter(p => p.billingAccountName === selectedBillingAccount).length})
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-medium text-foreground flex items-center gap-2">
+                          <FolderOpen className="h-4 w-4 text-blue-500" />
+                          Projets disponibles ({projects.filter(p => p.billingAccountName === selectedBillingAccount).length})
                       </h4>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleSelectAllProjects}
+                          className="text-xs"
+                        >
+                          {selectedProjects.length === projects.filter(p => p.billingAccountName === selectedBillingAccount).length 
+                            ? "Désélectionner tout" 
+                            : "Sélectionner tout"
+                          }
+                        </Button>
+                      </div>
+                      
+                      {selectedProjects.length > 0 && (
+                        <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                          <p className="text-sm text-emerald-800 font-medium">
+                            {selectedProjects.length} projet{selectedProjects.length > 1 ? 's' : ''} sélectionné{selectedProjects.length > 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      )}
+
                       <div className="grid gap-3">
                         {projects
                           .filter(p => p.billingAccountName === selectedBillingAccount)
-                          .map(project => (
-                            <div key={project.projectId} className="group relative overflow-hidden rounded-lg border border-border bg-card p-4 hover:bg-accent/50 transition-all duration-200 hover:shadow-md">
-                              <div className="flex items-start justify-between">
-                                <div className="flex items-start gap-3">
-                                  <div className="p-2 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors">
-                                    <FolderOpen className="h-5 w-5" />
-                                  </div>
-                                  <div className="space-y-1">
-                                    <h5 className="font-semibold text-card-foreground group-hover:text-accent-foreground">
-                                      {project.name}
-                                    </h5>
-                                    <p className="text-sm text-muted-foreground">
-                                      ID: {project.projectId}
-                                    </p>
-                                    {project.projectNumber && (
-                                      <p className="text-xs text-muted-foreground">
-                                        Numéro: {project.projectNumber}
+                          .map(project => {
+                            const isSelected = selectedProjects.includes(project.projectId);
+                            return (
+                              <div 
+                                key={project.projectId} 
+                                className={`group relative overflow-hidden rounded-lg border cursor-pointer transition-all duration-200 hover:shadow-md ${
+                                  isSelected 
+                                    ? 'border-emerald-500 bg-emerald-50 hover:bg-emerald-100' 
+                                    : 'border-border bg-card hover:bg-accent/50'
+                                }`}
+                                onClick={() => handleProjectToggle(project.projectId)}
+                              >
+                                <div className="flex items-start justify-between p-4">
+                                  <div className="flex items-start gap-3">
+                                    <div className={`p-2 rounded-lg transition-colors ${
+                                      isSelected 
+                                        ? 'bg-emerald-100 text-emerald-600' 
+                                        : 'bg-blue-50 text-blue-600 group-hover:bg-blue-100'
+                                    }`}>
+                                      {isSelected ? (
+                                        <CheckCircle className="h-5 w-5" />
+                                      ) : (
+                                        <FolderOpen className="h-5 w-5" />
+                                      )}
+                                    </div>
+                                    <div className="space-y-1">
+                                      <h5 className={`font-semibold ${
+                                        isSelected 
+                                          ? 'text-emerald-900' 
+                                          : 'text-card-foreground group-hover:text-accent-foreground'
+                                      }`}>
+                                        {project.name}
+                                      </h5>
+                                      <p className={`text-sm ${
+                                        isSelected ? 'text-emerald-700' : 'text-muted-foreground'
+                                      }`}>
+                                        ID: {project.projectId}
                                       </p>
-                                    )}
+                                      {project.projectNumber && (
+                                        <p className={`text-xs ${
+                                          isSelected ? 'text-emerald-600' : 'text-muted-foreground'
+                                        }`}>
+                                          Numéro: {project.projectNumber}
+                                        </p>
+                                      )}
+                                    </div>
                                   </div>
-                                </div>
-                                <Badge variant="outline" className="text-xs font-mono">
-                                  GCP
-                                </Badge>
-                              </div>
+                                  <Badge 
+                                    variant={isSelected ? "default" : "outline"} 
+                                    className={`text-xs font-mono ${
+                                      isSelected ? 'bg-emerald-500 text-white' : ''
+                                    }`}
+                                  >
+                                    {isSelected ? 'Sélectionné' : 'GCP'}
+                              </Badge>
                             </div>
-                          ))}
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
                   )}
@@ -384,10 +1032,10 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
               <div className="flex justify-end">
                 <Button 
                   onClick={handleNextStep} 
-                  disabled={!selectedBillingAccount || isLoading}
+                  disabled={!selectedBillingAccount || selectedProjects.length === 0 || isLoading}
                   className="min-w-[120px]"
                 >
-                  Suivant
+                  Suivant ({selectedProjects.length} projet{selectedProjects.length !== 1 ? 's' : ''})
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
@@ -405,64 +1053,33 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Projet à synchroniser
-                  </label>
-                  <Select value={selectedProject} onValueChange={handleProjectSelect}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionnez un projet" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {projects
-                        .filter(p => p.billingAccountName === selectedBillingAccount)
-                        .map((project) => (
-                          <SelectItem key={project.projectId} value={project.projectId}>
-                            <div className="flex items-center justify-between w-full">
-                              <div className="flex items-center gap-3">
-                                <div className="p-1.5 rounded-md bg-blue-50 text-blue-600">
-                                  <FolderOpen className="h-4 w-4" />
-                                </div>
-                                <div className="flex flex-col">
-                                  <span className="font-medium">{project.name}</span>
-                                  <span className="text-xs text-muted-foreground">ID: {project.projectId}</span>
-                                </div>
-                              </div>
-                              <Badge variant="outline" className="text-xs font-mono">
-                                GCP
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-xl p-6">
+                  <h4 className="font-semibold text-emerald-900 mb-4 flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5" />
+                    Projets sélectionnés pour synchronisation
+                  </h4>
+                  <div className="grid gap-3">
+                    {selectedProjects.map(projectId => {
+                      const project = projects.find(p => p.projectId === projectId);
+                      if (!project) return null;
+                      
+                      return (
+                        <div key={projectId} className="flex items-center gap-3 p-3 bg-white/70 rounded-lg border border-emerald-200">
+                          <div className="p-2 rounded-lg bg-emerald-100 text-emerald-600">
+                              <FolderOpen className="h-4 w-4" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-emerald-900">{project.name}</p>
+                            <p className="text-sm text-emerald-700">ID: {project.projectId}</p>
+                          </div>
+                          <Badge className="bg-emerald-100 text-emerald-800">
+                            Prêt
                               </Badge>
                             </div>
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedProject && (
-                  <div className="group relative overflow-hidden rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6 shadow-sm">
-                    <div className="flex items-start gap-4">
-                      <div className="p-3 rounded-xl bg-green-100 text-green-600 group-hover:bg-green-200 transition-colors">
-                        <CheckCircle className="h-6 w-6" />
-                      </div>
-                      <div className="space-y-2">
-                        <h4 className="font-semibold text-green-900 flex items-center gap-2">
-                          Projet sélectionné
-                          <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                            Prêt
-                          </Badge>
-                        </h4>
-                        <div className="space-y-1">
-                          <p className="font-medium text-green-800">
-                            {projects.find(p => p.projectId === selectedProject)?.name}
-                          </p>
-                          <p className="text-sm text-green-700">
-                            ID: {selectedProject}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
+                      );
+                    })}
                   </div>
-                )}
+                </div>
 
                 {isSyncing && (
                   <div className="space-y-3">
@@ -489,7 +1106,7 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
                 </Button>
                 <Button 
                   onClick={handleSynchronize} 
-                  disabled={!selectedProject || isSyncing}
+                  disabled={selectedProjects.length === 0 || isSyncing}
                   className="min-w-[120px]"
                 >
                   {isSyncing ? (
@@ -500,7 +1117,7 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
                   ) : (
                     <>
                       <RefreshCw className="mr-2 h-4 w-4" />
-                      Synchroniser
+                      Synchroniser ({selectedProjects.length})
                     </>
                   )}
                 </Button>
@@ -524,13 +1141,40 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
                 </p>
               </div>
 
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-left">
-                <h4 className="font-medium text-green-900 mb-2">Résumé de la synchronisation</h4>
-                <div className="space-y-1 text-sm text-green-800">
-                  <div>✅ Connexion GCP établie</div>
-                  <div>✅ Projet sélectionné et synchronisé</div>
-                  <div>✅ Données stockées dans la base</div>
-                  <div>✅ Prêt pour la surveillance des coûts</div>
+              <div className="bg-gradient-to-br from-emerald-50 to-green-50 border border-emerald-200 rounded-xl p-6 text-left">
+                <h4 className="font-semibold text-emerald-900 mb-4 flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5" />
+                  Résumé de la synchronisation
+                </h4>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>{selectedProjects.length} projet{selectedProjects.length > 1 ? 's' : ''} synchronisé{selectedProjects.length > 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Données de facturation récupérées</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Empreinte carbone calculée</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Anomalies détectées</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Recommandations générées</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-emerald-800">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Prêt pour analyses FinOps</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
