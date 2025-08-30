@@ -177,6 +177,9 @@ export class GCPOAuthClient {
       state,
       redirectUri: this.redirectUri,
       timestamp: Date.now(),
+      // propagate userId (email) so callback can store data reliably
+      // @ts-ignore - extend shape without breaking consumer types
+      userId,
     };
   }
 

@@ -34,8 +34,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard/cloud-providers?gcp_error=invalid_state', request.url));
     }
 
-    const userEmail = decodedState.userId;
-    console.log('Processing OAuth callback for user:', userEmail);
+    let userEmail: string | null = decodedState.userId || null;
+    console.log('Processing OAuth callback, user from state:', userEmail);
 
     // Exchange code for tokens
     const tokens = await gcpOAuthClient.exchangeCodeForTokens(code);
@@ -45,6 +45,17 @@ export async function GET(request: NextRequest) {
     console.log('Fetching GCP data automatically...');
     const dataFetcher = new GCPDataFetcher(tokens);
     const dataResult = await dataFetcher.fetchInitialData();
+
+    // Fallback to Google account email if userEmail missing
+    if (!userEmail && dataResult.success && dataResult.data?.accountInfo?.email) {
+      userEmail = dataResult.data.accountInfo.email;
+      console.log('User email resolved from Google account info:', userEmail);
+    }
+
+    if (!userEmail) {
+      console.error('Unable to resolve user identifier for storing connection');
+      return NextResponse.redirect(new URL('/dashboard/cloud-providers?gcp_status=error&message=missing_user', request.url));
+    }
 
     // Même si la récupération des données échoue, on considère la connexion comme réussie
     // car l'OAuth a fonctionné

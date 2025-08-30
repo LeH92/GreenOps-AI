@@ -27,14 +27,29 @@ interface GCPProject {
   projectId: string;
   name: string;
   projectNumber: string;
-  billingAccountId?: string;
+  billingAccountName?: string; // Format: billingAccounts/123456-789012-345678
 }
 
 interface GCPBillingAccount {
-  id: string;
+  name: string; // Format: billingAccounts/123456-789012-345678
   displayName: string;
   open: boolean;
 }
+
+// Helper function to extract billing account ID from full name
+const getBillingAccountId = (name: string): string => {
+  return name.split('/').pop() || name;
+};
+
+// Helper function to get unique display name for billing accounts
+const getUniqueBillingAccountName = (account: GCPBillingAccount, allAccounts: GCPBillingAccount[]): string => {
+  const duplicates = allAccounts.filter(acc => acc.displayName === account.displayName);
+  if (duplicates.length > 1) {
+    const accountId = getBillingAccountId(account.name);
+    return `${account.displayName} (${accountId.slice(-6)})`;
+  }
+  return account.displayName;
+};
 
 interface GCPWizard2StepsProps {
   isOpen: boolean;
@@ -61,7 +76,7 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
     if (isOpen && user && session) {
       loadGCPData();
     }
-  }, [isOpen, user, session]);
+  }, [isOpen]); // Removed user and session to prevent auto-refresh
 
   const loadGCPData = async () => {
     if (!user || !session) return;
@@ -302,11 +317,19 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
                       </SelectTrigger>
                       <SelectContent>
                         {billingAccounts.map((account) => (
-                          <SelectItem key={account.id} value={account.id}>
-                            <div className="flex items-center gap-2">
-                              <DollarSign className="h-4 w-4" />
-                              {account.displayName}
-                              <Badge variant={account.open ? "default" : "secondary"}>
+                          <SelectItem key={account.name} value={account.name}>
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-2">
+                                <DollarSign className="h-4 w-4 text-green-600" />
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{getUniqueBillingAccountName(account, billingAccounts)}</span>
+                                  <span className="text-xs text-muted-foreground">ID: {getBillingAccountId(account.name)}</span>
+                                </div>
+                              </div>
+                              <Badge 
+                                variant={account.open ? "default" : "destructive"} 
+                                className={`ml-2 ${account.open ? "bg-emerald-500 text-white hover:bg-emerald-600 border-emerald-500" : "bg-red-500 text-white hover:bg-red-600 border-red-500"}`}
+                              >
                                 {account.open ? "Ouvert" : "Fermé"}
                               </Badge>
                             </div>
@@ -317,20 +340,39 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
                   </div>
 
                   {selectedBillingAccount && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="font-medium text-blue-900 mb-2">
-                        Projets disponibles pour ce compte
+                    <div className="mt-6">
+                      <h4 className="font-medium text-foreground mb-4 flex items-center gap-2">
+                        <FolderOpen className="h-4 w-4 text-blue-500" />
+                        Projets disponibles ({projects.filter(p => p.billingAccountName === selectedBillingAccount).length})
                       </h4>
-                      <div className="space-y-2">
+                      <div className="grid gap-3">
                         {projects
-                          .filter(p => p.billingAccountId === selectedBillingAccount)
+                          .filter(p => p.billingAccountName === selectedBillingAccount)
                           .map(project => (
-                            <div key={project.projectId} className="flex items-center gap-2 text-sm">
-                              <FolderOpen className="h-4 w-4 text-blue-500" />
-                              <span className="font-medium">{project.name}</span>
-                              <Badge variant="outline" className="text-xs">
-                                {project.projectId}
-                              </Badge>
+                            <div key={project.projectId} className="group relative overflow-hidden rounded-lg border border-border bg-card p-4 hover:bg-accent/50 transition-all duration-200 hover:shadow-md">
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start gap-3">
+                                  <div className="p-2 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-100 transition-colors">
+                                    <FolderOpen className="h-5 w-5" />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <h5 className="font-semibold text-card-foreground group-hover:text-accent-foreground">
+                                      {project.name}
+                                    </h5>
+                                    <p className="text-sm text-muted-foreground">
+                                      ID: {project.projectId}
+                                    </p>
+                                    {project.projectNumber && (
+                                      <p className="text-xs text-muted-foreground">
+                                        Numéro: {project.projectNumber}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <Badge variant="outline" className="text-xs font-mono">
+                                  GCP
+                                </Badge>
+                              </div>
                             </div>
                           ))}
                       </div>
@@ -373,14 +415,21 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
                     </SelectTrigger>
                     <SelectContent>
                       {projects
-                        .filter(p => p.billingAccountId === selectedBillingAccount)
+                        .filter(p => p.billingAccountName === selectedBillingAccount)
                         .map((project) => (
                           <SelectItem key={project.projectId} value={project.projectId}>
-                            <div className="flex items-center gap-2">
-                              <FolderOpen className="h-4 w-4" />
-                              {project.name}
-                              <Badge variant="outline" className="text-xs">
-                                {project.projectId}
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-3">
+                                <div className="p-1.5 rounded-md bg-blue-50 text-blue-600">
+                                  <FolderOpen className="h-4 w-4" />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{project.name}</span>
+                                  <span className="text-xs text-muted-foreground">ID: {project.projectId}</span>
+                                </div>
+                              </div>
+                              <Badge variant="outline" className="text-xs font-mono">
+                                GCP
                               </Badge>
                             </div>
                           </SelectItem>
@@ -390,12 +439,27 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
                 </div>
 
                 {selectedProject && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <h4 className="font-medium text-green-900 mb-2">
-                      Projet sélectionné
-                    </h4>
-                    <div className="text-sm text-green-800">
-                      {projects.find(p => p.projectId === selectedProject)?.name}
+                  <div className="group relative overflow-hidden rounded-xl border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6 shadow-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 rounded-xl bg-green-100 text-green-600 group-hover:bg-green-200 transition-colors">
+                        <CheckCircle className="h-6 w-6" />
+                      </div>
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-green-900 flex items-center gap-2">
+                          Projet sélectionné
+                          <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                            Prêt
+                          </Badge>
+                        </h4>
+                        <div className="space-y-1">
+                          <p className="font-medium text-green-800">
+                            {projects.find(p => p.projectId === selectedProject)?.name}
+                          </p>
+                          <p className="text-sm text-green-700">
+                            ID: {selectedProject}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

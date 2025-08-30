@@ -121,7 +121,10 @@ export const GCP_OAUTH_SCOPES = [
   'https://www.googleapis.com/auth/bigquery.readonly',
   'https://www.googleapis.com/auth/monitoring.read',
   'https://www.googleapis.com/auth/userinfo.email',
-  'https://www.googleapis.com/auth/userinfo.profile'
+  'https://www.googleapis.com/auth/userinfo.profile',
+  // Required to list projects (Cloud Resource Manager)
+  'https://www.googleapis.com/auth/cloud-platform.read-only',
+  'https://www.googleapis.com/auth/cloudplatformprojects.readonly'
 ] as const;
 
 export type GCPScope = typeof GCP_OAUTH_SCOPES[number];
