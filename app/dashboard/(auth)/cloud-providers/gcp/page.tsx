@@ -7,12 +7,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Cloud, CheckCircle, XCircle, Settings, RefreshCw, AlertTriangle, DollarSign, Activity, Loader2, TrendingUp, Zap, Leaf } from "lucide-react";
 import { CompanyLogo } from "@/components/ui/company-logo";
-import { useGCPData, useGCPCostsByCategory } from "@/hooks/useGCPData";
+import { useGCPData } from "@/hooks/useGCPData";
 import { formatCurrency } from "@/lib/format-utils";
 
 export default function GcpProviderPage() {
-  const { projects, services, recommendations, totalCost, totalCarbon, totalSavings, isLoading, error } = useGCPData();
-  const { costsByCategory } = useGCPCostsByCategory();
+  const { projects, services, recommendations, totalCost, totalCarbon, totalSavings, isLoading, error, costData } = useGCPData();
+  
+  // Calculer les coûts par catégorie depuis les données existantes
+  const costsByCategory = costData?.reduce((acc: any, service: any) => {
+    const category = service.service_category || 'other';
+    acc[category] = (acc[category] || 0) + (service.monthly_cost || 0);
+    return acc;
+  }, {}) || {};
 
   if (isLoading) {
     return (
