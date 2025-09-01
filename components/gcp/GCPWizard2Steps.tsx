@@ -286,9 +286,9 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
     try {
       // 1) Pas besoin de charger les métadonnées, on a déjà les données
 
-      // 2) Déclencher la synchronisation de base FinOps/GreenOps (sans BigQuery pour commencer)
-      setSyncStatus('Initialisation de la synchronisation FinOps/GreenOps...');
-      const response = await fetch('/api/gcp/sync-finops-basic', {
+      // 2) Déclencher la synchronisation complète FinOps/GreenOps avec BigQuery
+      setSyncStatus('Initialisation de la synchronisation FinOps/GreenOps complète...');
+      const response = await fetch('/api/gcp/sync-finops-complete', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
@@ -310,7 +310,8 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
       const steps = [
         'Authentification et validation des tokens...',
         `Récupération des projets sélectionnés (${selectedProjects.length})...`,
-        'Collecte des données de facturation (BigQuery)...',
+        'Détection des exports BigQuery disponibles...',
+        'Collecte des données de facturation réelles...',
         'Analyse des coûts par projet et service...',
         'Récupération de l\'empreinte carbone...',
         'Collecte des budgets et seuils d\'alerte...',

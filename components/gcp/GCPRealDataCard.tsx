@@ -13,12 +13,15 @@ import {
   Settings,
   CheckCircle,
   AlertCircle,
-  Clock
+  Clock,
+  RefreshCw
 } from "lucide-react";
 import { formatCurrency } from "@/lib/format-utils";
 import { GCPConnectButton } from "./GCPConnectButton";
 import { GCPDisconnectButton } from "./GCPDisconnectButton";
 import { useGCPStatus } from "@/hooks/useGCPStatus";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 interface GCPRealDataCardProps {
   onOpenWizard: () => void;
@@ -26,6 +29,57 @@ interface GCPRealDataCardProps {
 
 export function GCPRealDataCard({ onOpenWizard }: GCPRealDataCardProps) {
   const gcpStatus = useGCPStatus();
+  const { user, session } = useAuth();
+  const { toast } = useToast();
+
+  const handleSyncExistingData = async () => {
+    if (!user || !session) {
+      toast({
+        title: "Authentification requise",
+        description: "Vous devez être connecté pour synchroniser les données.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      toast({
+        title: "Synchronisation en cours",
+        description: "Synchronisation des données existantes vers les tables FinOps...",
+      });
+
+      const response = await fetch('/api/gcp/sync-existing-data', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Synchronization failed');
+      }
+
+      const result = await response.json();
+
+      toast({
+        title: "Synchronisation réussie",
+        description: `Données synchronisées: ${result.data.syncResults.projectsStored} projets, ${result.data.syncResults.servicesStored} services, ${result.data.syncResults.recommendationsGenerated} recommandations`,
+      });
+
+      // Recharger les données
+      window.location.reload();
+
+    } catch (error: any) {
+      console.error('❌ Sync error:', error);
+      toast({
+        title: "Erreur de synchronisation",
+        description: error.message || "Impossible de synchroniser les données existantes",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Déterminer la couleur et l'icône du statut
   const getStatusDisplay = () => {
@@ -195,6 +249,16 @@ export function GCPRealDataCard({ onOpenWizard }: GCPRealDataCardProps) {
             >
               <Settings className="h-4 w-4 mr-2" />
               Configurer
+            </Button>
+            <Button 
+              onClick={handleSyncExistingData}
+              variant="default" 
+              size="sm" 
+              className="flex-1"
+              disabled={gcpStatus.isLoading}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Sync Données
             </Button>
             <GCPDisconnectButton />
           </div>
