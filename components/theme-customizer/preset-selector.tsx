@@ -15,7 +15,10 @@ export function PresetSelector() {
   const { theme, setTheme } = useThemeConfig();
 
   const handlePreset = (value: string) => {
-    setTheme({ ...theme, ...DEFAULT_THEME, preset: value as any });
+    console.log('🎨 Changing theme preset from', theme.preset, 'to', value);
+    const newTheme = { ...theme, preset: value as any };
+    console.log('🎨 New theme config:', newTheme);
+    setTheme(newTheme);
   };
 
   return (

@@ -33,29 +33,29 @@ export function ActiveThemeProvider({
 
   useEffect(() => {
     const body = document.body;
+    console.log('🎨 Applying theme changes:', theme);
 
-    setThemeCookie("theme_radius", theme.radius);
-    body.setAttribute("data-theme-radius", theme.radius);
-
-    if (theme.radius != "default") {
-      setThemeCookie("theme_preset", theme.radius);
-      body.setAttribute("data-theme-radius", theme.radius);
-    } else {
-      setThemeCookie("theme_preset", null);
-      body.removeAttribute("data-theme-radius");
-    }
-
+    // Gestion du preset
     if (theme.preset != "default") {
+      console.log('🎨 Setting preset:', theme.preset);
       setThemeCookie("theme_preset", theme.preset);
       body.setAttribute("data-theme-preset", theme.preset);
     } else {
+      console.log('🎨 Removing preset (default)');
       setThemeCookie("theme_preset", null);
       body.removeAttribute("data-theme-preset");
     }
 
-    setThemeCookie("theme_content_layout", theme.contentLayout);
-    body.setAttribute("data-theme-content-layout", theme.contentLayout);
+    // Gestion du radius
+    if (theme.radius != "default") {
+      setThemeCookie("theme_radius", theme.radius);
+      body.setAttribute("data-theme-radius", theme.radius);
+    } else {
+      setThemeCookie("theme_radius", null);
+      body.removeAttribute("data-theme-radius");
+    }
 
+    // Gestion du scale
     if (theme.scale != "none") {
       setThemeCookie("theme_scale", theme.scale);
       body.setAttribute("data-theme-scale", theme.scale);
@@ -63,6 +63,11 @@ export function ActiveThemeProvider({
       setThemeCookie("theme_scale", null);
       body.removeAttribute("data-theme-scale");
     }
+
+    // Gestion du content layout
+    setThemeCookie("theme_content_layout", theme.contentLayout);
+    body.setAttribute("data-theme-content-layout", theme.contentLayout);
+
   }, [theme.preset, theme.radius, theme.scale, theme.contentLayout]);
 
   return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
