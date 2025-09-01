@@ -11,7 +11,10 @@ import { useGCPData } from "@/hooks/useGCPData";
 import { formatCurrency } from "@/lib/format-utils";
 
 export default function GcpProviderPage() {
-  const { projects, services, recommendations, totalCost, totalCarbon, totalSavings, isLoading, error, costData } = useGCPData();
+  const { projects, recommendations, totalCost, totalCarbon, totalSavings, isLoading, error, costData } = useGCPData();
+  
+  // Utiliser costData comme services pour compatibilité
+  const services = costData || [];
   
   // Calculer les coûts par catégorie depuis les données existantes
   const costsByCategory = costData?.reduce((acc: any, service: any) => {
