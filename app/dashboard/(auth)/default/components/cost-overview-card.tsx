@@ -11,7 +11,7 @@ export function CostOverviewCard() {
   const { totalCost, budgets, isLoading, error } = useGCPData();
   
   // Utiliser le premier budget ou créer un budget par défaut
-  const budget = budgets[0]?.budget_amount || (totalCost > 0 ? totalCost * 1.2 : 100);
+  const budget = budgets?.[0]?.budget_amount || (totalCost > 0 ? totalCost * 1.2 : 100);
   const usagePercentage = budget > 0 ? (totalCost / budget) * 100 : 0;
   const isOverBudget = usagePercentage > 100;
   const isNearLimit = usagePercentage > 80;
