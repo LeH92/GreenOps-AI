@@ -1,12 +1,52 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Zap, DollarSign, Leaf, TrendingUp, Target, Sparkles } from "lucide-react";
+import { Zap, DollarSign, Leaf, TrendingUp, Target, Sparkles, Loader2, AlertTriangle } from "lucide-react";
 import { formatCurrency } from "@/lib/format-utils";
+import { useGCPData } from "@/hooks/useGCPData";
 
 export function OptimizationRecommendationsCard() {
-  const recommendations = [
+  const { recommendations, totalSavings, isLoading, error } = useGCPData();
+
+  if (isLoading) {
+    return (
+      <Card className="h-full flex flex-col">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Sparkles className="h-5 w-5" />
+            <span>Recommandations d'Optimisation</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+          <span className="ml-2">Chargement...</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="h-full flex flex-col">
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Sparkles className="h-5 w-5" />
+            <span>Recommandations d'Optimisation</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex-1 flex items-center justify-center text-red-600">
+          <AlertTriangle className="h-4 w-4 mr-2" />
+          <span>Erreur de chargement</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Utiliser les vraies recommandations ou des données de fallback
+  const displayRecommendations = recommendations.length > 0 ? recommendations.slice(0, 3) : [
     {
       id: 1,
       type: "cost",
@@ -83,10 +123,7 @@ export function OptimizationRecommendationsCard() {
     }
   };
 
-  const totalSavings = recommendations.reduce((sum, rec) => {
-    const savings = parseFloat(rec.savings.replace(/[^0-9.]/g, ''));
-    return sum + savings;
-  }, 0);
+
 
   return (
     <Card className="modern-card">

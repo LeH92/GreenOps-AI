@@ -8,6 +8,8 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
+    console.log('🔍 Checking GCP connection status...');
+    
     // Get the Authorization header (Bearer token from Supabase)
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -31,26 +33,50 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log('User authenticated via Supabase:', user.email);
+    console.log('✅ User authenticated via Supabase:', user.email);
 
-    // Check for existing GCP connection
+    // Check for existing GCP connection using email as user_id (consistent with callback)
     const { data: connection, error } = await supabase
       .from('gcp_connections')
       .select('*')
       .eq('user_id', user.email)
+      .eq('connection_status', 'connected')
       .single();
 
+    console.log('🔍 Connection query result:', { 
+      found: !!connection, 
+      error: error?.code, 
+      userEmail: user.email 
+    });
+
     if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Database error:', error);
       throw error;
     }
 
     if (!connection) {
-      return NextResponse.json({ connection_status: 'disconnected', account_info: null }, { status: 200 });
+      console.log('❌ No active GCP connection found for user:', user.email);
+      return NextResponse.json({ 
+        connection_status: 'disconnected', 
+        account_info: null,
+        user_email: user.email 
+      }, { status: 200 });
     }
+
+    console.log('✅ Active GCP connection found:', {
+      status: connection.connection_status,
+      lastSync: connection.last_sync,
+      hasAccountInfo: !!connection.account_info,
+      projectsCount: connection.account_info?.projects?.length || 0,
+      billingAccountsCount: connection.account_info?.billingAccounts?.length || 0
+    });
 
     return NextResponse.json(connection, { status: 200 });
   } catch (error: any) {
-    console.error('API Error fetching GCP connection status:', error);
-    return NextResponse.json({ error: 'Failed to fetch GCP connection status', message: error.message }, { status: 500 });
+    console.error('❌ API Error fetching GCP connection status:', error);
+    return NextResponse.json({ 
+      error: 'Failed to fetch GCP connection status', 
+      message: error.message 
+    }, { status: 500 });
   }
 }

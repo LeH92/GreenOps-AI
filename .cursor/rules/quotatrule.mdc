@@ -1,0 +1,7 @@
+Quotas d’API : les APIs Cloud Billing et Budget ont des quotas (nombre de requêtes par minute, etc.) mais ceux-ci sont généralement généreux pour une utilisation raisonnable. Par exemple, la liste des projets par compte de facturation est limitée à 100 projets par requête (pagination)
+cloud.google.com
+. Si un client a de très nombreux projets, vous devrez gérer la pagination (nextPageToken). Vérifiez également les quotas de l’API BigQuery si vous lancez des requêtes lourdes. En cas de dépassement de quota, votre application devra peut-être utiliser un mécanisme de cache ou de backoff exponentiel.---
+description:
+globs:
+alwaysApply: true
+---

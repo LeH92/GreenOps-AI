@@ -43,7 +43,7 @@ export function GCPDebugPanel() {
     if (!user || !session?.access_token) {
       toast({
         title: "Authentification requise",
-        description: "Connectez-vous d'abord pour tester",
+        description: "Connectez Google Cloud pour tester",
         variant: "destructive"
       });
       return;
@@ -142,7 +142,7 @@ export function GCPDebugPanel() {
           {!user && (
             <Badge variant="secondary" className="flex items-center gap-1">
               <AlertCircle className="w-3 h-3" />
-              Connectez-vous d'abord
+              Connecter Google Cloud
             </Badge>
           )}
         </div>

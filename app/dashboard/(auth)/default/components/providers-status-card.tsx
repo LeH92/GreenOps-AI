@@ -1,16 +1,32 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Cloud, Brain, CheckCircle, XCircle, AlertCircle, Settings } from "lucide-react";
+import { Cloud, Brain, CheckCircle, XCircle, AlertCircle, Settings, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { CompanyLogo } from "@/components/ui/company-logo";
+import { useGCPData } from "@/hooks/useGCPData";
+import { formatCurrency } from "@/lib/format-utils";
 
 export function ProvidersStatusCard() {
-  const cloudProviders = [
-    { name: "AWS", status: "connected", cost: "$993.00", company: "aws" as const },
-    { name: "Google Cloud", status: "connected", cost: "$734.80", company: "google-cloud" as const },
+  const { totalCost, projects, isLoading } = useGCPData();
+  
+  // Données statiques pour les autres fournisseurs (à remplacer plus tard)
+  const staticCloudProviders = [
+    { name: "AWS", status: "disconnected", cost: "$0.00", company: "aws" as const },
     { name: "Azure", status: "disconnected", cost: "$0.00", company: "azure" as const }
   ];
+
+  // Données dynamiques pour GCP
+  const gcpProvider = {
+    name: "Google Cloud",
+    status: projects.length > 0 ? "connected" : "disconnected",
+    cost: formatCurrency(totalCost),
+    company: "google-cloud" as const
+  };
+
+  const cloudProviders = [staticCloudProviders[0], gcpProvider, staticCloudProviders[1]];
 
   const aiProviders = [
     { name: "OpenAI", status: "connected", cost: "$635.10", company: "openai" as const },

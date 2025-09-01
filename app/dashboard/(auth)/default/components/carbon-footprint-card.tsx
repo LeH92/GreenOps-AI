@@ -1,13 +1,53 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Leaf, TrendingDown, TreePine, Recycle } from "lucide-react";
+import { Leaf, TrendingDown, TreePine, Recycle, Loader2, AlertTriangle } from "lucide-react";
 import { formatPercentage } from "@/lib/format-utils";
+import { useGCPData } from "@/hooks/useGCPData";
 
 export function CarbonFootprintCard() {
-  const carbonFootprint = 15.6; // kg CO2
-  const target = 20; // kg CO2
-  const usagePercentage = (carbonFootprint / target) * 100;
+  const { totalCarbon, isLoading, error } = useGCPData();
+  
+  const target = Math.max(totalCarbon * 1.2, 20); // Objectif: 20% au-dessus du niveau actuel ou 20 kg minimum
+  const usagePercentage = target > 0 ? (totalCarbon / target) * 100 : 0;
+
+  if (isLoading) {
+    return (
+      <Card className="metric-card group">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="text-sm font-medium text-muted-foreground">
+            Empreinte Carbone
+          </div>
+          <div className="p-2 rounded-lg bg-green-100 text-green-600">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-muted-foreground">Chargement...</div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="metric-card group">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div className="text-sm font-medium text-muted-foreground">
+            Empreinte Carbone
+          </div>
+          <div className="p-2 rounded-lg bg-red-100 text-red-600">
+            <AlertTriangle className="h-4 w-4" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-red-600">Erreur de chargement</div>
+        </CardContent>
+      </Card>
+    );
+  }
   const isGood = usagePercentage < 80;
   const isWarning = usagePercentage >= 80 && usagePercentage < 100;
   const isCritical = usagePercentage >= 100;
@@ -49,9 +89,9 @@ export function CarbonFootprintCard() {
         {getStatusIcon()}
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-green-600">{carbonFootprint} kg CO2</div>
+        <div className="text-2xl font-bold text-green-600">{totalCarbon.toFixed(1)} kg CO2</div>
         <p className="text-xs text-muted-foreground mb-3">
-          Objectif: {target} kg CO2
+          Objectif: {target.toFixed(1)} kg CO2
         </p>
         
         <div className="space-y-2">

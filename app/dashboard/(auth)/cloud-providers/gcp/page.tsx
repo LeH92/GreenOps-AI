@@ -1,272 +1,325 @@
+"use client";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Cloud, CheckCircle, XCircle, Settings, RefreshCw, AlertTriangle, DollarSign, Activity } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Cloud, CheckCircle, XCircle, Settings, RefreshCw, AlertTriangle, DollarSign, Activity, Loader2, TrendingUp, Zap, Leaf } from "lucide-react";
 import { CompanyLogo } from "@/components/ui/company-logo";
+import { useGCPData, useGCPCostsByCategory } from "@/hooks/useGCPData";
+import { formatCurrency } from "@/lib/format-utils";
 
 export default function GcpProviderPage() {
-  const gcpServices = [
-    {
-      name: "Compute Engine",
-      status: "connected",
-      cost: "$298.50",
-      usage: "8 instances",
-      region: "us-central1"
-    },
-    {
-      name: "Cloud Storage",
-      status: "connected", 
-      cost: "$123.40",
-      usage: "1.8 TB",
-      region: "us-central1"
-    },
-    {
-      name: "Cloud Functions",
-      status: "connected",
-      cost: "$67.20",
-      usage: "850K invocations",
-      region: "us-central1"
-    },
-    {
-      name: "AI Platform",
-      status: "connected",
-      cost: "$156.40",
-      usage: "1.65K requêtes",
-      region: "us-central1"
-    },
-    {
-      name: "BigQuery",
-      status: "warning",
-      cost: "$89.30",
-      usage: "2.1 TB processed",
-      region: "us-central1"
-    }
-  ];
+  const { projects, services, recommendations, totalCost, totalCarbon, totalSavings, isLoading, error } = useGCPData();
+  const { costsByCategory } = useGCPCostsByCategory();
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "connected":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "error":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-    }
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center p-12">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          <span className="ml-2 text-lg">Chargement des données GCP...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center text-red-600">
+              <AlertTriangle className="h-6 w-6 mr-2" />
+              <span>Erreur lors du chargement des données GCP: {error}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const getStatusIcon = (cost: number) => {
+    if (cost > 0) return <CheckCircle className="h-5 w-5 text-green-500" />;
+    return <XCircle className="h-5 w-5 text-gray-400" />;
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      connected: "bg-green-100 text-green-800 border-green-200",
-      error: "bg-red-100 text-red-800 border-red-200",
-      warning: "bg-yellow-100 text-yellow-800 border-yellow-200"
-    };
-    return variants[status as keyof typeof variants] || variants.warning;
+  const getStatusBadge = (cost: number) => {
+    if (cost > 0) return "bg-green-100 text-green-800 border-green-200";
+    return "bg-gray-100 text-gray-800 border-gray-200";
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-            <CompanyLogo company="google-cloud" size={32} />
-          </div>
+          <CompanyLogo company="google-cloud" size={40} />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Google Cloud Platform</h1>
+            <h1 className="text-3xl font-bold">Google Cloud Platform</h1>
             <p className="text-muted-foreground">
-              Gérez vos services et ressources GCP
+              {projects.length > 0 
+                ? `${projects.length} projet(s) connecté(s) - Dernière sync: ${projects[0]?.last_sync ? new Date(projects[0].last_sync).toLocaleString('fr-FR') : 'Jamais'}`
+                : 'Aucun projet connecté - Connectez-vous via la page Fournisseurs Cloud'
+              }
             </p>
           </div>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" size="sm">
             <RefreshCw className="mr-2 h-4 w-4" />
-            Synchroniser
+            Actualiser
           </Button>
-          <Button>
+          <Button variant="outline" size="sm">
             <Settings className="mr-2 h-4 w-4" />
             Configurer
           </Button>
         </div>
       </div>
 
-      {/* Métriques GCP */}
-      <div className="grid gap-4 md:grid-cols-4">
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Coût Total</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">$734.80</div>
-            <p className="text-xs text-muted-foreground">ce mois</p>
+            <div className="text-2xl font-bold">{formatCurrency(totalCost)}</div>
+            <p className="text-xs text-muted-foreground">
+              {services.length} service(s) actif(s)
+            </p>
           </CardContent>
         </Card>
-        
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Services Actifs</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Empreinte Carbone</CardTitle>
+            <Leaf className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4/5</div>
-            <p className="text-xs text-muted-foreground">connectés</p>
+            <div className="text-2xl font-bold">{totalCarbon.toFixed(1)} kg</div>
+            <p className="text-xs text-muted-foreground">CO2 ce mois-ci</p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Projet Principal</CardTitle>
-            <Cloud className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Économies Potentielles</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">GreenOps</div>
-            <p className="text-xs text-muted-foreground">greenops-ai-prod</p>
+            <div className="text-2xl font-bold text-green-600">{formatCurrency(totalSavings)}</div>
+            <p className="text-xs text-muted-foreground">
+              {recommendations.length} recommandation(s)
+            </p>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dernière Sync</CardTitle>
-            <RefreshCw className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Statut Global</CardTitle>
+            {projects.length > 0 ? (
+              <CheckCircle className="h-4 w-4 text-green-600" />
+            ) : (
+              <XCircle className="h-4 w-4 text-red-600" />
+            )}
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1h</div>
-            <p className="text-xs text-muted-foreground">il y a</p>
+            <div className={`text-2xl font-bold ${projects.length > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {projects.length > 0 ? 'Connecté' : 'Déconnecté'}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {projects.length > 0 ? 'Données synchronisées' : 'Aucune donnée disponible'}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="services" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="services">Services</TabsTrigger>
-          <TabsTrigger value="costs">Coûts détaillés</TabsTrigger>
-          <TabsTrigger value="config">Configuration</TabsTrigger>
-        </TabsList>
+      {projects.length === 0 ? (
+        <Card>
+          <CardContent className="p-6 text-center">
+            <Cloud className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Aucun projet GCP connecté</h3>
+            <p className="text-muted-foreground mb-4">
+              Connectez votre compte Google Cloud Platform pour voir vos données de coûts et d'utilisation.
+            </p>
+            <Button>
+              <Settings className="mr-2 h-4 w-4" />
+              Configurer GCP
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Tabs defaultValue="services" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="services">Services</TabsTrigger>
+            <TabsTrigger value="recommendations">Recommandations</TabsTrigger>
+            <TabsTrigger value="projects">Projets</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="services" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Services Google Cloud</CardTitle>
-              <CardDescription>
-                État et utilisation de vos services Google Cloud Platform
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {gcpServices.map((service) => (
-                  <div key={service.name} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      {getStatusIcon(service.status)}
-                      <div>
-                        <p className="font-medium">{service.name}</p>
+          <TabsContent value="services" className="space-y-4">
+            {/* Coûts par catégorie */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Coûts par Catégorie</CardTitle>
+                <CardDescription>Répartition de vos coûts GCP par type de service</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Object.entries(costsByCategory)
+                    .sort(([,a], [,b]) => b.cost - a.cost)
+                    .map(([category, data]) => (
+                      <div key={category} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <Badge variant="outline" className="min-w-[80px] justify-center">
+                            {category.toUpperCase()}
+                          </Badge>
+                          <div>
+                            <p className="font-medium">{formatCurrency(data.cost)}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {data.count} service(s) • {data.carbon.toFixed(1)} kg CO2
+                            </p>
+                          </div>
+                        </div>
+                        <Progress 
+                          value={(data.cost / totalCost) * 100} 
+                          className="w-24 h-2" 
+                        />
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Liste des services */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Services Détaillés</CardTitle>
+                <CardDescription>Liste complète de vos services GCP avec coûts et utilisation</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {services.slice(0, 10).map((service) => (
+                    <div key={service.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                      <div className="flex items-center space-x-3">
+                        {getStatusIcon(service.cost_amount)}
+                        <div>
+                          <p className="font-medium">{service.service_name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {service.usage_amount} {service.usage_unit} • {service.region}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{formatCurrency(service.cost_amount)}</p>
                         <p className="text-sm text-muted-foreground">
-                          {service.region} • {service.usage}
+                          {(service.carbon_footprint_grams / 1000).toFixed(2)} kg CO2
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <Badge 
-                        variant="outline"
-                        className={getStatusBadge(service.status)}
-                      >
-                        {service.status === "connected" ? "Connecté" : 
-                         service.status === "error" ? "Erreur" : "Attention"}
-                      </Badge>
-                      <span className="font-semibold text-blue-600">{service.cost}</span>
-                      <Button variant="outline" size="sm">
-                        Gérer
+                  ))}
+                  {services.length > 10 && (
+                    <div className="text-center pt-4">
+                      <Button variant="outline">
+                        Voir tous les services ({services.length})
                       </Button>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="costs" className="space-y-4">
-          <div className="grid gap-6 md:grid-cols-2">
+          <TabsContent value="recommendations" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Répartition des coûts</CardTitle>
-                <CardDescription>Par service GCP</CardDescription>
+                <CardTitle>Recommandations d'Optimisation</CardTitle>
+                <CardDescription>Suggestions pour réduire vos coûts et votre empreinte carbone</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {gcpServices.map((service) => (
-                    <div key={service.name} className="flex items-center justify-between">
-                      <span className="text-sm">{service.name}</span>
-                      <span className="font-semibold">{service.cost}</span>
+                {recommendations.length === 0 ? (
+                  <div className="text-center py-8">
+                    <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">Aucune recommandation disponible pour le moment</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recommendations.map((rec) => (
+                      <div key={rec.id} className="p-4 border rounded-lg">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-semibold">{rec.title}</h4>
+                          <Badge variant={rec.priority === 'high' ? 'destructive' : rec.priority === 'medium' ? 'default' : 'secondary'}>
+                            {rec.priority}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">{rec.description}</p>
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex space-x-4">
+                            <span className="text-green-600 font-medium">
+                              💰 {formatCurrency(rec.potential_monthly_savings)}/mois
+                            </span>
+                            {rec.carbon_reduction_kg > 0 && (
+                              <span className="text-blue-600 font-medium">
+                                🌱 -{rec.carbon_reduction_kg} kg CO2
+                              </span>
+                            )}
+                          </div>
+                          <Badge variant="outline">
+                            Effort: {rec.implementation_effort}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="projects" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Projets GCP</CardTitle>
+                <CardDescription>Vue d'ensemble de vos projets Google Cloud Platform</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {projects.map((project) => (
+                    <div key={project.id} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <h4 className="font-semibold">{project.project_name}</h4>
+                        <Badge variant={project.sync_status === 'completed' ? 'default' : 'secondary'}>
+                          {project.sync_status}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">ID: {project.project_id}</p>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Coût mensuel</p>
+                          <p className="font-semibold">{formatCurrency(project.current_month_cost)}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Empreinte carbone</p>
+                          <p className="font-semibold">{project.carbon_footprint_kg} kg CO2</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Score d'optimisation</p>
+                          <p className="font-semibold">{project.optimization_score}/100</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Dernière sync</p>
+                          <p className="font-semibold">
+                            {project.last_sync ? new Date(project.last_sync).toLocaleDateString('fr-FR') : 'Jamais'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Évolution mensuelle</CardTitle>
-                <CardDescription>Coûts GCP des 3 derniers mois</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Décembre 2024</span>
-                    <span className="font-semibold">$734.80</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Novembre 2024</span>
-                    <span className="font-semibold">$689.20</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Octobre 2024</span>
-                    <span className="font-semibold">$612.50</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="config" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configuration Google Cloud</CardTitle>
-              <CardDescription>
-                Paramètres de connexion et synchronisation
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4">
-                <div className="flex items-center justify-between p-3 border rounded">
-                  <div>
-                    <p className="font-medium">Service Account</p>
-                    <p className="text-sm text-muted-foreground">greenops-service@greenops-ai-prod.iam.gserviceaccount.com</p>
-                  </div>
-                  <Button variant="outline" size="sm">Modifier</Button>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 border rounded">
-                  <div>
-                    <p className="font-medium">Projet surveillé</p>
-                    <p className="text-sm text-muted-foreground">greenops-ai-prod</p>
-                  </div>
-                  <Button variant="outline" size="sm">Changer</Button>
-                </div>
-
-                <div className="flex items-center justify-between p-3 border rounded">
-                  <div>
-                    <p className="font-medium">APIs activées</p>
-                    <p className="text-sm text-muted-foreground">Billing, Compute Engine, AI Platform</p>
-                  </div>
-                  <Button variant="outline" size="sm">Gérer</Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 }

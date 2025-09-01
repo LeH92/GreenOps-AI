@@ -41,15 +41,20 @@ export async function GET(request: NextRequest) {
     const tokens = await gcpOAuthClient.exchangeCodeForTokens(code);
     console.log('Successfully obtained OAuth tokens');
 
-    // RÉCUPÉRATION AUTOMATIQUE DES DONNÉES
-    console.log('Fetching GCP data automatically...');
-    const dataFetcher = new GCPDataFetcher(tokens);
-    const dataResult = await dataFetcher.fetchInitialData();
+    // Récupération MINIMALE: uniquement listes comptes de facturation + projets
+    // (pas de coûts/billing détaillés). Le fetch complet sera déclenché par le wizard.
+    console.log('Fetching minimal lists (billing accounts + projects)...');
 
-    // Fallback to Google account email if userEmail missing
-    if (!userEmail && dataResult.success && dataResult.data?.accountInfo?.email) {
-      userEmail = dataResult.data.accountInfo.email;
-      console.log('User email resolved from Google account info:', userEmail);
+    // Fallback: si on n'a pas d'email dans le state, on tente de le déduire via userinfo Google
+    if (!userEmail) {
+      try {
+        const tmpFetcher = new GCPDataFetcher(tokens);
+        const accountInfo = await tmpFetcher.fetchAccountInfo();
+        userEmail = accountInfo.email || null;
+        console.log('User email resolved from Google account info:', userEmail);
+      } catch (e) {
+        console.warn('Could not resolve Google account info:', e);
+      }
     }
 
     if (!userEmail) {
@@ -57,28 +62,31 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard/cloud-providers?gcp_status=error&message=missing_user', request.url));
     }
 
-    // Même si la récupération des données échoue, on considère la connexion comme réussie
-    // car l'OAuth a fonctionné
-    if (!dataResult.success) {
-      console.warn('⚠️ GCP data fetch failed, but OAuth succeeded:', dataResult.error);
-      // On continue avec des données vides plutôt que de faire échouer tout le processus
+    // Charger listes minimales
+    let minimalBillingAccounts: any[] = [];
+    let minimalProjects: any[] = [];
+    try {
+      const df = new GCPDataFetcher(tokens);
+      minimalBillingAccounts = await df.fetchBillingAccounts();
+      minimalProjects = await df.fetchProjects();
+      console.log(`Minimal fetch: ${minimalBillingAccounts.length} billing accounts, ${minimalProjects.length} projects`);
+    } catch (e) {
+      console.warn('Minimal lists fetch failed (will proceed with empty lists):', e);
     }
 
-    // STOCKAGE EN BASE
-    console.log('Storing connection and data in Supabase...');
-    
-    // Préparer les données de base (même si les APIs GCP ne sont pas activées)
+    // STOCKAGE EN BASE (snapshot minimal)
+    console.log('Storing minimal connection snapshot in Supabase...');
     const baseAccountInfo = {
       email: userEmail,
-      billingAccounts: dataResult.data?.billingAccounts || [],
-      projects: dataResult.data?.projects || [],
+      billingAccounts: minimalBillingAccounts,
+      projects: minimalProjects,
       oauthStatus: 'connected',
       lastOAuth: new Date().toISOString(),
-      note: dataResult.success ? 'Full data sync successful' : 'OAuth connected but APIs not enabled'
+      note: 'OAuth connected. Detailed data will be fetched from the wizard.'
     };
     
-    // Store connection
-    const { error: connectionError } = await supabase
+    // Store connection (force update même si existe déjà)
+    const { data: storedConnection, error: connectionError } = await supabase
       .from('gcp_connections')
       .upsert({
         user_id: userEmail,
@@ -87,89 +95,22 @@ export async function GET(request: NextRequest) {
         tokens_encrypted: JSON.stringify(tokens),
         last_sync: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      }, { onConflict: 'user_id' });
+      }, { onConflict: 'user_id' })
+      .select()
+      .single();
 
     if (connectionError) {
       console.error('❌ Failed to store connection:', connectionError);
       throw new Error('Failed to store connection');
     }
 
-    console.log('✅ GCP connection stored successfully');
-
-    // Store projects in gcp_projects table
-    if (dataResult.data?.projects && dataResult.data.projects.length > 0) {
-      const projectRecords = dataResult.data.projects.map(project => ({
-        user_id: userEmail,
-        project_id: project.projectId,
-        project_name: project.name,
-        project_number: project.projectNumber,
-        billing_account_id: project.billingAccountName?.split('/').pop() || null, // Extract ID from full name
-        billing_account_name: dataResult.data?.billingAccounts?.find(ba => ba.name === project.billingAccountName)?.displayName || 'Unknown',
-        is_active: true,
-        cost_estimate: 0, // Will be updated later
-        last_updated: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-      }));
-
-      const { error: projectError } = await supabase.from('gcp_projects').upsert(projectRecords, {
-        onConflict: 'user_id,project_id',
-        ignoreDuplicates: false
-      });
-      
-      if (projectError) {
-        console.warn('⚠️ Could not store projects:', projectError);
-      } else {
-        console.log(`✅ ${projectRecords.length} projects stored successfully`);
-      }
-    }
-
-    // Store billing accounts in gcp_billing_accounts table
-    if (dataResult.data?.billingAccounts && dataResult.data.billingAccounts.length > 0) {
-      const billingAccountRecords = dataResult.data.billingAccounts.map(account => ({
-        user_id: userEmail,
-        billing_account_id: account.name.split('/').pop() || account.name, // Extract ID from full name
-        billing_account_name: account.displayName,
-        is_open: account.open,
-        currency_code: 'USD',
-        last_updated: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-      }));
-
-      const { error: billingAccountError } = await supabase.from('gcp_billing_accounts').upsert(billingAccountRecords, {
-        onConflict: 'user_id,billing_account_id',
-        ignoreDuplicates: false
-      });
-      
-      if (billingAccountError) {
-        console.warn('⚠️ Could not store billing accounts:', billingAccountError);
-      } else {
-        console.log(`✅ ${billingAccountRecords.length} billing accounts stored successfully`);
-      }
-    }
-
-    // Store billing data if available
-    if (dataResult.success && dataResult.data?.billingData && dataResult.data.billingData.length > 0) {
-      const billingRecords = dataResult.data.billingData.map(data => ({
-        user_id: userEmail,
-        project_id: data.projectId,
-        billing_account_id: data.billingAccountId,
-        cost: data.cost,
-        currency: data.currency,
-        start_date: data.startDate,
-        end_date: data.endDate,
-        services: data.services,
-        created_at: new Date().toISOString(),
-      }));
-
-      const { error: billingError } = await supabase.from('gcp_billing_data').insert(billingRecords);
-      if (billingError) {
-        console.warn('⚠️ Could not store billing data:', billingError);
-      } else {
-        console.log('✅ Billing data stored successfully');
-      }
-    } else {
-      console.log('ℹ️ No billing data to store (APIs not enabled)');
-    }
+    console.log('✅ GCP minimal connection stored successfully:', {
+      userId: storedConnection?.user_id,
+      status: storedConnection?.connection_status,
+      projectsCount: storedConnection?.account_info?.projects?.length || 0,
+      billingAccountsCount: storedConnection?.account_info?.billingAccounts?.length || 0,
+      hasTokens: !!storedConnection?.tokens_encrypted
+    });
 
     console.log('🎉 GCP OAuth completed successfully!');
     

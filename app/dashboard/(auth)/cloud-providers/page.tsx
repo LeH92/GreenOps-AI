@@ -5,18 +5,24 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
-import { Cloud, Plus, Settings, CheckCircle, XCircle, AlertCircle, TrendingUp, DollarSign, Activity } from "lucide-react";
+import { Cloud, Plus, Settings, CheckCircle, XCircle, AlertCircle, TrendingUp, DollarSign, Activity, Zap, Clock, Shield } from "lucide-react";
 import Link from "next/link";
 import { CompanyLogo } from "@/components/ui/company-logo";
 import { GCPConnectButton } from "@/components/gcp/GCPConnectButton";
+import { GCPDisconnectButton } from "@/components/gcp/GCPDisconnectButton";
+import { GCPRealDataCard } from "@/components/gcp/GCPRealDataCard";
 import { useState, useEffect } from "react";
 import { formatCurrency } from "@/lib/format-utils";
 import { GCPWizard2Steps } from "@/components/gcp/GCPWizard2Steps";
 import { GCPDebugPanel } from "@/components/gcp/GCPDebugPanel";
+import { useGCPStatus } from "@/hooks/useGCPStatus";
+import { useAuth } from '@/src/hooks/useAuth';
 
 
 export default function CloudProvidersPage() {
   const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const gcpStatus = useGCPStatus();
+  const { user, session } = useAuth();
   const [providers, setProviders] = useState([
     {
       id: "aws",
@@ -30,24 +36,11 @@ export default function CloudProvidersPage() {
       color: "orange",
       company: "aws" as const,
       description: "Services cloud complets d'Amazon",
-      setupComplexity: "Moyenne",
-      estimatedTime: "10-15 min"
+      potentialSavings: "15-25%",
+      estimatedTime: "10-15 min",
+      finOpsFeatures: ["Cost Explorer", "Budgets", "Reserved Instances", "Savings Plans"]
     },
-    {
-      id: "gcp",
-      name: "Google Cloud Platform",
-      shortName: "GCP",
-      status: "connected", 
-      lastSync: "Il y a 1h",
-      cost: "$734.80",
-      services: 5,
-      activeServices: 4,
-      color: "blue",
-      company: "google-cloud" as const,
-      description: "Plateforme cloud de Google avec IA intégrée",
-      setupComplexity: "Facile",
-      estimatedTime: "5-10 min"
-    },
+    // GCP sera géré dynamiquement via useGCPStatus
     {
       id: "azure",
       name: "Microsoft Azure",
@@ -60,26 +53,47 @@ export default function CloudProvidersPage() {
       color: "blue",
       company: "azure" as const,
       description: "Plateforme cloud enterprise de Microsoft",
-      setupComplexity: "Difficile",
-      estimatedTime: "15-20 min"
+      potentialSavings: "20-30%",
+      estimatedTime: "15-20 min",
+      finOpsFeatures: ["Cost Management", "Advisor", "Hybrid Benefit", "Reservations"]
     }
   ]);
 
   // Fonction pour déconnecter un fournisseur
-  const handleDisconnect = (providerId: string) => {
-    setProviders(prevProviders => 
-      prevProviders.map(provider => 
-        provider.id === providerId 
-          ? {
-              ...provider,
-              status: "disconnected",
-              lastSync: "Jamais",
-              cost: "$0.00",
-              activeServices: 0
-            }
-          : provider
-      )
-    );
+  const handleDisconnect = async (providerId: string) => {
+    if (providerId === 'gcp') {
+      // Pour GCP, on utilise l'API de déconnexion
+      // Le GCPConnectButton gère déjà la déconnexion
+      // On met à jour juste l'état local
+      setProviders(prevProviders => 
+        prevProviders.map(provider => 
+          provider.id === providerId 
+            ? {
+                ...provider,
+                status: "disconnected",
+                lastSync: "Jamais",
+                cost: "$0.00",
+                activeServices: 0
+              }
+            : provider
+        )
+      );
+    } else {
+      // Pour les autres fournisseurs, déconnexion simple
+      setProviders(prevProviders => 
+        prevProviders.map(provider => 
+          provider.id === providerId 
+            ? {
+                ...provider,
+                status: "disconnected",
+                lastSync: "Jamais",
+                cost: "$0.00",
+                activeServices: 0
+              }
+            : provider
+        )
+      );
+    }
   };
 
   // Fonction pour connecter un fournisseur
@@ -99,10 +113,17 @@ export default function CloudProvidersPage() {
     );
   };
 
-  const totalCost = providers.reduce((sum, p) => sum + parseFloat(p.cost.replace('$', '').replace(',', '')), 0);
-  const connectedProviders = providers.filter(p => p.status === 'connected').length;
+  // Liste des fournisseurs (GCP géré séparément)
+  const allProviders = providers;
 
-  // Effet pour ouvrir automatiquement le wizard après OAuth
+  const totalCost = allProviders.reduce((sum, p) => {
+    return sum + parseFloat(p.cost.replace('$', '').replace(',', ''));
+  }, 0) + gcpStatus.totalMonthlyCost; // Ajouter GCP séparément
+  
+  const connectedProviders = allProviders.filter(p => p.status === 'connected').length + 
+    (gcpStatus.isConnected ? 1 : 0); // Ajouter GCP si connecté
+
+  // Effet pour ouvrir automatiquement le wizard après OAuth (une seule fois)
   useEffect(() => {
     console.log('🔍 useEffect triggered - checking URL parameters...');
     console.log('🔍 Current URL:', window.location.href);
@@ -138,7 +159,7 @@ export default function CloudProvidersPage() {
         gcpStatus: gcpStatus === 'connected'
       });
     }
-  }, []);
+  }, []); // Dépendances vides pour ne s'exécuter qu'une fois
 
   // Gérer la sélection d'un projet
   const handleProjectSelected = (project: any) => {
@@ -168,13 +189,11 @@ export default function CloudProvidersPage() {
     return variants[status as keyof typeof variants] || variants.warning;
   };
 
-  const getComplexityColor = (complexity: string) => {
-    const colors = {
-      "Facile": "text-green-600",
-      "Moyenne": "text-yellow-600",
-      "Difficile": "text-red-600"
-    };
-    return colors[complexity as keyof typeof colors] || "text-gray-600";
+  const getSavingsColor = (savings: string) => {
+    const percentage = parseInt(savings.split('-')[0]);
+    if (percentage >= 20) return "text-green-600";
+    if (percentage >= 15) return "text-blue-600";
+    return "text-orange-600";
   };
 
   return (
@@ -187,6 +206,46 @@ export default function CloudProvidersPage() {
             <p className="desktop-subtitle">
               Connectez et gérez efficacement tous vos fournisseurs de services cloud depuis une interface centralisée
             </p>
+          </div>
+          {/* Debug info temporaire */}
+          <div className="text-xs text-muted-foreground bg-muted/30 p-3 rounded space-y-2">
+            <div>User: {user?.email || 'Non connecté'}</div>
+            <div>Session: {session ? '✅' : '❌'}</div>
+            <div>Token: {session?.access_token ? '✅' : '❌'}</div>
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={async () => {
+                console.log('🧪 Test OAuth initiation manually...');
+                if (!user || !session) {
+                  alert('Pas d\'utilisateur connecté');
+                  return;
+                }
+                
+                try {
+                  const response = await fetch('/api/gcp/initiate-oauth', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ accessToken: session.access_token }),
+                  });
+                  
+                  const data = await response.json();
+                  console.log('Test response:', data);
+                  
+                  if (response.ok) {
+                    alert('OAuth URL généré: ' + data.authUrl.substring(0, 100) + '...');
+                  } else {
+                    alert('Erreur: ' + data.error);
+                  }
+                } catch (error: any) {
+                  console.error('Test error:', error);
+                  alert('Erreur test: ' + error.message);
+                }
+              }}
+              className="mt-1"
+            >
+              Test OAuth
+            </Button>
           </div>
         </div>
       </div>
@@ -274,11 +333,15 @@ export default function CloudProvidersPage() {
         </Card>
       </div>
 
-      {/* Section principale - 3 cartes par ligne */}
+      {/* Section principale - 3 cartes par ligne avec hauteur uniforme */}
       <div className="space-y-6">
-        <div className="providers-grid-3-cols">
-            {providers.map((provider) => (
-              <Card key={provider.name} className="modern-card group cursor-pointer">
+        <div className="providers-grid-uniform">
+          {/* Carte GCP spécialisée avec vraies données */}
+          <GCPRealDataCard onOpenWizard={() => setIsWizardOpen(true)} />
+          
+          {/* Autres fournisseurs cloud */}
+          {providers.map((provider) => (
+              <Card key={provider.name} className="provider-card-uniform modern-card group cursor-pointer">
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -299,67 +362,151 @@ export default function CloudProvidersPage() {
                     {provider.status === "connected" ? "Connecté" : "Déconnecté"}
                   </Badge>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {provider.status === "connected" ? (
+                <CardContent className="flex-1 flex flex-col justify-between space-y-4">
+                  {provider.id === 'gcp' && gcpStatus.isLoading ? (
+                    // État de chargement pour GCP
+                    <div className="space-y-3 animate-pulse">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Chargement...</span>
+                        <div className="h-4 w-16 bg-gray-200 rounded"></div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Projets:</span>
+                        <div className="h-4 w-12 bg-gray-200 rounded"></div>
+                      </div>
+                      <div className="h-2 w-full bg-gray-200 rounded"></div>
+                    </div>
+                  ) : provider.status === "connected" ? (
                     <>
-                      <div className="space-y-3">
+                      <div className="flex-1 space-y-3">
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Coût mensuel:</span>
                           <span className="font-semibold text-green-600">{provider.cost}</span>
                         </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Services:</span>
-                          <span>{provider.activeServices}/{provider.services}</span>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Utilisation:</span>
-                            <span>{Math.round((provider.activeServices / provider.services) * 100)}%</span>
-                          </div>
-                          <Progress value={(provider.activeServices / provider.services) * 100} className="h-2" />
-                        </div>
+                        
+                        {provider.id === 'gcp' ? (
+                          // Métriques spéciales pour GCP
+                          <>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Projets actifs:</span>
+                              <span>{provider.activeServices}/{provider.services}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Comptes facturation:</span>
+                              <span>{(provider as any).billingAccountsCount || 0}</span>
+                            </div>
+                            {(provider as any).optimizationScore && (
+                              <div className="space-y-1">
+                                <div className="flex justify-between text-sm">
+                                  <span className="text-muted-foreground">Score d'optimisation:</span>
+                                  <span className="font-medium">{(provider as any).optimizationScore}/100</span>
+                                </div>
+                                <Progress value={(provider as any).optimizationScore} className="h-2" />
+                              </div>
+                            )}
+                            {(provider as any).carbonFootprint && (
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Empreinte carbone:</span>
+                                <span className="text-xs text-green-600">{(provider as any).carbonFootprint.toFixed(2)} kg CO2</span>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          // Métriques standards pour autres fournisseurs
+                          <>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-muted-foreground">Services:</span>
+                              <span>{provider.activeServices}/{provider.services}</span>
+                            </div>
+                            <div className="space-y-1">
+                              <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Utilisation:</span>
+                                <span>{Math.round((provider.activeServices / provider.services) * 100)}%</span>
+                              </div>
+                              <Progress value={(provider.activeServices / provider.services) * 100} className="h-2" />
+                            </div>
+                          </>
+                        )}
+                        
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Dernière sync:</span>
-                          <span>{provider.lastSync}</span>
+                          <div className="flex items-center gap-1">
+                            {provider.id === 'gcp' && !gcpStatus.isLoading && (
+                              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            )}
+                            <span className={provider.id === 'gcp' && gcpStatus.syncStatus === 'error' ? 'text-red-600' : ''}>
+                              {provider.lastSync}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex space-x-2 pt-2">
+                      <div className="flex space-x-2 pt-4 mt-auto">
                         <Link href={`/dashboard/cloud-providers/${provider.id}`} className="flex-1">
-                          <Button variant="outline" size="sm" className="w-full">
+                          <Button variant="outline" size="sm" className="w-full h-10">
                             <Settings className="mr-2 h-4 w-4" />
                             Gérer
                           </Button>
                         </Link>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
-                          onClick={() => handleDisconnect(provider.id)}
-                        >
-                          <XCircle className="mr-2 h-4 w-4" />
-                          Déconnexion
-                        </Button>
+                        {provider.id === 'gcp' ? (
+                          // Pour GCP, bouton de déconnexion avec le vrai workflow
+                          <GCPDisconnectButton 
+                            onDisconnected={() => {
+                              // Rafraîchir le statut GCP après déconnexion
+                              gcpStatus.refresh();
+                            }}
+                            className="flex-1"
+                          />
+                        ) : (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="flex-1 h-10 text-red-600 border-red-200 hover:bg-red-50"
+                            onClick={() => handleDisconnect(provider.id)}
+                          >
+                            <XCircle className="mr-2 h-4 w-4" />
+                            Déconnexion
+                          </Button>
+                        )}
                       </div>
                     </>
                   ) : (
                     <>
-                      <div className="space-y-3">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Complexité:</span>
-                          <span className={`font-semibold ${getComplexityColor(provider.setupComplexity)}`}>
-                            {provider.setupComplexity}
+                      <div className="flex-1 space-y-3">
+                        <div className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <TrendingUp className="h-4 w-4" />
+                            <span>Économies potentielles:</span>
+                          </div>
+                          <span className={`font-semibold ${getSavingsColor((provider as any).potentialSavings)}`}>
+                            {(provider as any).potentialSavings}
                           </span>
                         </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Temps estimé:</span>
+                        <div className="flex justify-between items-center text-sm">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Clock className="h-4 w-4" />
+                            <span>Temps de setup:</span>
+                          </div>
                           <span>{provider.estimatedTime}</span>
                         </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Services disponibles:</span>
-                          <span>{provider.services}</span>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Shield className="h-4 w-4" />
+                            <span>Fonctionnalités FinOps:</span>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {((provider as any).finOpsFeatures || []).map((feature: string, index: number) => (
+                              <Badge 
+                                key={index} 
+                                variant="secondary" 
+                                className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 transition-colors"
+                              >
+                                {feature}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                      <div className="flex space-x-2 pt-2">
+                      <div className="flex space-x-2 pt-4 mt-auto">
                         {provider.id === 'gcp' ? (
                           <GCPConnectButton 
                             onConnectionChange={(status) => {
@@ -384,11 +531,11 @@ export default function CloudProvidersPage() {
                               }
                             }}
                             showStatus={false}
-                            className="w-full"
+                            className="w-full h-10"
                           />
                         ) : (
                           <Button 
-                            className="w-full"
+                            className="w-full h-10"
                             onClick={() => handleConnect(provider.id)}
                           >
                             <Plus className="mr-2 h-4 w-4" />

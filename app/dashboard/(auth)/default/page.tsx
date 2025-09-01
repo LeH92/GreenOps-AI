@@ -12,6 +12,7 @@ import {
   CarbonFootprintChart,
   LogosShowcase
 } from "@/app/dashboard/(auth)/default/components";
+import { GCPRecommendationsCard } from "@/app/dashboard/(auth)/default/components/gcp-recommendations-card";
 import { Download, RefreshCw, Settings, TrendingUp } from "lucide-react";
 
 export async function generateMetadata() {
@@ -101,7 +102,7 @@ export default function Page() {
           {/* Recommandations optimisées */}
           <div className="recommendations-section">
             <div className="modern-card hover-raise">
-              <OptimizationRecommendationsCard />
+              <GCPRecommendationsCard />
             </div>
           </div>
 

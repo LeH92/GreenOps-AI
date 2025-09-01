@@ -19,3 +19,4 @@ echo '3. Collez et exécutez le script'
 echo '4. Vérifiez que les tables sont créées dans l'\''onglet Table Editor'
 
 echo '🎉 Une fois terminé, vous pourrez synchroniser vos données GCP !'
+

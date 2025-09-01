@@ -154,7 +154,7 @@ export function ProjectSelectionWidget({ onProjectSelected, onClose, className }
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            Connectez-vous d'abord à GreenOps AI pour accéder à vos projets GCP.
+            Connectez Google Cloud Platform pour accéder à vos projets GCP.
           </p>
           <Button onClick={() => window.location.href = '/login'} className="w-full">
             Se connecter

@@ -18,6 +18,7 @@ import { useEffect, useState } from "react";
 import { GCPConnectionStatus } from '@/types/gcp-oauth';
 import { useAuth } from '@/src/hooks/useAuth';
 import { GCPConnectionModal } from './GCPConnectionModal';
+import { GCPDisconnectDialog } from './GCPDisconnectDialog';
 
 interface GCPConnectButtonProps {
   onConnectionChange?: (status: 'connected' | 'disconnected' | 'error' | 'expired') => void;
@@ -30,6 +31,7 @@ export function GCPConnectButton({ onConnectionChange, showStatus = true, classN
   const [connectionInfo, setConnectionInfo] = useState<GCPConnectionStatus['account_info'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDisconnectDialogOpen, setIsDisconnectDialogOpen] = useState(false);
   const { user, session } = useAuth();
   const { toast } = useToast();
 
@@ -95,7 +97,13 @@ export function GCPConnectButton({ onConnectionChange, showStatus = true, classN
    * Initiate OAuth connection
    */
   const handleConnect = async () => {
+    console.log('🔄 handleConnect called - GCP OAuth initiation');
+    console.log('User:', user?.email);
+    console.log('Session:', !!session);
+    console.log('Access Token:', session?.access_token?.substring(0, 20) + '...');
+    
     if (!user || !session) {
+      console.log('❌ No user or session available');
       toast({
         title: "Authentification requise",
         description: "Vous devez être connecté pour utiliser cette fonctionnalité.",
@@ -106,9 +114,10 @@ export function GCPConnectButton({ onConnectionChange, showStatus = true, classN
 
     setIsLoading(true);
     setConnectionStatus('connecting');
+    console.log('🔄 Setting loading state...');
 
     try {
-      console.log('Initiating GCP OAuth connection...');
+      console.log('📡 Calling /api/gcp/initiate-oauth...');
       
       // Call the new endpoint that accepts the token in the body
       const response = await fetch('/api/gcp/initiate-oauth', {
@@ -121,19 +130,28 @@ export function GCPConnectButton({ onConnectionChange, showStatus = true, classN
         }),
       });
       
+      console.log('📡 Response status:', response.status, response.statusText);
+      
       if (response.ok) {
         const data = await response.json();
-        console.log('OAuth URL generated:', data.authUrl);
+        console.log('✅ OAuth URL generated:', data.authUrl);
+        
+        toast({
+          title: "Redirection vers Google",
+          description: "Vous allez être redirigé vers Google pour l'authentification...",
+        });
         
         // Redirect to the Google OAuth URL
+        console.log('🚀 Redirecting to:', data.authUrl);
         window.location.href = data.authUrl;
       } else {
         const errorData = await response.json();
+        console.error('❌ API Error:', response.status, errorData);
         throw new Error(errorData.error || 'Failed to initiate OAuth');
       }
       
     } catch (error: any) {
-      console.error('Error initiating OAuth:', error);
+      console.error('❌ Error initiating OAuth:', error);
       
       toast({
         title: "Erreur de connexion",
@@ -165,54 +183,19 @@ export function GCPConnectButton({ onConnectionChange, showStatus = true, classN
   };
 
   /**
-   * Disconnect from GCP
+   * Open disconnect dialog
    */
-  const handleDisconnect = async () => {
-    if (!user || !session) {
-      toast({
-        title: "Authentification requise",
-        description: "Vous devez être connecté pour utiliser cette fonctionnalité.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleDisconnectClick = () => {
+    setIsDisconnectDialogOpen(true);
+  };
 
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/gcp/disconnect', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        }
-      });
-
-      if (response.ok) {
-        setConnectionStatus('disconnected');
-        setConnectionInfo(null);
-        onConnectionChange?.('disconnected');
-        
-        toast({
-          title: "Google Cloud déconnecté",
-          description: "Votre compte a été déconnecté avec succès",
-        });
-      } else {
-        throw new Error('Échec de la déconnexion');
-      }
-    } catch (error: any) {
-      console.error('Error disconnecting:', error);
-      
-      toast({
-        title: "Erreur de déconnexion",
-        description: error.message || "Impossible de déconnecter le compte",
-        variant: "destructive",
-      });
-      
-      setConnectionStatus('error');
-      onConnectionChange?.('error');
-    } finally {
-      setIsLoading(false);
-    }
+  /**
+   * Handle successful disconnection from dialog
+   */
+  const handleDisconnected = () => {
+    setConnectionStatus('disconnected');
+    setConnectionInfo(null);
+    onConnectionChange?.('disconnected');
   };
 
   /**
@@ -303,16 +286,18 @@ export function GCPConnectButton({ onConnectionChange, showStatus = true, classN
         <Button 
           className={className} 
           onClick={() => {
+            console.log('❌ User not authenticated - redirecting to login');
             toast({
               title: "Authentification requise",
-              description: "Connectez-vous d'abord à GreenOps AI",
+              description: "Redirection vers la page de connexion...",
               variant: "destructive",
             });
+            window.location.href = '/login';
           }}
           disabled={isLoading}
         >
           <Plus className="mr-2 h-4 w-4" />
-          Se connecter d'abord
+          Connecter Google Cloud
         </Button>
       );
     }
@@ -350,7 +335,7 @@ export function GCPConnectButton({ onConnectionChange, showStatus = true, classN
           variant="outline" 
           size="sm" 
           className="w-full text-red-600 border-red-200 hover:bg-red-50"
-          onClick={handleDisconnect}
+          onClick={handleDisconnectClick}
           disabled={isLoading}
         >
           <XCircle className="mr-2 h-4 w-4" />
@@ -370,6 +355,18 @@ export function GCPConnectButton({ onConnectionChange, showStatus = true, classN
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onProjectSelected={handleProjectSelected}
+      />
+
+      {/* Disconnect Confirmation Dialog */}
+      <GCPDisconnectDialog
+        isOpen={isDisconnectDialogOpen}
+        onClose={() => setIsDisconnectDialogOpen(false)}
+        onDisconnected={handleDisconnected}
+        connectionInfo={{
+          projectsCount: connectionInfo?.projects?.length || 0,
+          billingDataCount: 0, // À calculer depuis l'API si nécessaire
+          lastSync: 'Il y a 1h' // À récupérer depuis connectionInfo
+        }}
       />
     </>
   );

@@ -76,10 +76,12 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
   useEffect(() => {
     if (isOpen && user && session) {
       // Charger directement depuis l'API (pas de snapshot)
-      console.log('🔎 Wizard opened: loading data directly from API');
+      console.log('🔎 Wizard opened: loading data directly from API', { user: user.email, hasSession: !!session });
       loadGCPDataDirect();
+    } else if (isOpen) {
+      console.log('🔎 Wizard opened but missing auth:', { hasUser: !!user, hasSession: !!session });
     }
-  }, [isOpen]); // no auto-refresh of heavy APIs
+  }, [isOpen, user, session]); // Include user and session in dependencies
 
   // Gérer la touche Escape
   useEffect(() => {
@@ -95,208 +97,11 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
     }
   }, [isOpen, currentStep]);
 
-  const handleDebugConnection = async () => {
-    if (!user || !session) {
-      toast({
-        title: "Authentification requise",
-        description: "Veuillez vous connecter pour déboguer la connexion GCP",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    console.log('🔍 Starting GCP connection debug...');
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/gcp/debug-connection', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        }
-      });
 
-      const debugData = await response.json();
-      console.log('🔍 Debug response:', debugData);
 
-      if (debugData.success) {
-        // Afficher les détails du debug
-        const details = debugData.debug;
-        console.log('✅ Debug Details:', {
-          billingAccounts: details.billingAccountsCount,
-          projects: details.projectsCount,
-          accountInfo: details.accountInfo,
-          connectionStatus: details.connectionStatus
-        });
 
-        toast({
-          title: "Connexion GCP OK ✅",
-          description: `${details.billingAccountsCount} comptes de facturation et ${details.projectsCount} projets trouvés`,
-        });
-        
-        // Si le debug trouve des données, les utiliser directement
-        if (details.billingAccounts && details.projects) {
-          const transformedBillingAccounts = details.billingAccounts.map((acc: any) => ({
-            name: acc.name,
-            displayName: acc.displayName,
-            open: acc.open
-          }));
-          const transformedProjects = details.projects.map((proj: any) => ({
-            projectId: proj.projectId,
-            name: proj.name,
-            projectNumber: proj.projectNumber,
-            billingAccountName: proj.billingAccountName
-          }));
-          
-          setBillingAccounts(transformedBillingAccounts);
-          setProjects(transformedProjects);
-          
-          console.log('✅ Debug data applied to wizard:', {
-            billingAccounts: transformedBillingAccounts,
-            projects: transformedProjects
-          });
-        }
-        
-      } else {
-        console.error('❌ Debug failed:', debugData);
-        
-        // Afficher les détails de l'erreur
-        const errorDetails = debugData.debug || {};
-        let errorMessage = debugData.error || "Erreur inconnue";
-        
-        if (errorDetails.isApiError) {
-          errorMessage = "APIs Google Cloud non activées";
-        } else if (errorDetails.isPermissionError) {
-          errorMessage = "Permissions insuffisantes (403)";
-        }
-        
-        toast({
-          title: "Problème de connexion GCP ❌",
-          description: errorMessage,
-          variant: "destructive",
-        });
-      }
-    } catch (error: any) {
-      console.error('❌ Debug error:', error);
-      toast({
-        title: "Erreur de debug",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const handleTestBilling = async () => {
-    if (!user || !session) {
-      toast({
-        title: "Authentification requise",
-        description: "Veuillez vous connecter pour tester les comptes de facturation",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    console.log('🧪 Testing GCP billing accounts specifically...');
-    setIsLoading(true);
-    
-    try {
-      const response = await fetch('/api/gcp/test-billing', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        }
-      });
-
-      const testData = await response.json();
-      console.log('🧪 Billing test response:', testData);
-
-      if (testData.success) {
-        const data = testData.data;
-        console.log('✅ Billing Test Success:', {
-          billingAccounts: data.billingAccountsCount,
-          projects: data.projectsCount,
-          connectionStatus: data.connectionInfo.status
-        });
-
-        // Appliquer les données directement si elles sont trouvées
-        if (data.billingAccounts) {
-          const transformedBillingAccounts = data.billingAccounts.map((acc: any) => ({
-            name: acc.name,
-            displayName: acc.displayName,
-            open: acc.open
-          }));
-          setBillingAccounts(transformedBillingAccounts);
-          console.log('✅ Applied billing accounts from test:', transformedBillingAccounts);
-        }
-        
-        if (data.projects) {
-          const transformedProjects = data.projects.map((proj: any) => ({
-            projectId: proj.projectId,
-            name: proj.name,
-            projectNumber: proj.projectNumber,
-            billingAccountName: proj.billingAccountName
-          }));
-          setProjects(transformedProjects);
-          console.log('✅ Applied projects from test:', transformedProjects);
-        }
-
-        toast({
-          title: "Test Billing Réussi ✅",
-          description: `${data.billingAccountsCount} comptes de facturation trouvés directement`,
-        });
-        
-      } else {
-        console.error('❌ Billing test failed:', testData);
-        
-        const errorDetails = testData.debug || {};
-        let errorMessage = testData.error || "Erreur inconnue";
-        
-        if (errorDetails.isApiError) {
-          errorMessage = "Cloud Billing API non activée";
-        } else if (errorDetails.isPermissionError) {
-          errorMessage = "Permissions Billing insuffisantes (403)";
-        }
-        
-        toast({
-          title: "Test Billing Échoué ❌",
-          description: errorMessage,
-          variant: "destructive",
-        });
-
-        // Afficher les détails de l'erreur dans la console
-        console.error('❌ Billing Error Details:', {
-          error: testData.error,
-          debug: errorDetails,
-          isApiError: errorDetails.isApiError,
-          isPermissionError: errorDetails.isPermissionError
-        });
-      }
-    } catch (error: any) {
-      console.error('❌ Billing test error:', error);
-      toast({
-        title: "Erreur de test billing",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleForceReload = async () => {
-    console.log('🔄 Force reloading GCP data - bypassing all cache...');
-    
-    // Reset tous les états
-    setProjects([]);
-    setBillingAccounts([]);
-    setSelectedBillingAccount("");
-    setSelectedProjects([]);
-    
-    // Forcer le rechargement
-    await loadGCPDataDirect();
-  };
 
   // Charge directement depuis l'API GCP (pas de snapshot)
   const loadGCPDataDirect = async () => {
@@ -481,9 +286,9 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
     try {
       // 1) Pas besoin de charger les métadonnées, on a déjà les données
 
-      // 2) Déclencher le fetch complet côté serveur
-      setSyncStatus('Connexion aux APIs Google...');
-      const response = await fetch('/api/gcp/sync-billing-data', {
+      // 2) Déclencher la synchronisation de base FinOps/GreenOps (sans BigQuery pour commencer)
+      setSyncStatus('Initialisation de la synchronisation FinOps/GreenOps...');
+      const response = await fetch('/api/gcp/sync-finops-basic', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
@@ -503,12 +308,16 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
       const result = await response.json();
 
       const steps = [
-        `Récupération des projets (${selectedProjects.length})...`,
-        `Récupération des coûts...`,
-        `Analyse des services...`,
-        `Calcul de l'empreinte carbone...`,
-        `Stockage des données...`,
-        'Finalisation...'
+        'Authentification et validation des tokens...',
+        `Récupération des projets sélectionnés (${selectedProjects.length})...`,
+        'Collecte des données de facturation (BigQuery)...',
+        'Analyse des coûts par projet et service...',
+        'Récupération de l\'empreinte carbone...',
+        'Collecte des budgets et seuils d\'alerte...',
+        'Génération des recommandations FinOps...',
+        'Calcul des KPIs et métriques...',
+        'Sauvegarde optimisée en Supabase...',
+        'Finalisation et audit...'
       ];
 
       for (let i = 0; i < steps.length; i++) {
@@ -720,184 +529,15 @@ export function GCPWizard2Steps({ isOpen, onClose, onProjectSelected }: GCPWizar
                   <p className="text-sm text-muted-foreground mt-2">
                     Récupération des données depuis Google Cloud Platform
                   </p>
-                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-xs text-red-800 font-medium mb-2">
-                      🚨 Chargement bloqué ? Solutions d'urgence :
-                    </p>
-                    <div className="flex gap-2">
-                      <Button 
-                        onClick={() => {
-                          console.log('🚨 Emergency: Forcing page reload...');
-                          window.location.reload();
-                        }} 
-                        variant="destructive" 
-                        size="sm"
-                        className="text-xs"
-                      >
-                        Recharger Page
-                      </Button>
-                      <Button 
-                        onClick={() => {
-                          console.log('🚨 Emergency: Closing wizard...');
-                          onClose();
-                        }} 
-                        variant="outline" 
-                        size="sm"
-                        className="text-xs"
-                      >
-                        Fermer Wizard
-                      </Button>
-                      <Button 
-                        onClick={async () => {
-                          console.log('🚨 Emergency: Testing live API...');
-                          try {
-                            const response = await fetch('/api/gcp/fetch-live', {
-                              headers: { 'Authorization': `Bearer ${session?.access_token}` }
-                            });
-                            const data = await response.json();
-                            if (data.success) {
-                              const rawBillingAccounts = data.data.billingAccounts || [];
-                              const transformedBillingAccounts = rawBillingAccounts.map((acc: any) => ({
-                                name: acc.name,
-                                displayName: acc.displayName,
-                                open: acc.open
-                              }));
-                              setBillingAccounts(transformedBillingAccounts);
-                              setProjects(data.data.projects || []);
-                              setIsLoading(false);
-                              alert(`✅ ${rawBillingAccounts.length} comptes trouvés!`);
-                            } else {
-                              alert(`❌ ${data.error}`);
-                            }
-                          } catch (e) {
-                            alert(`❌ ${e.message}`);
-                          }
-                        }} 
-                        variant="secondary" 
-                        size="sm"
-                        className="text-xs"
-                      >
-                        Test Direct
-                      </Button>
-                    </div>
-                  </div>
+
                 </div>
               ) : billingAccounts.length === 0 ? (
                 <div className="text-center py-8">
                   <XCircle className="h-8 w-8 text-red-500 mx-auto mb-4" />
                   <p className="text-red-600 font-medium">Aucun compte de facturation trouvé</p>
-                  <p className="text-sm text-muted-foreground mt-2 mb-4">
-                    Vérifiez que vous avez accès aux comptes de facturation GCP et que les APIs sont activées
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Vérifiez que vous avez accès aux comptes de facturation GCP et que les APIs requises sont activées dans Google Cloud Console.
                   </p>
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        onClick={loadGCPDataDirect} 
-                        variant="outline" 
-                        size="sm"
-                        disabled={isLoading}
-                      >
-                        <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-                        Recharger API
-                      </Button>
-                      <Button 
-                        onClick={handleForceReload} 
-                        variant="default" 
-                        size="sm"
-                        disabled={isLoading}
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Force Reload
-                      </Button>
-                      <Button 
-                        onClick={handleDebugConnection} 
-                        variant="secondary" 
-                        size="sm"
-                        disabled={isLoading}
-                      >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Debug
-                      </Button>
-                      <Button 
-                        onClick={handleTestBilling} 
-                        variant="destructive" 
-                        size="sm"
-                        disabled={isLoading}
-                      >
-                        <Database className="h-4 w-4 mr-2" />
-                        Test Billing
-                      </Button>
-                      <Button 
-                        onClick={async () => {
-                          console.log('🧪 Testing fetch-live API directly...');
-                          setIsLoading(true);
-                          try {
-                            const response = await fetch('/api/gcp/fetch-live', {
-                              headers: {
-                                'Authorization': `Bearer ${session?.access_token}`,
-                              }
-                            });
-                            const data = await response.json();
-                            console.log('Live fetch test:', data);
-                            
-                            if (data.success) {
-                              const rawBillingAccounts = data.data.billingAccounts || [];
-                              const transformedBillingAccounts = rawBillingAccounts.map((acc: any) => ({
-                                name: acc.name,
-                                displayName: acc.displayName,
-                                open: acc.open
-                              }));
-                              setBillingAccounts(transformedBillingAccounts);
-                              setProjects(data.data.projects || []);
-                              alert(`✅ Live fetch réussi! ${rawBillingAccounts.length || 0} comptes, ${data.data.projects?.length || 0} projets`);
-                            } else {
-                              alert(`❌ Erreur: ${data.error}`);
-                            }
-                          } catch (e) {
-                            console.error('Live fetch test failed:', e);
-                            alert('Test failed: ' + e.message);
-                          } finally {
-                            setIsLoading(false);
-                          }
-                        }} 
-                        variant="secondary" 
-                        size="sm"
-                        disabled={isLoading}
-                      >
-                        Test Live
-                      </Button>
-                    </div>
-                    <div className="text-xs text-muted-foreground space-y-2">
-                      <div>
-                        <p><strong>APIs requises :</strong></p>
-                        <ul className="list-disc list-inside space-y-0.5 ml-2">
-                          <li>Cloud Billing API</li>
-                          <li>Cloud Resource Manager API</li>
-                          <li>BigQuery API</li>
-                          <li>Cloud Monitoring API</li>
-                        </ul>
-                      </div>
-                      
-                      <div className="border-t border-border/30 pt-2">
-                        <p><strong>Rôles IAM requis :</strong></p>
-                        <ul className="list-disc list-inside space-y-0.5 ml-2">
-                          <li>Billing Account Viewer</li>
-                          <li>Project Viewer</li>
-                          <li>Monitoring Viewer</li>
-                        </ul>
-                      </div>
-
-                      <div className="border-t border-border/30 pt-2">
-                        <p><strong>Étapes de dépannage :</strong></p>
-                        <ol className="list-decimal list-inside space-y-0.5 ml-2">
-                          <li>Cliquez sur "Test Billing" pour diagnostiquer</li>
-                          <li>Vérifiez les APIs dans Google Cloud Console</li>
-                          <li>Vérifiez vos permissions de facturation</li>
-                          <li>Reconnectez-vous si nécessaire</li>
-                        </ol>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">

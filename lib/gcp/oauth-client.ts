@@ -147,7 +147,9 @@ export class GCPOAuthClient {
     this.oauth2Client.setCredentials({
       access_token: tokens.access_token,
       refresh_token: tokens.refresh_token,
-      expiry_date: tokens.expires_at.getTime(),
+      expiry_date: tokens.expires_at ? 
+        (typeof tokens.expires_at === 'string' ? new Date(tokens.expires_at).getTime() : tokens.expires_at.getTime()) 
+        : Date.now() + 3600000,
       token_type: tokens.token_type,
       scope: tokens.scope,
     });

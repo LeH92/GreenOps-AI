@@ -112,7 +112,7 @@ export class GCPDataFetcher {
   /**
    * Fetch user account information
    */
-  private async fetchAccountInfo(): Promise<{ email: string; name: string }> {
+  async fetchAccountInfo(): Promise<{ email: string; name: string }> {
     try {
       const oauth2 = google.oauth2({ version: 'v2', auth: this.oauth2Client });
       const { data } = await oauth2.userinfo.get();
@@ -130,20 +130,50 @@ export class GCPDataFetcher {
   /**
    * Fetch all accessible billing accounts
    */
-  private async fetchBillingAccounts(): Promise<GCPBillingAccount[]> {
+  async fetchBillingAccounts(): Promise<GCPBillingAccount[]> {
     try {
+      console.log('🔄 Fetching billing accounts...');
       const billing = google.cloudbilling({ version: 'v1', auth: this.oauth2Client });
+      
+      console.log('📡 Calling billing.billingAccounts.list()...');
       const { data } = await billing.billingAccounts.list();
+      
+      console.log('✅ Raw billing accounts response:', {
+        billingAccountsCount: data.billingAccounts?.length || 0,
+        billingAccounts: data.billingAccounts?.map(acc => ({
+          name: acc.name,
+          displayName: acc.displayName,
+          open: acc.open
+        }))
+      });
 
-      return (data.billingAccounts || []).map(account => ({
+      const accounts = (data.billingAccounts || []).map(account => ({
         name: account.name || '',
         open: account.open || false,
         displayName: account.displayName || '',
         masterBillingAccount: account.masterBillingAccount,
       }));
+
+      console.log(`✅ Processed ${accounts.length} billing accounts`);
+      return accounts;
     } catch (error: any) {
-      console.error('Error fetching billing accounts:', error);
-      // Don't throw error, return empty array - user might not have billing access
+      console.error('❌ Error fetching billing accounts:', {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        details: error.details,
+        stack: error.stack
+      });
+      
+      // Si c'est une erreur d'API non activée, on la remonte
+      if (error.message?.includes('API has not been used') || 
+          error.message?.includes('disabled') ||
+          error.code === 403) {
+        throw error;
+      }
+      
+      // Pour d'autres erreurs (permissions, etc.), on retourne un tableau vide
+      console.warn('⚠️ Returning empty billing accounts due to error, but not failing');
       return [];
     }
   }
@@ -151,7 +181,7 @@ export class GCPDataFetcher {
   /**
    * Fetch all accessible projects
    */
-  private async fetchProjects(): Promise<GCPProject[]> {
+  async fetchProjects(): Promise<GCPProject[]> {
     try {
       const resourceManager = google.cloudresourcemanager({ version: 'v1', auth: this.oauth2Client });
       const { data } = await resourceManager.projects.list();

@@ -180,3 +180,4 @@ setupTables().catch(error => {
   console.error('❌ Erreur lors de la configuration:', error);
   process.exit(1);
 });
+
